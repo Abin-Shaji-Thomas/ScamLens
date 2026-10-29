@@ -20,7 +20,8 @@ export const WARNING_MARKERS: readonly RegExp[] = [
   /\badvisory\b/i,
   /\bwarn(s|ed|ing)?\s+(people|residents|users|citizens|customers|the\s+public|that|about|against)\b/i,
   /\b(warning|alert)\s+(about|against|from\s+(the\s+)?(police|bank|rbi|government|cyber))\b/i,
-  new RegExp(String.raw`\b(never|do\s+not|don'?t|does\s+not|doesn'?t|will\s+not|won'?t)\s+(ever\s+)?${ADVICE}\b`, "i"),
+  // Not after "if/unless you": "If you do not pay, ..." is a conditional threat, not advice (final round).
+  new RegExp(String.raw`(?<!\b(?:if|unless|agar)\s+(?:you|u|aap)\s+)\b(never|do\s+not|don'?t|does\s+not|doesn'?t|will\s+not|won'?t)\s+(ever\s+)?${ADVICE}\b`, "i"),
   /\bno\s+such\s+thing\s+as\b/i,
   /^\s*news\s*[:\-]/i,
   /\b(reported\s+that|according\s+to\s+(the\s+)?police)\b/i,
@@ -29,6 +30,10 @@ export const WARNING_MARKERS: readonly RegExp[] = [
   // Hinglish
   /\b(savdhan|saavdhan|sawdhan|satark|jagrukta|dhyan\s+rahe|dhyaan\s+rakhein)\b/i,
   /\bkabhi\s+(bhi\s+)?(share|mat|na|nahi)\b/i,
+  // Conditional awareness (final round): "If someone says ..., it is a fraud call." A threat such as
+  // "If you do not pay, police will arrest you" does not match: the sentence must call the situation a fraud/scam.
+  /\bif\s+(someone|anyone|somebody|any\s*one|a\s+caller|any\s+caller|they|you\s+(get|receive))\b[^.\n]{0,120}\b(it|that|this)(\s+is|'s)\s+(a\s+|an\s+)?(fraud|scam|fake)\b/i,
+  /\bagar\s+koi\b[^.\n]{0,120}\b(to|toh)\s+(yeh|ye|woh|wo|vo)\s+(fraud|scam|dhokha|fake)\s+(hai|h)\b/i,
 ];
 
 // Solicitation aimed at the reader (final round): "Beware of fake sites, send 5000 USDT now" must not hide the hit.

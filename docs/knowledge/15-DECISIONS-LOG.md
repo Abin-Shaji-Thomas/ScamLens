@@ -25,6 +25,7 @@ Why ScamLens is built the way it is. Each entry gives the choice, the alternativ
 | 2026-10-30 (UI round) | Swiss style, 12-column grid, ten colours; grey and tan never carry text | Narrow column | 70% of a wide screen was unused; faint colours fail contrast for text | Style and contrast tests enforce it |
 | 2026-10-30 (UI round) | `/api/health` returns the deployed build | Check Vercel by hand | Proves the live site runs the pushed commit | One 7-character public value in health |
 | 2026-10-30 (final round) | AI mode permanently off for this deployment; screenshot reading hidden when off | Pay for a key | Owner decision: no paid AI | Suspected tier is rules only; the UI says so |
+| 2026-10-30 (final round) | A solicitation in the hit's sentence beats any warning marker; conditional awareness ("If someone says ..., it is a fraud") is a marker; "if you do not pay" is not advice | Leave the G3 rule as it was, or tune to eval case v01 | A decoy word could hide a scam request; v01 showed a general advisory shape the markers missed | v01 is Low; decoys with a request are flagged; tests both ways |
 | 2026-10-30 (final round) | Knowledge base with generated blocks and a docs check | Hand-written docs | Docs drift from code | `npm test` fails on stale docs |
 
 ## Where in the code

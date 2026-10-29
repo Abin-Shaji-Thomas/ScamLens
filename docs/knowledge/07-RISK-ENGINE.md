@@ -20,7 +20,7 @@ Definitions:
 
 Effects:
 - **Contested reports** stay visible, labelled "Contested, under review", and can raise Low to Elevated at most; they never count toward High.
-- **Warning context**: hits only inside warning or news-style sentences add the reason "pattern(s) appear only in warning or news-style text ... so they are shown but not counted" and do not raise the level.
+- **Warning context**: a sentence that also asks the reader to send, pay, join, click... is never warning context (final round), and conditional advice ("If someone says ..., it is a fraud call") is. Hits only inside warning or news-style sentences add the reason "pattern(s) appear only in warning or news-style text ... so they are shown but not counted" and do not raise the level.
 - **Unavailable sources** add "source(s) unavailable - result is incomplete" and never lower the level.
 - **No reports**: when the reports database answered and found nothing, `reportedMessage` = "No known reports. This does not mean safe."; when the database is down, that message is not shown (the card says "unavailable" instead).
 

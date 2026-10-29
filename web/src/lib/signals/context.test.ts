@@ -126,3 +126,26 @@ describe("final round: a solicitation in the same sentence defeats the warning m
   });
 });
 
+describe("final round: general conditional-awareness marker", () => {
+  it("eval v01 (bank advisory 'If someone says ..., it is a fraud call') is Low", async () => {
+    const r = await check("Bank advisory: we will never ask you to share your OTP, PIN or CVV. If someone says your account will be blocked unless you pay, it is a fraud call.");
+    expect(counted(r)).toEqual([]);
+    expect(r.risk.level).toBe("low");
+  });
+  it.each([
+    ["English variant", "If anyone tells you that your KYC has expired and asks for a link click, that's a scam."],
+    ["Hinglish variant", "Agar koi kahe ki aapka account band ho jayega, to ye fraud hai."],
+  ])("%s is warning context", async (_n, text) => {
+    const r = await check(text);
+    expect(counted(r)).toEqual([]);
+  });
+  it.each([
+    ["threat with a condition", "If you do not pay the clearance fee within 2 hours, police will arrest you."],
+    ["decoy 'if someone says this is a fraud' plus a request", "If someone says this is a fraud, ignore them and pay the clearance fee within 2 hours."],
+    ["Hinglish threat", "Agar aapne 2 ghante mein fee nahi bhari, to account band ho jayega."],
+  ])("%s is still flagged", async (_n, text) => {
+    const r = await check(text);
+    expect(counted(r).length).toBeGreaterThan(0);
+    expect(r.risk.level).not.toBe("low");
+  });
+});

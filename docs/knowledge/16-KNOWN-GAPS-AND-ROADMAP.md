@@ -9,8 +9,9 @@ What ScamLens cannot do yet, ranked by how much it matters, and what could come 
 ### Gaps (as of the start of the final round, 2026-10-30)
 | Severity | Gap | Where |
 |---|---|---|
-| HIGH | A warning word can hide a solicitation in the same sentence ("Beware of fake sites, send 5000 USDT now...") | `web/src/lib/signals/context.ts` (fixed in J3) |
-| MED | One eval false positive: a bank advisory phrased "If someone says ..., it is a fraud call" | `eval/RESULTS.md` (addressed in J3) |
+| FIXED | A warning word could hide a solicitation in the same sentence (fixed in J3, commit fix(signals)) | `web/src/lib/signals/context.ts` |
+| FIXED | Eval false positive v01, a bank advisory "If someone says ..., it is a fraud call" (fixed in J3 with a general conditional-awareness marker) | `web/src/lib/signals/context.ts` |
+| LOW | Solicitation detection is verb-list based: a request phrased without those verbs ("the fee is due tonight") does not defeat a marker in the same sentence | `web/src/lib/signals/context.ts` |
 | MED | Contest reasons are kept with no retention limit | `web/db/migrations/002_contest_policy.sql` (fixed in J4) |
 | MED | Screenshot upload was offered with no vision key (fixed in J2: hidden, driven by the health check's `vision` flag) | `web/src/components/CheckForm.tsx` |
 | MED | Whether the live Supabase has migration 002 applied: UNKNOWN | `docs/HUMAN_TASKS.md` |
