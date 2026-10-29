@@ -27,6 +27,8 @@ export interface RiskInput {
   suspectedRules: number;
   /** Sources that could not be checked. */
   unavailableSources: number;
+  /** False when the reports database could not be queried: then we must not claim "no known reports". */
+  reportsAvailable?: boolean;
 }
 
 /**
@@ -54,6 +56,6 @@ export function assessRisk(i: RiskInput): Risk {
     level,
     label: RISK_LABEL[level],
     reasons,
-    reportedMessage: i.reportedIdentifiers === 0 ? NO_REPORTS_MESSAGE : undefined,
+    reportedMessage: i.reportedIdentifiers === 0 && i.reportsAvailable !== false ? NO_REPORTS_MESSAGE : undefined,
   };
 }

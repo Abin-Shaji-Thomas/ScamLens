@@ -1,5 +1,8 @@
 import type { CheckResponse } from "@/lib/api-schema";
 import { TIERS } from "@/lib/tiers";
+import { GraphPanel } from "./GraphPanel";
+import { ReportedList } from "./ReportedList";
+import { ReportForm } from "./ReportForm";
 import { RiskBadge } from "./RiskBadge";
 import { SuspectedList } from "./SuspectedList";
 import { TierSection } from "./TierSection";
@@ -43,9 +46,16 @@ export function RiskCard({ result }: { result: CheckResponse | null }) {
           {result && result.verified.length > 0 ? <VerifiedList results={result.verified} /> : undefined}
         </TierSection>
         <TierSection tier={reported}>
-          {result?.risk.reportedMessage ? <p className="text-sm italic text-neutral-500">{result.risk.reportedMessage}</p> : undefined}
+          {result ? (
+            <div className="flex flex-col gap-2">
+              {result.risk.reportedMessage && <p className="text-sm italic text-neutral-500">{result.risk.reportedMessage}</p>}
+              <ReportedList tier={result.reported} identifiers={result.identifiers} />
+              <GraphPanel identifiers={result.identifiers} />
+            </div>
+          ) : undefined}
         </TierSection>
         <TierSection tier={suspected}>{result ? <SuspectedList signals={result.suspected} ai={result.ai} /> : undefined}</TierSection>
+        {result && <ReportForm key={result.checkedAt} identifiers={result.identifiers} />}
       </div>
     </div>
   );

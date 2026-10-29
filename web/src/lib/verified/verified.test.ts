@@ -201,6 +201,6 @@ describe("runCheck / POST /api/check", () => {
   it("returns the tier objects for valid input", async () => {
     const res = await POST(new Request("http://x/api/check", { method: "POST", body: JSON.stringify({ text: "hello there" }) }));
     expect(res.status).toBe(200);
-    expect(await res.json()).toMatchObject({ identifiers: [], verified: [], reported: [], suspected: [] });
+    expect(await res.json()).toMatchObject({ identifiers: [], verified: [], reported: { status: "unavailable" }, suspected: [] });
   });
 });

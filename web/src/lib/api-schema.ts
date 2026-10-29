@@ -2,6 +2,7 @@
 // client components can validate responses without bundling list data.
 import { z } from "zod";
 import { Identifier } from "./extract/types";
+import { ReportedTier } from "./reports/schema";
 import { Risk } from "./risk";
 import { AiStatus, Signal } from "./signals/types";
 import { SourceResult } from "./verified/types";
@@ -14,7 +15,7 @@ export type CheckRequest = z.infer<typeof CheckRequest>;
 export const CheckResponse = z.object({
   identifiers: z.array(Identifier),
   verified: z.array(SourceResult),
-  reported: z.array(z.unknown()),
+  reported: ReportedTier,
   suspected: z.array(Signal),
   ai: AiStatus,
   risk: Risk,

@@ -1,0 +1,71 @@
+# ScamLens queries. Output shape matches the Postgres fallback (web/db/schema.sql) so
+# web/src/lib/graph/tigergraph.ts can parse both identically: PRINT @@rows AS rows.
+# Hub filter: a wallet with more than hub_max distinct co-reported/paid neighbours, or is_exchange, never links.
+# STATUS: not yet installed on a live TigerGraph instance.
+USE GRAPH ScamLens
+
+CREATE QUERY q1_upi_wallet_telegram(STRING upi, INT hub_max) FOR GRAPH ScamLens {
+  TYPEDEF TUPLE<STRING upi, STRING wallet, STRING wallet_hash, STRING telegram, STRING telegram_hash, STRING evidence_1, STRING evidence_2> Row;
+  ListAccum<Row> @@rows;
+  SetAccum<VERTEX> @direct;      # Telegram handles named in the same report as the UPI
+  SetAccum<VERTEX> @@directTg;
+  start = {UPI.*};
+  u = SELECT s FROM start:s WHERE s.hash == upi;
+  r1 = SELECT r FROM u:s -(MENTIONS)- Report:r;
+  d = SELECT t FROM r1:r -(MENTIONS)- TelegramHandle:t ACCUM @@directTg += t;
+  w = SELECT x FROM r1:r -(MENTIONS)- Wallet:x WHERE x.is_exchange == FALSE AND x.outdegree() <= hub_max;
+  FOREACH wv IN w DO
+    ws = {wv};
+    r2 = SELECT r FROM ws:x -(MENTIONS)- Report:r WHERE NOT (r IN r1);
+    t = SELECT tg FROM r2:r -(MENTIONS)- TelegramHandle:tg WHERE NOT (tg IN @@directTg)
+        ACCUM @@rows += Row(upi, wv.display, wv.hash, tg.display, tg.hash, "Named together in one report", "Named together in another report");
+  END;
+  PRINT @@rows AS rows;
+}
+
+CREATE QUERY q2_payment_to_flagged(STRING wallet, INT hub_max) FOR GRAPH ScamLens {
+  TYPEDEF TUPLE<INT hops, ListAccum<STRING> path, ListAccum<STRING> path_display, STRING flagged_source, ListAccum<STRING> evidence> Row;
+  ListAccum<Row> @@rows;
+  start = {Wallet.*};
+  s = SELECT x FROM start:x WHERE x.hash == wallet;
+  hop1 = SELECT b FROM s:a -(PAID>:e)- Wallet:b
+         ACCUM IF b.flagged_source != "" THEN
+           @@rows += Row(1, [a.hash, b.hash], [a.display, b.display], b.flagged_source, [e.evidence]) END;
+  hop2 = SELECT c FROM hop1:b -(PAID>:e2)- Wallet:c, s:a
+         WHERE b.is_exchange == FALSE AND b.outdegree() <= hub_max AND c != a
+         ACCUM IF c.flagged_source != "" THEN
+           @@rows += Row(2, [a.hash, b.hash, c.hash], [a.display, b.display, c.display], c.flagged_source, [e2.evidence]) END;
+  PRINT @@rows AS rows;
+}
+
+CREATE QUERY q3_telegram_clusters(INT min_size, INT hub_max) FOR GRAPH ScamLens {
+  TYPEDEF TUPLE<STRING wallet, STRING wallet_hash, INT cluster_size, ListAccum<STRING> handles, INT reports> Row;
+  ListAccum<Row> @@rows;
+  SetAccum<STRING> @handles;
+  SetAccum<STRING> @reports;
+  start = {Wallet.*};
+  w = SELECT x FROM start:x -(MENTIONS)- Report:r -(MENTIONS)- TelegramHandle:t
+      WHERE x.is_exchange == FALSE
+      ACCUM x.@handles += t.display, x.@reports += r.submission_id
+      POST-ACCUM IF x.@handles.size() >= min_size AND x.@handles.size() <= hub_max THEN
+        @@rows += Row(x.display, x.hash, x.@handles.size(), x.@handles, x.@reports.size()) END;
+  PRINT @@rows AS rows;
+}
+
+CREATE QUERY q4_neighbourhood(STRING hash, INT depth, INT hub_max) FOR GRAPH ScamLens {
+  # Returns identifier-to-identifier edges within `depth` hops (Report vertices collapsed into co_reported edges).
+  TYPEDEF TUPLE<STRING src, STRING src_type, STRING src_display, STRING dst, STRING dst_type, STRING dst_display, STRING relation, STRING evidence> Row;
+  ListAccum<Row> @@rows;
+  OrAccum @seen;
+  start = {ANY};
+  frontier = SELECT v FROM start:v WHERE v.hash == hash ACCUM v.@seen += TRUE;
+  WHILE frontier.size() > 0 LIMIT depth DO
+    frontier = SELECT n FROM frontier:v -(MENTIONS)- Report:r -(MENTIONS)- :n
+               WHERE n != v AND NOT n.@seen
+               ACCUM @@rows += Row(v.hash, v.type, v.display, n.hash, n.type, n.display, "co_reported", "Named together in one report")
+               POST-ACCUM n.@seen += TRUE;
+  END;
+  PRINT @@rows AS rows;
+}
+
+INSTALL QUERY q1_upi_wallet_telegram, q2_payment_to_flagged, q3_telegram_clusters, q4_neighbourhood

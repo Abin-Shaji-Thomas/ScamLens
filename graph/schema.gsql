@@ -1,0 +1,19 @@
+# ScamLens link graph for TigerGraph (Savanna / 4.x).
+# Vertex primary ids are the same peppered HMAC hashes the app stores in Postgres;
+# `display` is the masked form. No raw identifiers or chat text are loaded.
+#
+# STATUS: written against TigerGraph 4.x GSQL docs; not yet run on a live instance.
+
+CREATE VERTEX Wallet (PRIMARY_ID hash STRING, display STRING, chain STRING, flagged_source STRING DEFAULT "", is_exchange BOOL DEFAULT FALSE) WITH primary_id_as_attribute="true"
+CREATE VERTEX UPI (PRIMARY_ID hash STRING, display STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX TelegramHandle (PRIMARY_ID hash STRING, display STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX Phone (PRIMARY_ID hash STRING, display STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX Domain (PRIMARY_ID hash STRING, display STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX Report (PRIMARY_ID submission_id STRING, category STRING, created_at DATETIME, synthetic BOOL) WITH primary_id_as_attribute="true"
+
+# A report names several identifiers; two identifiers are "co-reported" when they share a Report.
+CREATE UNDIRECTED EDGE MENTIONS (FROM Report, TO Wallet | FROM Report, TO UPI | FROM Report, TO TelegramHandle | FROM Report, TO Phone | FROM Report, TO Domain)
+# On-chain transfer between wallets.
+CREATE DIRECTED EDGE PAID (FROM Wallet, TO Wallet, evidence STRING)
+
+CREATE GRAPH ScamLens (Wallet, UPI, TelegramHandle, Phone, Domain, Report, MENTIONS, PAID)

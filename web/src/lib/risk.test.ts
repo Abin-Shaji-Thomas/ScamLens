@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { localDb } from "../test-support/pglite";
 import { runCheck } from "./check";
-import { assessRisk, NO_REPORTS_MESSAGE, type RiskInput } from "./risk";
 import type { RunDeps } from "./check";
+import { reportsConfig, submitReport } from "./reports/service";
+import { assessRisk, NO_REPORTS_MESSAGE, type RiskInput } from "./risk";
 
 const none: RiskInput = { verifiedMatches: 0, reportedIdentifiers: 0, suspectedRules: 0, unavailableSources: 0 };
 
@@ -29,6 +31,9 @@ describe("assessRisk branches", () => {
     expect(assessRisk(none).reportedMessage).toBe(NO_REPORTS_MESSAGE);
     expect(NO_REPORTS_MESSAGE).toBe("No known reports. This does not mean safe.");
     expect(assessRisk({ ...none, reportedIdentifiers: 1 }).reportedMessage).toBeUndefined();
+  });
+  it("no 'no known reports' claim when the reports database is unavailable", () => {
+    expect(assessRisk({ ...none, reportsAvailable: false }).reportedMessage).toBeUndefined();
   });
 });
 
@@ -65,8 +70,30 @@ describe("end to end through runCheck", () => {
     expect(r.verified.some((v) => v.source === "ofac" && v.status === "match")).toBe(true);
   });
 
-  it("plain text with nothing found is Low with the no-reports message", async () => {
-    const r = await runCheck({ text: "Meeting moved to 4 pm" }, deps(async () => '{"signals":[]}'));
+  it("plain text with nothing found is Low with the no-reports message (empty DB)", async () => {
+    const { db } = await localDb();
+    const d = { ...deps(async () => '{"signals":[]}'), db, env: { OPENAI_MODEL: "m", REPORT_HASH_PEPPER: "test-pepper-0123456789" } };
+    const r = await runCheck({ text: "Meeting moved to 4 pm" }, d);
+    expect(r.reported).toEqual({ status: "ok", entries: [] });
     expect(r.risk).toMatchObject({ level: "low", reportedMessage: NO_REPORTS_MESSAGE });
+  });
+
+  it("2-reporter identifier + suspected signal => High through runCheck", async () => {
+    const { db } = await localDb();
+    const env = { REPORT_HASH_PEPPER: "test-pepper-0123456789" };
+    const cfg = reportsConfig(env, db);
+    if (typeof cfg === "string") throw new Error(cfg);
+    const req = { identifiers: [{ type: "upi" as const, value: "refund.desk@okdemo" }], category: "kyc_refund" as const, consent: true as const };
+    await submitReport(req, "fp-a", cfg);
+    await submitReport(req, "fp-b", cfg);
+    const r = await runCheck({ text: "Pay withdrawal fee to refund.desk@okdemo" }, { ...deps(), db, env });
+    expect(r.reported.entries).toHaveLength(1);
+    expect(r.risk.level).toBe("high");
+  });
+
+  it("reports DB missing => reported tier 'unavailable', no 'no known reports' claim", async () => {
+    const r = await runCheck({ text: "hello" }, { ...deps(async () => '{"signals":[]}'), db: null });
+    expect(r.reported.status).toBe("unavailable");
+    expect(r.risk.reportedMessage).toBeUndefined();
   });
 });

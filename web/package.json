@@ -11,17 +11,20 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "bs58check": "^4.0.0",
     "fast-xml-parser": "^5.11.2",
     "next": "16.4.3",
     "openai": "^7.45.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "react-force-graph-2d": "^1.29.2",
     "tldts": "^7.4.19",
     "viem": "^2.57.13",
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^24.19.2",
     "@types/react": "^19",
