@@ -1,9 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import ofacJson from "../../../data/ofac-sdn-addresses.json";
 import ssJson from "../../../data/scamsniffer-addresses.json";
 import { POST } from "../../app/api/check/route";
 import { runCheck } from "../check";
 import { extractIdentifiers } from "../identifiers";
+import { clearEtherscanCache, EVM_CHAINS, setRetryPauseForTests } from "./etherscan";
 import { runVerifiedChecks } from "./index";
 import type { CheckDeps, SourceResult } from "./types";
 
@@ -46,6 +47,8 @@ function etherscanRoute(url: string): Response {
   if (url.includes("sort=desc")) return json({ status: "1", message: "OK", result: [{ timeStamp: "1700000000" }] });
   return json({}, 404);
 }
+
+beforeEach(() => clearEtherscanCache());
 
 describe("fixtures", () => {
   it("clean address is on neither list", () => {
@@ -120,6 +123,9 @@ describe("Etherscan V2", () => {
       "Etherscan V2 (Arbitrum One)",
     ]);
     expect(r[0].status).toBe("info");
+    // Free plan: BNB (index 1) and Base (index 3) are not called at all.
+    expect(r[1]).toMatchObject({ status: "unavailable", reason: "BNB Chain is not included in the Etherscan free API plan" });
+    expect(r[3].reason).toMatch(/Base is not included/);
     expect(Object.fromEntries(r[0].facts.map((f) => [f.label, f.value]))).toEqual({
       Type: "Wallet (EOA)",
       Balance: "1.5 ETH",
@@ -129,13 +135,50 @@ describe("Etherscan V2", () => {
     });
     expect(r[2].facts.find((f) => f.label === "Balance")?.value).toBe("1.5 POL");
   });
+  it("paid plan queries BNB and Base too", async () => {
+    const d = deps((url) => (url.includes("etherscan") ? etherscanRoute(url) : json(GOPLUS_CLEAN)), { ETHERSCAN_API_KEY: "k", ETHERSCAN_PLAN: "paid" });
+    const r = by(await runVerifiedChecks(ids(CLEAN), d), "etherscan");
+    expect(r.every((x) => x.status === "info")).toBe(true);
+  });
+  it("only the first EVM wallet gets on-chain lookups", async () => {
+    const two = `0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb 0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB`;
+    const d = deps((url) => (url.includes("etherscan") ? etherscanRoute(url) : json(GOPLUS_CLEAN)), { ETHERSCAN_API_KEY: "k" });
+    const r = by(await runVerifiedChecks(ids(two), d), "etherscan");
+    const second = r.filter((x) => x.identifier.value === "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB");
+    expect(second.every((x) => x.status === "unavailable" && /first 1 wallet/.test(x.reason ?? ""))).toBe(true);
+    expect(r.filter((x) => x.status === "info")).toHaveLength(3);
+  });
+  it("a rate-limit answer is retried once and then succeeds", async () => {
+    setRetryPauseForTests(5);
+    let limited = 0;
+    const route = (url: string) => {
+      if (url.includes("etherscan") && url.includes("sort=asc") && limited === 0) {
+        limited++;
+        return json({ status: "0", message: "NOTOK", result: "Max calls per sec rate limit reached (3/sec)" });
+      }
+      return url.includes("etherscan") ? etherscanRoute(url) : json(GOPLUS_CLEAN);
+    };
+    const r = by(await runVerifiedChecks(ids(CLEAN), deps(route, { ETHERSCAN_API_KEY: "k" })), "etherscan");
+    expect(limited).toBe(1);
+    expect(r[0].status).toBe("info");
+  });
+  it("successful lookups are cached: a repeat check makes no Etherscan calls", async () => {
+    let calls = 0;
+    const route = (url: string) => (url.includes("etherscan") ? (calls++, etherscanRoute(url)) : json(GOPLUS_CLEAN));
+    const addr = "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed";
+    await runVerifiedChecks(ids(addr), deps(route, { ETHERSCAN_API_KEY: "k" }));
+    const first = calls;
+    await runVerifiedChecks(ids(addr), deps(route, { ETHERSCAN_API_KEY: "k" }));
+    expect(first).toBe(15);
+    expect(calls).toBe(first);
+  });
   it("API error text becomes unavailable and never leaks the key", async () => {
     const d = deps(
       (url) => (url.includes("etherscan") ? json({ status: "0", message: "NOTOK", result: "Missing/Invalid API Key" }) : json(GOPLUS_CLEAN)),
       { ETHERSCAN_API_KEY: "SECRET123" },
     );
     const r = by(await runVerifiedChecks(ids(CLEAN), d), "etherscan");
-    for (const x of r) expect(x).toMatchObject({ status: "unavailable", reason: "Missing/Invalid API Key" });
+    for (const x of r.filter((_, i) => EVM_CHAINS[i].freeTier)) expect(x).toMatchObject({ status: "unavailable", reason: "Missing/Invalid API Key" });
     expect(JSON.stringify(r)).not.toContain("SECRET123");
   });
 });
@@ -164,7 +207,9 @@ describe("failure rule: unavailable, never safe", () => {
     const r = await runVerifiedChecks(ids(`${CLEAN} TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t`), deps(never, { ETHERSCAN_API_KEY: "k" }, 50));
     const remote = r.filter((x) => x.source !== "ofac" && x.source !== "scamsniffer");
     expect(remote.length).toBe(1 + 5 + 1 + 1); // goplus evm, 5 etherscan, goplus tron, trongrid
-    for (const x of remote) expect(x).toMatchObject({ status: "unavailable", reason: "timed out" });
+    const called = remote.filter((x) => !/free API plan/.test(x.reason ?? "")); // BNB/Base are never called on the free plan
+    expect(called.length).toBe(1 + 3 + 1 + 1);
+    for (const x of called) expect(x).toMatchObject({ status: "unavailable", reason: "timed out" });
   });
   it("fetch that ignores abort is still cut off by the outer guard", async () => {
     const d: CheckDeps = { ...deps(never), fetch: (() => new Promise<Response>(() => {})) as typeof fetch, timeoutMs: 30 };

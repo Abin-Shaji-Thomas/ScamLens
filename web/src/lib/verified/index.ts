@@ -9,6 +9,7 @@ import { checkTronGrid } from "./tron";
 import { defaultDeps, unavailable, type CheckDeps, type ResultBase, type SourceResult } from "./types";
 
 export const MAX_ADDRESSES = 10;
+export const ETHERSCAN_MAX_ADDRESSES = 1; // 15 rate-limited calls per wallet on the free plan (~7.5 s)
 
 type Task = { base: ResultBase; run: () => Promise<SourceResult> | SourceResult; guardMs: number };
 
@@ -25,7 +26,7 @@ function base(id: Identifier, source: ResultBase["source"], sourceName: string, 
   return { source, sourceName, identifier: { type: id.type, value: id.value }, checkedAt: deps.now().toISOString(), link: "" };
 }
 
-function tasksFor(id: Identifier, deps: CheckDeps): Task[] {
+function tasksFor(id: Identifier, deps: CheckDeps, etherscanBudget: boolean): Task[] {
   const g = deps.timeoutMs + 250; // per-request timeout + scheduling slack
   const ofac: Task = { base: base(id, "ofac", "OFAC SDN list", deps), run: () => checkOfac(id, deps), guardMs: g };
   const goplus: Task = { base: base(id, "goplus", "GoPlus address security", deps), run: () => checkGoPlus(id, deps), guardMs: g };
@@ -35,12 +36,18 @@ function tasksFor(id: Identifier, deps: CheckDeps): Task[] {
         ofac,
         { base: base(id, "scamsniffer", "ScamSniffer open blacklist", deps), run: () => checkScamSniffer(id, deps), guardMs: g },
         goplus,
-        ...EVM_CHAINS.map((c) => ({
-          base: { ...base(id, "etherscan", `Etherscan V2 (${c.name})`, deps), link: `${c.explorer}/address/${id.value}` },
-          run: () => checkEtherscanChain(id, c, deps),
-          // Requests are rate-limited, so allow queueing time on top of the per-request timeout.
-          guardMs: 2 * deps.timeoutMs + 500,
-        })),
+        ...EVM_CHAINS.map((c) => {
+          const b = { ...base(id, "etherscan", `Etherscan V2 (${c.name})`, deps), link: `${c.explorer}/address/${id.value}` };
+          return {
+            base: b,
+            run: () =>
+              etherscanBudget
+                ? checkEtherscanChain(id, c, deps)
+                : unavailable(b, `skipped: on-chain history is looked up for the first ${ETHERSCAN_MAX_ADDRESSES} wallet(s) only (rate limit)`),
+            // Requests are rate-limited (3/s on the free plan), so allow queueing time on top of the per-request timeout.
+            guardMs: deps.timeoutMs + 15000,
+          };
+        }),
       ];
     case "tron":
       return [ofac, goplus, { base: base(id, "trongrid", "TronGrid (TRON mainnet)", deps), run: () => checkTronGrid(id, deps), guardMs: g }];
@@ -55,5 +62,8 @@ export async function runVerifiedChecks(ids: Identifier[], deps: CheckDeps = def
   const addresses = uniqueIdentifiers(ids)
     .filter((i) => i.type === "evm" || i.type === "tron" || i.type === "btc")
     .slice(0, MAX_ADDRESSES);
-  return Promise.all(addresses.flatMap((id) => tasksFor(id, deps)).map(runTask));
+  const evmOrder = addresses.filter((a) => a.type === "evm");
+  return Promise.all(
+    addresses.flatMap((id) => tasksFor(id, deps, evmOrder.indexOf(id) < ETHERSCAN_MAX_ADDRESSES)).map(runTask),
+  );
 }

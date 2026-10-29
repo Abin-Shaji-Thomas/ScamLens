@@ -5,12 +5,13 @@ import type { Identifier } from "../extract/types";
 import { getJson, isoDate, Unavailable } from "./http";
 import { unavailable, type CheckDeps, type SourceResult } from "./types";
 
+// freeTier: Etherscan's free API plan answers "Free API access is not supported for this chain" for BNB and Base.
 export const EVM_CHAINS = [
-  { id: 1, name: "Ethereum", symbol: "ETH", explorer: "https://etherscan.io" },
-  { id: 56, name: "BNB Chain", symbol: "BNB", explorer: "https://bscscan.com" },
-  { id: 137, name: "Polygon", symbol: "POL", explorer: "https://polygonscan.com" },
-  { id: 8453, name: "Base", symbol: "ETH", explorer: "https://basescan.org" },
-  { id: 42161, name: "Arbitrum One", symbol: "ETH", explorer: "https://arbiscan.io" },
+  { id: 1, name: "Ethereum", symbol: "ETH", explorer: "https://etherscan.io", freeTier: true },
+  { id: 56, name: "BNB Chain", symbol: "BNB", explorer: "https://bscscan.com", freeTier: false },
+  { id: 137, name: "Polygon", symbol: "POL", explorer: "https://polygonscan.com", freeTier: true },
+  { id: 8453, name: "Base", symbol: "ETH", explorer: "https://basescan.org", freeTier: false },
+  { id: 42161, name: "Arbitrum One", symbol: "ETH", explorer: "https://arbiscan.io", freeTier: true },
 ] as const;
 type Chain = (typeof EVM_CHAINS)[number];
 
@@ -19,19 +20,38 @@ const AccountResp = z.object({ status: z.string(), message: z.string(), result: 
 const ProxyResp = z.object({ result: z.string() });
 const Tx = z.object({ timeStamp: z.string() });
 
-// Simple per-instance limiter so a 5-chain lookup stays inside the free tier (5 calls/s by default).
+// Per-instance limiter. The free plan advertises 3 calls/s but rejects bursts at that rate in practice
+// (measured 2026-10-29: 3/s and 2.7/s hit "Max calls per sec", 2/s passes), so default to 2/s.
+export const DEFAULT_ETHERSCAN_RPS = 2;
 let nextSlot = 0;
 async function slot(rps: number) {
   const now = Date.now();
   const at = Math.max(now, nextSlot);
-  nextSlot = at + 1000 / rps;
+  nextSlot = at + 1000 / rps + 30;
   if (at > now) await new Promise((r) => setTimeout(r, at - now));
 }
 
+export const chainEnabled = (chain: Chain, env: CheckDeps["env"]) => chain.freeTier || env.ETHERSCAN_PLAN === "paid";
+
+const isRateLimited = (raw: unknown) => {
+  const r = AccountResp.safeParse(raw);
+  return r.success && typeof r.data.result === "string" && /rate limit/i.test(r.data.result);
+};
+
 async function call(deps: CheckDeps, chain: Chain, params: string): Promise<unknown> {
-  await slot(positiveIntEnv(deps.env.ETHERSCAN_RPS, 5));
-  return getJson(deps, `${API}?chainid=${chain.id}&${params}&apikey=${deps.env.ETHERSCAN_API_KEY}`);
+  const rps = positiveIntEnv(deps.env.ETHERSCAN_RPS, DEFAULT_ETHERSCAN_RPS);
+  const url = `${API}?chainid=${chain.id}&${params}&apikey=${deps.env.ETHERSCAN_API_KEY}`;
+  // Network jitter can bunch requests together at Etherscan's side even when we space them,
+  // so a "rate limit" answer gets exactly one retry after a pause.
+  await slot(rps);
+  const raw = await getJson(deps, url);
+  if (!isRateLimited(raw)) return raw;
+  await new Promise((r) => setTimeout(r, RETRY_PAUSE_MS));
+  await slot(rps);
+  return getJson(deps, url);
 }
+export let RETRY_PAUSE_MS = 1100;
+export const setRetryPauseForTests = (ms: number) => (RETRY_PAUSE_MS = ms);
 
 async function proxy(deps: CheckDeps, chain: Chain, action: string, address: string): Promise<string> {
   const raw = await call(deps, chain, `module=proxy&action=${action}&address=${address}&tag=latest`);
@@ -61,7 +81,21 @@ async function firstTxTime(deps: CheckDeps, chain: Chain, address: string, sort:
   return list.length ? isoDate(Number(list[0].timeStamp) * 1000) : null;
 }
 
+// Successful lookups are cached per server instance for 10 minutes to save rate-limit budget.
+const CACHE_MS = 10 * 60 * 1000;
+const cache = new Map<string, { at: number; result: SourceResult }>();
+export const clearEtherscanCache = () => cache.clear();
+
 export async function checkEtherscanChain(id: Identifier, chain: Chain, deps: CheckDeps): Promise<SourceResult> {
+  const key = `${chain.id}:${id.value}`;
+  const hit = cache.get(key);
+  if (hit && deps.now().getTime() - hit.at < CACHE_MS) return { ...hit.result, checkedAt: new Date(hit.at).toISOString() };
+  const result = await lookupChain(id, chain, deps);
+  if (result.status === "info") cache.set(key, { at: deps.now().getTime(), result });
+  return result;
+}
+
+async function lookupChain(id: Identifier, chain: Chain, deps: CheckDeps): Promise<SourceResult> {
   const base = {
     source: "etherscan" as const,
     sourceName: `Etherscan V2 (${chain.name})`,
@@ -70,6 +104,7 @@ export async function checkEtherscanChain(id: Identifier, chain: Chain, deps: Ch
     link: `${chain.explorer}/address/${id.value}`,
   };
   if (!deps.env.ETHERSCAN_API_KEY) return unavailable(base, "ETHERSCAN_API_KEY not configured");
+  if (!chainEnabled(chain, deps.env)) return unavailable(base, `${chain.name} is not included in the Etherscan free API plan`);
 
   const [balance, nonce, code, first, last] = await Promise.all([
     account(deps, chain, `action=balance&address=${id.value}&tag=latest`),
