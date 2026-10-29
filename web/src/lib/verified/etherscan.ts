@@ -127,6 +127,8 @@ async function lookupChain(id: Identifier, chain: Chain, deps: CheckDeps): Promi
   ];
   const summary = first
     ? `${chain.name}: ${kind.toLowerCase()}, active ${first} to ${last}, ${sent} outgoing tx, balance ${bal}.`
-    : `${chain.name}: no transactions found, balance ${bal}.`;
+    : sent > 0 || code !== "0x"
+      ? `${chain.name}: ${kind.toLowerCase()}, no normal transactions listed, ${sent} outgoing tx (nonce), balance ${bal}.`
+      : `${chain.name}: no transactions found, balance ${bal}.`;
   return { ...base, status: "info", summary, facts };
 }
