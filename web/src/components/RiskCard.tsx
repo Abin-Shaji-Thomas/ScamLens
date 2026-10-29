@@ -31,54 +31,74 @@ function Identifiers({ ids }: { ids: CheckResponse["identifiers"] }) {
 export function RiskCard({ result, demo = false }: { result: CheckResponse | null; demo?: boolean }) {
   const [verified, reported, suspected] = TIERS;
   return (
-    <div className="flex flex-col">
-      <h2 id="risk-card-title" tabIndex={-1} className="t-small text-swiss-text outline-none">
-        Risk card
-      </h2>
-      {!result && <p className="mt-2 text-swiss-text">Paste something and press Check</p>}
-      {result && (
-        <div className="mt-4 flex flex-col">
-          {demo && <p className="t-small mb-4 text-swiss-text">{DEMO_LABEL}</p>}
-          <RiskBadge risk={result.risk} />
-          {result.notices.map((n, i) => (
-            <p key={i} className="t-small mt-4 text-swiss-text">
-              Note: {n}
-            </p>
-          ))}
-          <div className="mt-12 sm:mt-16">
-            <WhatToDoNow />
+    <>
+      <section aria-labelledby="risk-card-title">
+        <div className="grid">
+          <div className="col-span-full flex flex-col lg:col-span-8">
+            <h2 id="risk-card-title" tabIndex={-1} className="eyebrow self-start">
+              Risk card
+            </h2>
+            {!result && <p className="mt-4 text-swiss-text">Paste something and press Check</p>}
+            {result && (
+              <div className="mt-6 flex flex-col">
+                {demo && <p className="t-small mb-4 text-swiss-text">{DEMO_LABEL}</p>}
+                <RiskBadge risk={result.risk} />
+                {result.notices.map((n, i) => (
+                  <p key={i} className="t-small mt-4 text-swiss-text">
+                    Note: {n}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
-          <section aria-labelledby="ids-found" className="mt-12 sm:mt-16">
-            <h3 id="ids-found" className="t-h2">
-              Identifiers found
-            </h3>
-            <div className="mt-4">
-              <Identifiers ids={result.identifiers} />
-            </div>
-          </section>
+          {result && (
+            <section aria-labelledby="ids-found" className="col-span-full mt-12 border-t-2 border-swiss-black pt-6 lg:col-span-3 lg:col-start-10 lg:mt-0">
+              <h3 id="ids-found" className="eyebrow">
+                Identifiers found
+              </h3>
+              <div className="mt-4">
+                <Identifiers ids={result.identifiers} />
+              </div>
+            </section>
+          )}
         </div>
-      )}
-      <div className="mt-12 flex flex-col gap-12 sm:mt-16 sm:gap-16">
-        <TierSection tier={verified}>
-          {result && result.verified.length > 0 ? <VerifiedList results={result.verified} /> : undefined}
-        </TierSection>
-        <TierSection tier={reported}>
-          {result ? (
-            <div className="flex flex-col gap-6">
-              {result.risk.reportedMessage && <p className="text-swiss-text">{result.risk.reportedMessage}</p>}
-              <ReportedList tier={result.reported} identifiers={result.identifiers} />
+      </section>
+      <section aria-label="Evidence tiers">
+        <div className="grid gap-y-16">
+          <TierSection tier={verified}>
+            {result && result.verified.length > 0 ? <VerifiedList results={result.verified} /> : undefined}
+          </TierSection>
+          <TierSection tier={reported}>
+            {result ? (
+              <div className="flex flex-col gap-6">
+                {result.risk.reportedMessage && <p className="text-swiss-text">{result.risk.reportedMessage}</p>}
+                <ReportedList tier={result.reported} identifiers={result.identifiers} />
+              </div>
+            ) : undefined}
+          </TierSection>
+          <TierSection tier={suspected}>{result ? <SuspectedList signals={result.suspected} ai={result.ai} /> : undefined}</TierSection>
+          {result && (
+            <div className="col-span-full">
               <GraphPanel identifiers={result.identifiers} />
             </div>
-          ) : undefined}
-        </TierSection>
-        <TierSection tier={suspected}>{result ? <SuspectedList signals={result.suspected} ai={result.ai} /> : undefined}</TierSection>
-        {result && (
-          <div className="flex flex-col gap-8 border-t border-swiss-rule pt-8">
-            <EvidencePackButton result={result} demo={demo} />
-            {!demo && <ReportForm key={result.checkedAt} identifiers={result.identifiers} />}
+          )}
+        </div>
+      </section>
+      {result && <WhatToDoNow />}
+      {result && (
+        <section aria-label="Evidence pack and reporting">
+          <div className="grid gap-y-12">
+            <div className="col-span-full lg:col-span-6">
+              <EvidencePackButton result={result} demo={demo} />
+            </div>
+            {!demo && (
+              <div className="col-span-full lg:col-span-5 lg:col-start-8">
+                <ReportForm key={result.checkedAt} identifiers={result.identifiers} />
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </div>
+        </section>
+      )}
+    </>
   );
 }

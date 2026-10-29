@@ -2,13 +2,17 @@ import Link from "next/link";
 
 export function SiteHeader() {
   return (
-    <header className="mx-auto flex w-full max-w-[40rem] items-baseline justify-between px-6 pt-8 print:hidden">
-      <Link href="/" className="font-semibold no-underline">
-        ScamLens
-      </Link>
-      <Link href="/about" className="text-swiss-text no-underline hover:underline">
-        About
-      </Link>
+    <header className="print:hidden">
+      <div className="grid grid--bar">
+        <nav aria-label="Site" className="col-span-full flex items-center justify-between">
+          <Link href="/" className="inline-flex min-h-11 items-center font-semibold text-swiss-black no-underline">
+            ScamLens
+          </Link>
+          <Link href="/about" className="inline-flex min-h-11 items-center text-swiss-text no-underline hover:underline">
+            About
+          </Link>
+        </nav>
+      </div>
     </header>
   );
 }

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckResponse, MAX_INPUT_CHARS } from "@/lib/api-schema";
 import { SAMPLE_WATERMARK, SAMPLES } from "@/lib/samples";
 import { RiskCard } from "./RiskCard";
-import { ScreenshotInput, ScreenshotTrigger } from "./ScreenshotInput";
+import { ScreenshotInput, ScreenshotNote, ScreenshotTrigger } from "./ScreenshotInput";
 
 export function CheckForm() {
   const [text, setText] = useState("");
@@ -12,11 +12,10 @@ export function CheckForm() {
   const [result, setResult] = useState<CheckResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const resultBox = useRef<HTMLDivElement>(null);
 
   // Move focus to the result so keyboard and screen-reader users land on it.
   useEffect(() => {
-    if (result) resultBox.current?.querySelector<HTMLElement>("#risk-card-title")?.focus();
+    if (result) document.getElementById("risk-card-title")?.focus();
   }, [result]);
 
   async function submit(input: string = text) {
@@ -43,78 +42,86 @@ export function CheckForm() {
   }
 
   return (
-    <div className="flex flex-col">
-      <form
-        className="flex flex-col print:hidden"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void submit();
-        }}
-      >
-        <label htmlFor="input" className="t-small text-swiss-text">
-          Paste a suspicious chat, wallet address, UPI ID or Telegram handle
-        </label>
-        <textarea
-          id="input"
-          value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            setDemo(false);
-          }}
-          maxLength={MAX_INPUT_CHARS}
-          rows={6}
-          placeholder="Paste the message here"
-          className="field mt-2"
-        />
-        {demo && <p className="t-small mt-3 text-swiss-text">{SAMPLE_WATERMARK}</p>}
-        <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4">
-          <button type="submit" disabled={loading || text.trim().length === 0} className="btn-primary">
-            {loading ? "Checking..." : "Check"}
-          </button>
-          <ScreenshotTrigger />
-        </div>
-        <p className="t-small mt-4 text-swiss-text">Processed in memory. We do not store your chat.</p>
-        <div className="t-small mt-6 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <span className="text-swiss-text">Try a sample:</span>
-          {SAMPLES.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              className="btn-link"
-              onClick={() => {
-                setText(s.text);
-                setDemo(true);
-                setResult(null);
+    <>
+      <section aria-labelledby="input-label" className="print:hidden">
+        <div className="grid">
+          <div className="col-span-full flex flex-col lg:col-span-8">
+            <form
+              className="flex flex-col"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void submit();
               }}
             >
-              {s.title}
-            </button>
-          ))}
+              <label id="input-label" htmlFor="input" className="eyebrow">
+                Paste a suspicious chat, wallet address, UPI ID or Telegram handle
+              </label>
+              <textarea
+                id="input"
+                value={text}
+                onChange={(e) => {
+                  setText(e.target.value);
+                  setDemo(false);
+                }}
+                maxLength={MAX_INPUT_CHARS}
+                rows={6}
+                placeholder="Paste the message here"
+                className="field mt-4"
+              />
+              {demo && <p className="t-small mt-3 text-swiss-text">{SAMPLE_WATERMARK}</p>}
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <button type="submit" disabled={loading || text.trim().length === 0} className="btn-primary">
+                  {loading ? "Checking..." : "Check"}
+                </button>
+                <ScreenshotTrigger />
+              </div>
+              {error && (
+                <p role="alert" className="mt-6">
+                  <span className="font-semibold">Error. </span>
+                  {error}
+                </p>
+              )}
+              {loading && <p className="mt-6 text-swiss-text">Checking lists, on-chain history and reports. This can take up to 10 seconds.</p>}
+            </form>
+            <ScreenshotInput
+              disabled={loading}
+              onCheck={(t) => {
+                setText(t);
+                setDemo(false);
+                void submit(t);
+              }}
+            />
+          </div>
+          <aside className="col-span-full mt-12 flex flex-col border-t-2 border-swiss-black pt-6 lg:col-span-3 lg:col-start-10 lg:mt-0">
+            <p className="eyebrow">Try a sample:</p>
+            <ul className="mt-2 flex flex-col">
+              {SAMPLES.map((s) => (
+                <li key={s.id}>
+                  <button
+                    type="button"
+                    className="btn-link text-left"
+                    onClick={() => {
+                      setText(s.text);
+                      setDemo(true);
+                      setResult(null);
+                    }}
+                  >
+                    {s.title}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8 flex flex-col gap-3 border-t border-swiss-rule pt-6">
+              <p className="t-small text-swiss-text">Processed in memory. We do not store your chat.</p>
+              <ScreenshotNote />
+            </div>
+          </aside>
         </div>
-        {error && (
-          <p role="alert" className="mt-6">
-            <span className="font-semibold">Error. </span>
-            {error}
-          </p>
-        )}
-        {loading && <p className="mt-6 text-swiss-text">Checking lists, on-chain history and reports. This can take up to 10 seconds.</p>}
-      </form>
-      <div className="print:hidden">
-        <ScreenshotInput
-          disabled={loading}
-          onCheck={(t) => {
-            setText(t);
-            setDemo(false);
-            void submit(t);
-          }}
-        />
-      </div>
+      </section>
       <p role="status" aria-live="polite" className="sr-only">
         {loading ? "Checking." : result ? `Result ready: ${result.risk.label}.` : ""}
       </p>
-      <div ref={resultBox} className="mt-16">
-        <RiskCard result={result} demo={demo} />
-      </div>
-    </div>
+      <RiskCard result={result} demo={demo} />
+    </>
   );
 }

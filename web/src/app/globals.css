@@ -83,6 +83,14 @@
   details > summary {
     cursor: pointer;
   }
+
+  /* Reading text never runs wider than 65 characters inside its column. */
+  p,
+  li,
+  dd,
+  summary {
+    max-width: 65ch;
+  }
 }
 
 @layer components {
@@ -127,6 +135,55 @@
   /* Reading text is never uppercase and never wider than 65 characters. */
   .measure {
     max-width: 65ch;
+  }
+
+  /*
+   * Layout: a 12-column grid that fills the window up to 110rem. Every top-level part of a page is a full-width
+   * <section> holding one .grid, so a .band background is full-bleed while its content stays on the grid.
+   * Below 768px everything is one column. Children use col-span-full and lg:/md: spans.
+   * Only layout containers use the class "grid" (Tailwind's own grid utility would pick up these styles).
+   */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(1rem, 2vw, 2rem);
+    max-width: 110rem;
+    margin-inline: auto;
+    padding: clamp(3rem, 6vw, 6rem) clamp(1.25rem, 4vw, 3rem);
+  }
+  .grid--bar {
+    padding-block: 1.5rem;
+  }
+  @media (max-width: 767.98px) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  main > section ~ section {
+    border-top: 1px solid var(--swiss-rule);
+  }
+  /* "What to do now": large light step numerals beside each step. */
+  .steps {
+    counter-reset: step;
+  }
+  .steps > li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    column-gap: 1rem;
+    align-items: baseline;
+  }
+  .steps > li::before {
+    content: counter(step);
+    font-size: 2rem;
+    line-height: 1;
+    font-weight: 300;
+  }
+  /* label / value pairs (on-chain facts) */
+  .facts {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 1rem;
   }
 
   /* Cards: a 2px black top rule instead of a box. The hover rule is tan on white and clay on a paper band. */

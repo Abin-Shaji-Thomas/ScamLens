@@ -112,9 +112,15 @@ export function ScreenshotInput({ onCheck, disabled }: { onCheck: (text: string)
           </div>
         </div>
       )}
-      <p className="t-small mt-4 text-swiss-text">
-        Screenshots are shrunk in your browser, sent once to our AI provider to read the text, and not stored.
-      </p>
     </div>
+  );
+}
+
+/** Privacy note for the screenshot flow, shown beside the form. */
+export function ScreenshotNote() {
+  return (
+    <p className="t-small text-swiss-text">
+      Screenshots are shrunk in your browser, sent once to our AI provider to read the text, and not stored.
+    </p>
   );
 }

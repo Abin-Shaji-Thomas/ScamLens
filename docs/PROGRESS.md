@@ -261,3 +261,17 @@ Browser tooling for this round: headless Microsoft Edge driven over the Chrome D
 | Contrast test | PASS | `src/lib/contrast.test.ts`: 9 text pairs >= 4.5 (lowest: clay on paper 6.23), 6 UI pairs >= 3 (lowest: tan on white 3.07); grey/tan never text; tan never on `.band`; alert only in `[data-level="high"]` CSS and GraphPanel |
 | Tests catch violations | PASS | injected `.x{color:var(--swiss-tan)}`, `.band .y{border-color:var(--swiss-tan)}`, `.z{color:var(--swiss-alert);transition:transform 300ms}` -> `Tests 4 failed | 28 passed (32)`; file restored |
 | Post-flight | PASS | `Tests 319 passed (319)`, typecheck 0, lint 0, build 0 |
+
+## U2 - Grid and typography
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight | PASS | 319/319, typecheck 0, lint 0, tree clean (after U1) |
+| 12-column `.grid`, bands full-bleed, one column below 768 px | PASS | `globals.css` `.grid` exactly as specified (+ `.grid--bar` for header/footer); every top-level part is a full-width `<section>` holding one `.grid`; `main > section ~ section` 1px rule; the facts `<dl>` moved off Tailwind's `grid` class to `.facts` |
+| Header, hero, form columns, result header, tier grid, What to do now band, footer | PASS | render tests in `ui.test.ts` "Swiss grid layout" (+6): hero `lg:col-span-9`/`lg:col-span-6`, form `lg:col-span-8` + aside `lg:col-start-10 lg:col-span-3` with 2px rule, 3 cards `lg:col-span-4` with aria-hidden 01-03 and real h2, band with heading 1-4 and steps 5-12, meter 1/2/3 filled for Low/Elevated/High, header/footer on the grid |
+| No horizontal overflow at 375/768/1280/1440/1920 (/, sample 1) | PASS | `overflow false` at all five widths, both states |
+| Space targets | PASS | grid box: 100% at 375-1440, 91.7% at 1920 (capped at 1760 px); content box: 89.3 / 92.0 / 92.5 / 93.3 / 86.7%. h1 = 74.5% of the content at >= 1024 (100% below). Form left+right span 100%; tier cards span 100% (3 columns at 1280+, 1 at 375/768). Longest paragraph line 62.6ch at desktop, 65.0ch max anywhere |
+| Font actually used for weight 300 | NOTE (measured) | `CSS.getPlatformFontsForNode` on the h1: `Arial / ArialMT`. Windows maps "Helvetica" to Arial (`HKLM\...\FontSubstitutes: Helvetica REG_SZ Arial`), so the stack stops before "Segoe UI"; Arial has no light face, so headings render at 400. `segoeuil.ttf` is installed but unused. Layout checked at 400 and it works (screens reviewed) |
+| Console | PASS | no messages on / and after sample 1 |
+| Tap targets | NOTE | smallest 29 px (sample links, Print link); buttons and links are restyled to >= 44 px in U3 |
+| Post-flight | PASS | `Tests 325 passed (325)`, typecheck 0, lint 0, build 0 |

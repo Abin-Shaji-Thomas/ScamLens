@@ -3,16 +3,18 @@ import type { TierInfo } from "@/lib/tiers";
 
 const TIER_NUMBER: Record<TierInfo["id"], string> = { verified: "01", reported: "02", suspected: "03" };
 
-/** One of the three tiers: "01 Verified" etc., separated from the next by a hairline. */
+/** One of the three tiers: a card with a 2px top rule, a decorative index and a real heading. */
 export function TierSection({ tier, children }: { tier: TierInfo; children?: ReactNode }) {
   return (
-    <section aria-labelledby={`tier-${tier.id}`} className="border-t border-swiss-rule pt-8 print:break-inside-avoid">
-      <h3 id={`tier-${tier.id}`} className="t-h2">
-        <span className="mr-3">{TIER_NUMBER[tier.id]}</span>
+    <section aria-labelledby={`tier-${tier.id}`} className="card col-span-full flex flex-col lg:col-span-4 print:break-inside-avoid">
+      <p className="eyebrow" aria-hidden="true">
+        {TIER_NUMBER[tier.id]}
+      </p>
+      <h2 id={`tier-${tier.id}`} className="t-h2 mt-2 text-swiss-black">
         {tier.title}
-      </h3>
-      <p className="t-small mt-1 text-swiss-text">{tier.description}</p>
-      <div className="mt-6">{children ?? <p className="text-swiss-text">{tier.emptyText}</p>}</div>
+      </h2>
+      <p className="mt-2 text-swiss-text">{tier.description}</p>
+      <div className="mt-8">{children ?? <p className="text-swiss-text">{tier.emptyText}</p>}</div>
     </section>
   );
 }

@@ -16,7 +16,7 @@ function Row({ r }: { r: SourceResult }) {
       </p>
       <p className="mt-1 text-swiss-text">{r.summary}</p>
       {r.facts.length > 0 && r.status !== "unavailable" && (
-        <dl className="t-small mt-2 grid grid-cols-[auto_1fr] gap-x-4 text-swiss-text">
+        <dl className="facts t-small mt-2 text-swiss-text">
           {r.facts.map((f, i) => (
             <div key={i} className="contents">
               <dt>{f.label}</dt>

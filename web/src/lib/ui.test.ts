@@ -1,11 +1,13 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import Home from "../app/page";
 import NotFound from "../app/not-found";
 import { CheckForm } from "../components/CheckForm";
 import { GraphPanel } from "../components/GraphPanel";
 import { ReportedList } from "../components/ReportedList";
 import { ReportForm } from "../components/ReportForm";
+import { RiskBadge } from "../components/RiskBadge";
 import { RiskCard } from "../components/RiskCard";
 import { SiteFooter } from "../components/SiteFooter";
 import { SiteHeader } from "../components/SiteHeader";
@@ -13,7 +15,7 @@ import { extractIdentifiers } from "./identifiers";
 import { runCheck, type RunDeps } from "./check";
 import { DEMO_LABEL } from "./demo";
 import { WHAT_TO_DO_NOW } from "./next-steps";
-import { NO_REPORTS_MESSAGE, RISK_EXPLANATION } from "./risk";
+import { assessRisk, NO_REPORTS_MESSAGE, RISK_EXPLANATION } from "./risk";
 import { SAMPLES } from "./samples";
 import { localDb } from "../test-support/pglite";
 
@@ -75,7 +77,7 @@ describe("G4 minimalist states (server-rendered)", () => {
   it("risk level: large word, one sentence, and the scale with the current level marked (not colour)", async () => {
     const r = await runCheck({ text: SAMPLES[0].text }, offline);
     const html = render(createElement(RiskCard, { result: r }));
-    expect(html).toContain('class="t-risk"');
+    expect(html).toMatch(/class="t-risk risk-word" data-level="(low|elevated|high)"/);
     expect(strip(html)).toMatch(/Low signals · Elevated · High/);
     expect(html).toMatch(/aria-current="true"[^>]*>(Low signals|Elevated|High)</);
     expect(html).not.toMatch(/<mark(?![^>]*class="quote")/); // quotes use underline + weight, no background
@@ -128,10 +130,10 @@ describe("G4 minimalist states (server-rendered)", () => {
 
   it("the check form shows the underline field, primary button and the screenshot text link", () => {
     const html = render(createElement(CheckForm));
-    expect(html).toMatch(/<textarea[^>]*class="field mt-2"/);
+    expect(html).toMatch(/<textarea[^>]*class="field mt-4"/);
     expect(html).toMatch(/<button type="submit"[^>]*class="btn-primary"/);
     expect(strip(html)).toContain("Upload a screenshot instead");
-    expect(html).toMatch(/<label for="input"/);
+    expect(html).toMatch(/<label[^>]*for="input"/);
     expect(html).toMatch(/role="status" aria-live="polite"/);
   });
 
@@ -141,5 +143,62 @@ describe("G4 minimalist states (server-rendered)", () => {
     expect(html).not.toMatch(/(?:text|bg|border)-(?:red|amber|sky|emerald|fuchsia|neutral|yellow)-\d/);
     expect(html).not.toContain("dark:");
     expect(html).not.toMatch(/rounded(?!-none)/);
+  });
+});
+
+describe("Swiss grid layout (server-rendered)", () => {
+  const render = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el);
+  const tags = (html: string, cls: RegExp) => [...html.matchAll(/<(\w+)[^>]*class="([^"]*)"/g)].filter((m) => cls.test(m[2]));
+
+  it("hero: h1 spans columns 1-9 and the lead 1-6 at >= 1024px, inside a 12-column .grid", () => {
+    const html = render(createElement(Home));
+    expect(html).toMatch(/<div class="grid"><h1 id="page-title" class="t-title col-span-full lg:col-span-9">/);
+    expect(html).toMatch(/<p class="lead col-span-full mt-6 lg:col-span-6">/);
+  });
+
+  it("form: left columns 1-8, right columns 10-12 with a 2px black top rule (together the full width)", () => {
+    const html = render(createElement(CheckForm));
+    expect(html).toMatch(/<div class="col-span-full flex flex-col lg:col-span-8">\s*<form/);
+    expect(html).toMatch(/<aside class="[^"]*border-t-2 border-swiss-black[^"]*lg:col-span-3 lg:col-start-10/);
+    expect(html).toMatch(/<label id="input-label" for="input" class="eyebrow">/);
+  });
+
+  it("tiers: three cards of 4 columns each, numbered 01-03 (decorative, aria-hidden) with real h2 headings", async () => {
+    const r = await runCheck({ text: SAMPLES[0].text }, offline);
+    const html = render(createElement(RiskCard, { result: r, demo: true }));
+    const cards = tags(html, /(^| )card( |$)/);
+    expect(cards).toHaveLength(3);
+    for (const c of cards) expect(c[2]).toContain("lg:col-span-4");
+    for (const n of ["01", "02", "03"]) expect(html).toContain(`<p class="eyebrow" aria-hidden="true">${n}</p>`);
+    for (const t of ["Verified", "Reported", "Suspected"]) expect(html).toMatch(new RegExp(`<h2 id="tier-${t.toLowerCase()}"[^>]*>${t}</h2>`));
+  });
+
+  it("What to do now is a paper band with the heading in columns 1-4 and the steps in 5-12", async () => {
+    const r = await runCheck({ text: SAMPLES[0].text }, offline);
+    const html = render(createElement(RiskCard, { result: r }));
+    expect(html).toMatch(/<section aria-labelledby="what-to-do" class="band"><div class="grid"><h2 id="what-to-do" class="t-h2 col-span-full lg:col-span-4">/);
+    expect(html).toMatch(/<ol class="steps [^"]*lg:col-span-8 lg:col-start-5/);
+  });
+
+  it("risk meter: 1, 2 or 3 filled segments for Low, Elevated, High; the bold-underlined word marks the level", () => {
+    const cases = [
+      ["low", assessRisk({ verifiedMatches: 0, reportedIdentifiers: 0, suspectedRules: 0, unavailableSources: 0 }), 1],
+      ["elevated", assessRisk({ verifiedMatches: 0, reportedIdentifiers: 0, suspectedRules: 2, unavailableSources: 0 }), 2],
+      ["high", assessRisk({ verifiedMatches: 1, reportedIdentifiers: 0, suspectedRules: 0, unavailableSources: 0 }), 3],
+    ] as const;
+    for (const [level, risk, filled] of cases) {
+      const html = render(createElement(RiskBadge, { risk }));
+      expect(risk.level).toBe(level);
+      expect(html).toContain(`<div class="meter mt-3 max-w-xs" data-level="${level}" aria-hidden="true">`);
+      expect(html.match(/data-filled="true"/g)).toHaveLength(filled);
+      expect(html.match(/class="meter__seg"/g)).toHaveLength(3);
+      expect(html).toMatch(/class="font-semibold text-swiss-black underline underline-offset-4" aria-current="true"/);
+      expect(html).toContain(`data-level="${level}">`);
+    }
+  });
+
+  it("header and footer sit on the same grid; footer has a 2px black top rule", () => {
+    expect(render(createElement(SiteHeader))).toMatch(/<div class="grid grid--bar">/);
+    expect(render(createElement(SiteFooter))).toMatch(/border-t-2 border-swiss-black/);
   });
 });
