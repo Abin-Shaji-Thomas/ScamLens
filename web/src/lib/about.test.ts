@@ -55,3 +55,10 @@ describe("/about", () => {
     }
   });
 });
+
+describe("/about security trade-off (G1)", () => {
+  it("explains in plain words that inline scripts are allowed and remote scripts are not", () => {
+    expect(text).toMatch(/Small scripts written into the page are allowed/);
+    expect(text).toMatch(/scripts from any other site are blocked/);
+  });
+});

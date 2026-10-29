@@ -42,5 +42,8 @@ The automated run could not open a browser. The risk card is render-tested on th
 - [ ] For a sample, the printed pack starts with "*** Illustrative demo data - not a real investigation ***".
 - [ ] "Copy evidence pack" copies text (or shows it if the clipboard is blocked).
 
-## 7. Dark mode
+## 7. Security policy
+- [ ] Open DevTools Console and confirm there are no Content Security Policy errors (on `/`, after a check, after "Show links", and on `/about`).
+
+## 8. Dark mode
 - [ ] OS dark mode: text is readable in every tier, in notices (amber box) and in the demo label.

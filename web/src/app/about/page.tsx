@@ -186,6 +186,11 @@ export default function AboutPage() {
             Daily limits per network: {limits.check} checks, {limits.transcribe} screenshots, {limits.graph} link lookups.
           </li>
           <li>Server logs hold only an event name, a status and a duration.</li>
+          <li>
+            Browser security rules (Content Security Policy): the page may only load scripts, styles, fonts and data from
+            ScamLens itself, never from another website. Small scripts written into the page are allowed, because the
+            framework we use needs them to start the app; scripts from any other site are blocked.
+          </li>
         </ul>
       </Section>
 

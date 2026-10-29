@@ -12,7 +12,7 @@ import { runCheck, type RunDeps } from "./check";
 import { MAX_IDENTIFIERS, MAX_TEXT_CHARS, MIN_INDEPENDENT_REPORTERS, REPORT_RETENTION_DAYS } from "./limits";
 import { FORBIDDEN_LOG_FIELDS, formatLog } from "./log";
 import { fingerprintHash, reporterKey } from "./reports/privacy";
-import { contentSecurityPolicy, securityHeaders } from "./security-headers";
+import { checkCsp, contentSecurityPolicy, parseCsp, REQUIRED_HEADERS, securityHeaders } from "./security-headers";
 
 const SRC = join(import.meta.dirname, "..");
 const post = (body: string) => new Request("http://x/api", { method: "POST", body });
@@ -122,5 +122,32 @@ describe("report independence", () => {
       [fp],
     );
     expect(rows[0].k).toBe(reporterKey(fp));
+  });
+});
+
+describe("G1: CSP directives", () => {
+  it("production CSP has exactly the required sources for each directive", () => {
+    const failures = checkCsp(contentSecurityPolicy(false)).filter((c) => !c.ok);
+    expect(failures).toEqual([]);
+  });
+  it("img-src keeps data: and blob: (screenshot previews), font-src stays self-only", () => {
+    const csp = parseCsp(contentSecurityPolicy(false));
+    expect(csp["img-src"]).toEqual(expect.arrayContaining(["'self'", "data:", "blob:"]));
+    expect(csp["font-src"]).toEqual(["'self'"]);
+  });
+  it("development adds only 'unsafe-eval' to script-src", () => {
+    const dev = parseCsp(contentSecurityPolicy(true));
+    const prod = parseCsp(contentSecurityPolicy(false));
+    expect(dev["script-src"]).toEqual([...prod["script-src"], "'unsafe-eval'"]);
+    expect({ ...dev, "script-src": prod["script-src"] }).toEqual(prod);
+  });
+  it("the checker itself catches a broken policy", () => {
+    expect(checkCsp("default-src 'self'; script-src 'self'").some((c) => c.name === "csp script-src" && !c.ok)).toBe(true);
+    expect(checkCsp("script-src 'self' 'unsafe-inline' https://cdn.example").some((c) => !c.ok)).toBe(true);
+    expect(checkCsp(null)[0].ok).toBe(false);
+  });
+  it("other headers keep their values", () => {
+    const h = Object.fromEntries(securityHeaders(false).map((x) => [x.key.toLowerCase(), x.value]));
+    for (const [k, v] of Object.entries(REQUIRED_HEADERS)) expect(h[k]).toBe(v);
   });
 });

@@ -144,3 +144,25 @@ Each step: pre-flight (git clean, npm test, typecheck, lint), build, post-flight
 | HUMAN_TASKS queued | PASS | 5 Vercel env + region, 6 push + redeploy, 7 smoke-live on the live URL |
 | Live URL | UNKNOWN | not pushed (as instructed); HUMAN_TASKS 6-7 |
 | Post-flight | PASS | 241/241 tests (14 files), typecheck 0, lint 0, build 0 |
+
+# Round 2 (branch round2)
+
+## G0 - UI inventory and baseline (read-only)
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Inventory printed | PASS | routes, components with line counts, globals.css/layout.tsx, font loading (Geist via next/font/google, but body overridden to Arial), style counts (rounded 24, border 57, bg- 32, dark: 47, red 6, yellow 2, amber 16, sky 6, emerald 1, fuchsia 7, neutral 84, shadow 0, gradient 0), state locations, graph drawing, headers block |
+| Baseline | PASS | 241/241 tests, typecheck 0, lint 0, build 0 on branch `round2` |
+
+## G1 - CSP and headers that cannot break the app
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight green | PASS | same as G0 baseline, tree clean |
+| Inline scripts checked in the build output | PASS (measured) | `.next/server/app/index.html`: 7 `<script>` + 1 `<script id="_R_">` inline (`self.__next_f.push(...)`, Turbopack bootstrap); `about.html`: 14; 0 inline style attributes; 0 client chunks containing `eval(` |
+| CSP directives as required | PASS | already matched; kept the existing extra `default-src 'self'` and `worker-src 'self' blob:` (stricter fallback / graph library workers) |
+| Header test parses the policy | PASS | `parseCsp`, `REQUIRED_CSP`, `checkCsp` in `security-headers.ts`; 5 new tests in `f1-safety.test.ts` (exact sources per directive, dev adds only unsafe-eval, checker catches a broken policy, other headers unchanged) |
+| scripts/check-headers.ts against npm run start | PASS | `ALL PASS (48 checks)` on `/`, `/about`, `/api/health` (port 3313) |
+| Trade-off on /about and DEPLOY.md, checklist line | PASS | /about privacy list (test), DEPLOY.md section 2b, UI_CHECKLIST section 7 |
+| CSP in a real browser | UNKNOWN | no browser; queued in the checklist |
+| Post-flight | PASS | 247/247 tests (14 files), typecheck 0, lint 0, build 0 |

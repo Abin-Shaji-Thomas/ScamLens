@@ -46,6 +46,14 @@ Check which names are set locally without printing values:
 node -e "process.loadEnvFile('.env.local'); for (const k of ['SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY','REPORT_HASH_PEPPER','ETHERSCAN_API_KEY','TG_HOST','TG_SECRET','OPENAI_API_KEY']) console.log(k + ': ' + (process.env[k] ? 'SET' : 'MISSING'))"
 ```
 
+## 2b. Security headers and the CSP trade-off
+
+Every response carries a Content Security Policy (browser rules for what a page may load) plus `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY` and a `Permissions-Policy` that turns off camera, microphone, location, payment and USB. Source: `web/src/lib/security-headers.ts`.
+
+Trade-off, in plain words: **inline scripts are allowed** (`script-src 'self' 'unsafe-inline'`) because Next.js 16 writes its page data and start-up code into the HTML as small inline `<script>` tags (checked in the build output on 2026-10-29: 8 on `/`, 14 on `/about`); blocking them would stop the app from working. **No remote scripts are allowed**: no other origin appears anywhere in the policy, so a script from another website cannot load. `'unsafe-eval'` is added only in development. A stricter nonce-based policy would make every page render per request (no static pages), so it was not chosen.
+
+Check a running server: `npx tsx scripts/check-headers.ts <base-url>` prints PASS/FAIL per header (48 checks over `/`, `/about`, `/api/health`).
+
 ## 3. Supabase SQL (in order, SQL editor -> New query)
 
 1. All of `web/db/schema.sql` -> Run. Idempotent (`if not exists`, `create or replace`, `add column if not exists`), safe to re-run after every pull.
