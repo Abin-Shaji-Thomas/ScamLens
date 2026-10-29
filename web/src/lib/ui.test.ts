@@ -83,7 +83,7 @@ describe("G4 minimalist states (server-rendered)", () => {
 
   it("notices are plain paragraphs starting with 'Note'", async () => {
     const r = await runCheck({ text: "Claim your bonus at zz-demo-bonus-claim.example.com today" }, offline);
-    expect(render(createElement(RiskCard, { result: r }))).toMatch(/<p class="t-small mt-4 text-muted">Note: /);
+    expect(render(createElement(RiskCard, { result: r }))).toMatch(/<p class="t-small mt-4 text-swiss-text">Note: /);
   });
 
   it("contested entry: visible with the label", () => {
