@@ -44,7 +44,7 @@ function Section({ id, title, band = false, children }: { id: string; title: str
 }
 
 const A = ({ href, children }: { href: string; children: React.ReactNode }) => (
-  <a href={href} target="_blank" rel="noopener noreferrer">
+  <a href={href} target="_blank" rel="noopener noreferrer" className="tap">
     {children}
   </a>
 );

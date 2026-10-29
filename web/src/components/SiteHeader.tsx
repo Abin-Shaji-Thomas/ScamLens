@@ -8,7 +8,7 @@ export function SiteHeader() {
           <Link href="/" className="inline-flex min-h-11 items-center font-semibold text-swiss-black no-underline">
             ScamLens
           </Link>
-          <Link href="/about" className="inline-flex min-h-11 items-center text-swiss-text no-underline hover:underline">
+          <Link href="/about" className="inline-flex min-h-11 min-w-11 items-center justify-end text-swiss-text no-underline hover:underline">
             About
           </Link>
         </nav>

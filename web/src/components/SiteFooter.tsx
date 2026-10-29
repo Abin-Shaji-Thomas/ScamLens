@@ -5,7 +5,7 @@ export function SiteFooter() {
     <footer className="mt-auto print:hidden">
       <div className="grid grid--bar pb-10">
         <div className="t-small col-span-full flex flex-wrap items-center gap-x-8 gap-y-2 border-t-2 border-swiss-black pt-4 text-swiss-text">
-          <Link href="/about" className="inline-flex min-h-11 items-center text-swiss-black">
+          <Link href="/about" className="inline-flex min-h-11 min-w-11 items-center text-swiss-black">
             About
           </Link>
           <span>Not legal advice</span>

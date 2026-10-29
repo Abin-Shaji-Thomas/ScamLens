@@ -49,8 +49,15 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
   }, [view]);
 
   if (!linkable.length) return null;
-  // A link is on an evidence path when its evidence text is cited by one of the listed paths (Q1-Q3).
-  const onPath = new Set(view?.paths.flatMap((p) => p.evidence) ?? []);
+  // A link is on an evidence path when both of its end labels appear in the same listed path (Q1-Q3).
+  // The graph library replaces link ends with node objects after layout, so both shapes are handled.
+  const labels = new Map(view?.nodes.map((n) => [n.id, n.label]) ?? []);
+  const end = (x: unknown) => (typeof x === "object" && x !== null ? (x as { id: string }).id : String(x));
+  const onPath = (l: Link) => {
+    const a = labels.get(end(l.source));
+    const z = labels.get(end(l.target));
+    return Boolean(a && z && view?.paths.some((p) => p.text.includes(a) && p.text.includes(z)));
+  };
 
   async function load(id: Identifier) {
     setLoading(id.value);
@@ -79,7 +86,7 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
   }
 
   return (
-    <div className="flex flex-col border-t-2 border-swiss-black pt-4">
+    <div className="flex flex-col border-t-2 border-swiss-black pt-4 print:border-t-0">
       <div className="flex flex-wrap gap-x-8 print:hidden">
         {linkable.map((id, i) => (
           <button key={i} type="button" onClick={() => load(id)} disabled={loading !== null} className="btn-link break-id text-left">
@@ -110,10 +117,10 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
                 nodeLabel={(n) => `${(n as Node).type}: ${(n as Node).label}`}
                 nodeVal={(n) => ((n as Node).focus ? 6 : 2)}
                 linkLabel={(l) => (l as Link).evidence}
-                linkColor={(l) => (onPath.has((l as Link).evidence) ? ALERT : GREY)}
-                linkWidth={(l) => (onPath.has((l as Link).evidence) ? 2.5 : 1)}
+                linkColor={(l) => (onPath(l as Link) ? ALERT : GREY)}
+                linkWidth={(l) => (onPath(l as Link) ? 2.5 : 1)}
                 linkDirectionalArrowLength={(l) => ((l as Link).relation === "payment" ? 4 : 0)}
-                linkDirectionalArrowColor={(l) => (onPath.has((l as Link).evidence) ? ALERT : GREY)}
+                linkDirectionalArrowColor={(l) => (onPath(l as Link) ? ALERT : GREY)}
                 nodeCanvasObjectMode={() => "replace"}
                 nodeCanvasObject={(n, ctx, scale) => {
                   const node = n as Node & { x?: number; y?: number };

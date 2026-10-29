@@ -254,7 +254,7 @@ describe("Swiss tiers and risk header (server-rendered)", () => {
     expect(r.verified.some((v) => v.status === "match")).toBe(true);
     const html = render(createElement(RiskCard, { result: r, demo: true }));
     expect(html).toMatch(/<ul class="mt-2 flex flex-col divide-y divide-swiss-rule border-t border-swiss-rule"><li class="flex flex-col py-4"><p class="font-semibold text-swiss-black">Match · /);
-    expect(html).toMatch(/<p class="t-small mt-2 text-swiss-text">[^<]*· checked [^<]*<a href="[^"]+" target="_blank" rel="noreferrer">source<\/a>/);
+    expect(html).toMatch(/<p class="t-small mt-2 text-swiss-text">[^<]*· checked [^<]*<a href="[^"]+" target="_blank" rel="noreferrer" class="tap">source<\/a>/);
     expect(html).toMatch(/<span class="uppercase tracking-\[0.1em\]">evm<\/span> 0x/); // uppercase by CSS, string unchanged
   });
 
@@ -293,8 +293,9 @@ describe("Swiss graph panel", () => {
     expect(src).toContain('const GREY = "#808080";');
     expect(src).toMatch(/ctx\.fillStyle = node\.focus \? INK : WHITE;/); // checked = filled black, others hollow
     expect(src).toContain("ctx.lineWidth = 1.5 / scale;");
-    expect(src).toMatch(/linkColor=\{\(l\) => \(onPath\.has\(\(l as Link\)\.evidence\) \? ALERT : GREY\)\}/);
-    expect(src).toMatch(/linkWidth=\{\(l\) => \(onPath\.has\(\(l as Link\)\.evidence\) \? 2\.5 : 1\)\}/);
+    expect(src).toContain("linkColor={(l) => (onPath(l as Link) ? ALERT : GREY)}");
+    expect(src).toContain("linkWidth={(l) => (onPath(l as Link) ? 2.5 : 1)}");
+    expect(src).toContain("p.text.includes(a) && p.text.includes(z)"); // both ends named in one listed path
     expect(src).toMatch(/ctx\.fillStyle = INK;\s*ctx\.textAlign = "center";\s*ctx\.textBaseline = "top";/); // labels black, below
     // reduced motion kept: layout settled before first paint, no drag animation
     expect(src).toContain("warmupTicks={reduceMotion ? 120 : 0}");
@@ -303,7 +304,7 @@ describe("Swiss graph panel", () => {
 
   it("server render: full-width panel with a 2px top rule and text-link buttons, no canvas yet", () => {
     const html = renderToStaticMarkup(createElement(GraphPanel, { identifiers: extractIdentifiers("0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359") }));
-    expect(html).toMatch(/^<div class="flex flex-col border-t-2 border-swiss-black pt-4">/);
+    expect(html).toMatch(/^<div class="flex flex-col border-t-2 border-swiss-black pt-4 print:border-t-0">/);
     expect(html).not.toContain("<canvas");
   });
 });
@@ -328,5 +329,17 @@ describe("Swiss /about and 404 (server-rendered)", () => {
     expect(html).toMatch(/<a [^>]*href="\/"[^>]*>Go to the check<\/a>/);
     const css = readFileSync(join(import.meta.dirname, "..", "app", "globals.css"), "utf8");
     expect(cssRules(css).find((r) => r.selector === ".t-404")?.body).toMatch(/font-size: clamp\(6rem, 20vw, 16rem\);[\s\S]*font-weight: 300;/);
+  });
+});
+
+describe("Swiss fixes found in the browser", () => {
+  const css = readFileSync(join(import.meta.dirname, "..", "app", "globals.css"), "utf8");
+  const rule = (sel: string) => cssRules(css).find((r) => r.selector === sel)?.body ?? "";
+  it("step numerals do not split a step's sentence into grid cells (a <strong> inside a step stays inline)", () => {
+    expect(rule(".steps > li")).not.toContain("display: grid");
+    expect(rule(".steps > li::before")).toMatch(/position: absolute;[\s\S]*font-size: 2rem;[\s\S]*font-weight: 300;/);
+  });
+  it("links inside sentences get a 44px tap area without a visible gap", () => {
+    expect(rule(".tap")).toMatch(/padding: max\(0px, calc\(\(44px - 1\.1em\) \/ 2\)\) 0\.25rem;\s*margin-inline: -0\.25rem;/);
   });
 });

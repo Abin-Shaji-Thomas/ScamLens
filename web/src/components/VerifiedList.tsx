@@ -28,7 +28,7 @@ function Row({ r }: { r: SourceResult }) {
       <p className="t-small mt-2 text-swiss-text">
         {r.sourceName}
         {r.dataAsOf ? ` · list dated ${r.dataAsOf}` : ""} · checked {r.checkedAt.slice(0, 16).replace("T", " ")} UTC ·{" "}
-        <a href={r.link} target="_blank" rel="noreferrer">
+        <a href={r.link} target="_blank" rel="noreferrer" className="tap">
           source
         </a>
         {r.note ? ` · ${r.note}` : ""}
