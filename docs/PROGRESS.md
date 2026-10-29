@@ -337,3 +337,25 @@ Measured per window size (same on /, samples 1-3; /about and /nope have no form)
 | smoke-live | FAIL then PASS | first run (about 1 minute after the new deployment went live): `FAIL [crypto-investment] request completed (TimeoutError)`, `FAIL [bank-alert] request completed (TypeError)`, `2 FAIL (16 expectations)`. No API code changed in this round (`git diff c860f73..HEAD -- src/app/api src/lib/check.ts src/lib/verified src/lib/signals src/lib/reports` is empty); a direct check then answered 200 in 1.6 s; second run: `ALL PASS (36 expectations)`. Likely a cold start of the fresh deployment; not reverted |
 | check-headers live | PASS | `ALL PASS (48 checks)` |
 | Live screenshots and console | PASS | `docs/screens/live-{home-375,home-1920,sample1-375,sample1-1440,sample1-1920,about-1440}.png`; no console messages on /, sample 1, /about; no overflow; grid 91.7% at 1920; smallest tap target 44 px; sample 1 High, meter 3. Matches the local after-screenshots |
+
+# Final quality round (branch final-quality, 2026-10-30)
+
+## J0 - Pre-flight and truth
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Identity | PASS | `Abin-Shaji-Thomas` / `abinshajiabin2006@gmail.com` |
+| Swiss UI round on main | PASS | `b41bd7d style(layout)`, `b55007e style(ui)`, `22293cb feat(health)` in `git log`; main = origin/main |
+| Baseline | PASS | `Tests 339 passed (339)` (17 files), typecheck 0, lint 0, build 0 |
+| Live current | PASS | live `"build":"9e95b19"` = `git rev-parse --short HEAD` |
+| Env names | PASS | SET: Supabase (3), pepper, Etherscan, TG (3), RECEIPT_SIGNING_KEY (`valid ed25519`); MISSING: optional tuning names and all OPENAI_* (AI off by owner decision) |
+
+## J1 - Knowledge base and sync tooling
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| 22 files with the six template sections | PASS | `docs/knowledge/README.md` ... `20-LAUNCH-KIT.md` |
+| Generated blocks and facts | PASS | `npm run docs:generate`: rules, env, limits, chains, routes, deps, db, eval, tests, commits; facts for rule count, limits, eval numbers |
+| docs:check | PASS | `docs:check PASS` |
+| Stale edit detected | PASS | rule_count fact 18 -> 17 and a rule id edited in a copy: `FAIL ... generated block "rules" is stale`, `FAIL ... fact "rule_count" says "17" but the code says "18"`, `docs:check FAILED (2 problem(s))`; restored, `docs:check PASS` |
+| vitest docs test | PASS | `web/src/lib/docs.test.ts` (4 tests incl. one proving each checker rule fires) |
