@@ -52,22 +52,22 @@ export function ReportForm({ identifiers }: { identifiers: Identifier[] }) {
         Report these identifiers
       </h3>
       <fieldset className="mt-4 flex flex-col gap-2">
-        <legend className="t-small text-muted">Identifiers to include</legend>
+        <legend className="t-small text-swiss-text">Identifiers to include</legend>
         {unique.map((id, i) => (
           <label key={i} className="break-id flex items-start gap-3">
             <input
               type="checkbox"
-              className="mt-1.5 accent-ink"
+              className="mt-1.5 accent-swiss-black"
               checked={picked.has(i)}
               onChange={() => setPicked((s) => (s.has(i) ? new Set([...s].filter((x) => x !== i)) : new Set([...s, i])))}
             />
             <span>
-              {id.value} <span className="t-small text-muted">· {id.type}</span>
+              {id.value} <span className="t-small text-swiss-text">· {id.type}</span>
             </span>
           </label>
         ))}
       </fieldset>
-      <label htmlFor={categoryId} className="t-small mt-6 text-muted">
+      <label htmlFor={categoryId} className="t-small mt-6 text-swiss-text">
         Scam type
       </label>
       <select id={categoryId} value={category} onChange={(e) => setCategory(e.target.value as typeof category)} className="field mt-1 self-start">
@@ -78,7 +78,7 @@ export function ReportForm({ identifiers }: { identifiers: Identifier[] }) {
         ))}
       </select>
       <label className="mt-6 flex items-start gap-3">
-        <input type="checkbox" className="mt-1.5 accent-ink" checked={consent} onChange={(e) => setConsent(e.target.checked)} required />
+        <input type="checkbox" className="mt-1.5 accent-swiss-black" checked={consent} onChange={(e) => setConsent(e.target.checked)} required />
         <span>
           I confirm these identifiers were used against me or someone I know. Only a hash and a masked form are stored, not my chat.
           Reports expire after 90 days.

@@ -53,7 +53,7 @@ export default function AboutPage() {
   return (
     <main className="mx-auto w-full max-w-[40rem] px-6 pt-12 sm:pt-16">
       <p className="t-small">
-        <Link href="/" className="text-muted">
+        <Link href="/" className="text-swiss-text">
           Back to the check
         </Link>
       </p>

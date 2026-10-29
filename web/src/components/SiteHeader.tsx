@@ -6,7 +6,7 @@ export function SiteHeader() {
       <Link href="/" className="font-semibold no-underline">
         ScamLens
       </Link>
-      <Link href="/about" className="text-muted no-underline hover:underline">
+      <Link href="/about" className="text-swiss-text no-underline hover:underline">
         About
       </Link>
     </header>

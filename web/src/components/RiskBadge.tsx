@@ -11,15 +11,15 @@ export function RiskBadge({ risk }: { risk: Risk }) {
       <p className="t-small mt-4" aria-label={`Scale: ${risk.label}`}>
         {ORDER.map((l, i) => (
           <span key={l}>
-            {i > 0 && <span className="text-muted"> · </span>}
-            <span className={l === risk.level ? "font-semibold text-ink" : "text-muted"} aria-current={l === risk.level ? "true" : undefined}>
+            {i > 0 && <span className="text-swiss-text"> · </span>}
+            <span className={l === risk.level ? "font-semibold text-swiss-black" : "text-swiss-text"} aria-current={l === risk.level ? "true" : undefined}>
               {RISK_SHORT[l]}
             </span>
           </span>
         ))}
       </p>
       {risk.reasons.length > 0 && (
-        <ul className="t-small mt-6 flex flex-col gap-1 text-muted">
+        <ul className="t-small mt-6 flex flex-col gap-1 text-swiss-text">
           {risk.reasons.map((r, i) => (
             <li key={i}>{r}</li>
           ))}

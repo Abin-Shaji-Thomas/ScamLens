@@ -1,20 +1,33 @@
 @import "tailwindcss";
 
-/* Minimal palette (round 2, G4). These four values are the only colours in the app; a test enforces it. */
+/*
+ * Minimalism & Swiss Style palette (UI round). These ten values are the only colours in the app; a test enforces it.
+ * Text may only be black, --swiss-text, white (on black), clay, or alert (the word "High" only).
+ * --swiss-grey and --swiss-tan never carry text: grey is for dividers, graph links and disabled borders,
+ * tan only for the decorative hover rule on white.
+ */
 :root {
-  --paper: #ffffff;
-  --ink: #111111;
-  --muted: #767676; /* 4.54:1 on white, passes WCAG AA for body text */
-  --hairline: #eeeeee;
-  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  color-scheme: light;
+  --swiss-black: #000000;
+  --swiss-white: #ffffff;
+  --swiss-paper: #f5f1e8; /* alternate section bands */
+  --swiss-text: #4b5563; /* secondary text: 7.56:1 on white, 6.70:1 on paper */
+  --swiss-rule: #e5e7eb; /* 1px dividers (decorative) */
+  --swiss-grey: #808080; /* dividers, graph links, disabled borders; never text */
+  --swiss-tan: #b38b6d; /* hover rule on white only; never text, never on paper (2.73:1) */
+  --swiss-clay: #7a4f32; /* accent text, link hover, hover rule on paper */
+  --swiss-alert: #b00020; /* only the word "High" (and its meter) and the graph's evidence-path link */
+  --swiss-black-hover: #1f2937;
+  --font: "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif;
+  color-scheme: only light;
 }
 
 @theme inline {
-  --color-paper: var(--paper);
-  --color-ink: var(--ink);
-  --color-muted: var(--muted);
-  --color-hairline: var(--hairline);
+  --color-swiss-black: var(--swiss-black);
+  --color-swiss-white: var(--swiss-white);
+  --color-swiss-paper: var(--swiss-paper);
+  --color-swiss-text: var(--swiss-text);
+  --color-swiss-rule: var(--swiss-rule);
+  --color-swiss-clay: var(--swiss-clay);
   --font-sans: var(--font);
   --font-mono: var(--font);
   --radius-none: 0;
@@ -29,41 +42,39 @@
   }
 
   html {
-    background: var(--paper);
+    background: var(--swiss-white);
   }
 
   body {
-    background: var(--paper);
-    color: var(--ink);
+    background: var(--swiss-white);
+    color: var(--swiss-black);
     font-family: var(--font);
-    font-size: 16px;
-    line-height: 26px;
+    font-size: 1.125rem;
+    line-height: 1.6;
     font-weight: 400;
   }
 
-
   a {
-    color: var(--ink);
+    color: var(--swiss-black);
     text-decoration: underline;
     text-underline-offset: 3px;
     text-decoration-thickness: 1px;
+    transition: color 200ms ease;
   }
   a:hover {
-    text-decoration-thickness: 2px;
+    color: var(--swiss-clay);
   }
 
-
-  /* Visible keyboard focus everywhere (fields use their 2px underline instead). */
+  /* Visible keyboard focus on every interactive element. */
   :focus-visible {
-    outline: 2px solid var(--ink);
-    outline-offset: 2px;
+    outline: 2px solid var(--swiss-black);
+    outline-offset: 3px;
   }
-
 
   /* Quoted phrases: underline and weight, never a background colour. */
   mark.quote {
     background: transparent;
-    color: var(--ink);
+    color: var(--swiss-black);
     font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 3px;
@@ -75,42 +86,87 @@
 }
 
 @layer components {
-  /* Type scale: hierarchy through weight (400/600) and explicit line heights only. */
+  /* Type scale. Weight 300 only at 28px and above; smaller headings use 400. Never below 14px. */
   .t-title {
-    font-size: 32px;
-    line-height: 36px;
-    font-weight: 600;
+    font-size: clamp(2.5rem, 6vw, 6rem);
+    line-height: 1.05;
+    font-weight: 300;
     letter-spacing: -0.01em;
   }
-  @media (min-width: 640px) {
-    .t-title {
-      font-size: 40px;
-      line-height: 44px;
-    }
-  }
   .t-h2 {
-    font-size: 20px;
-    line-height: 28px;
-    font-weight: 600;
+    font-size: 1.5rem;
+    line-height: 1.3;
+    font-weight: 400;
   }
   .t-body {
-    font-size: 16px;
-    line-height: 26px;
+    font-size: 1.125rem;
+    line-height: 1.6;
   }
   .t-small {
-    font-size: 14px;
-    line-height: 22px;
+    font-size: 0.875rem;
+    line-height: 1.5;
   }
   .t-risk {
-    font-size: 32px;
-    line-height: 36px;
-    font-weight: 600;
+    font-size: clamp(3rem, 8vw, 8rem);
+    line-height: 1;
+    font-weight: 300;
+    letter-spacing: -0.01em;
   }
-  @media (min-width: 640px) {
-    .t-risk {
-      font-size: 40px;
-      line-height: 44px;
-    }
+  .lead {
+    color: var(--swiss-text);
+    max-width: 40rem;
+  }
+  /* Small label above a block. Uppercase is CSS only; the string stays as written. */
+  .eyebrow {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--swiss-text);
+  }
+  /* Reading text is never uppercase and never wider than 65 characters. */
+  .measure {
+    max-width: 65ch;
+  }
+
+  /* Cards: a 2px black top rule instead of a box. The hover rule is tan on white and clay on a paper band. */
+  .card {
+    border-top: 2px solid var(--swiss-black);
+    padding-top: 1.5rem;
+    color: var(--swiss-text);
+    transition: border-color 200ms ease;
+  }
+  .card:hover {
+    border-top-color: var(--swiss-tan);
+  }
+  .band {
+    background: var(--swiss-paper);
+  }
+  .band .card:hover {
+    border-top-color: var(--swiss-clay);
+  }
+
+  /* Risk header: alert is used only for High (the word and its meter segments). */
+  .risk-word[data-level="high"] {
+    color: var(--swiss-alert);
+  }
+  .meter {
+    display: flex;
+    gap: 4px;
+  }
+  .meter__seg {
+    height: 8px;
+    flex: 1 1 0;
+    border: 1px solid var(--swiss-grey);
+    background: var(--swiss-white);
+  }
+  .meter__seg[data-filled="true"] {
+    border-color: var(--swiss-black);
+    background: var(--swiss-black);
+  }
+  .meter[data-level="high"] .meter__seg[data-filled="true"] {
+    border-color: var(--swiss-alert);
+    background: var(--swiss-alert);
   }
 
   /* Long identifiers (wallet addresses) wrap instead of overflowing, in the same sans font. */
@@ -119,67 +175,52 @@
     word-break: break-word;
   }
 
-
-  /* Buttons: flat and square. Primary = ink on paper inverted; link = underlined text. */
   .btn-primary {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--swiss-black);
+    color: var(--swiss-white);
     font-weight: 600;
     padding: 10px 24px;
     border: 0;
     cursor: pointer;
   }
-  .btn-primary:hover {
-    opacity: 0.85;
-  }
   .btn-primary:disabled {
-    opacity: 0.4;
+    background: var(--swiss-white);
+    color: var(--swiss-text);
     cursor: not-allowed;
   }
   .btn-link {
     background: transparent;
     border: 0;
     padding: 0;
-    color: var(--ink);
+    color: var(--swiss-black);
     text-decoration: underline;
     text-underline-offset: 3px;
     text-decoration-thickness: 1px;
     cursor: pointer;
     font: inherit;
   }
-  .btn-link:hover {
-    text-decoration-thickness: 2px;
-  }
   .btn-link:disabled {
-    opacity: 0.4;
+    color: var(--swiss-text);
     cursor: not-allowed;
   }
 
-  /* Inputs: borderless, a single underline (1px, 2px on focus). */
   .field {
     width: 100%;
     background: transparent;
     border: 0;
-    border-bottom: 1px solid var(--ink);
+    border-bottom: 1px solid var(--swiss-black);
     padding: 8px 0;
-    color: var(--ink);
+    color: var(--swiss-black);
     font: inherit;
     resize: vertical;
   }
   .field::placeholder {
-    color: var(--muted);
+    color: var(--swiss-text);
     opacity: 1;
-  }
-  .field:focus {
-    outline: none;
-    border-bottom-width: 2px;
-    padding-bottom: 7px;
-  }
-  .field:focus-visible {
-    outline: none;
   }
 }
 
+/* Motion: 200ms colour transitions only, and none at all when the user asks for reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -190,17 +231,28 @@
   }
 }
 
-/* Print: a clean black-on-white evidence pack; controls are hidden with print:hidden. */
+/* Print: pure black on white, no bands, no meter colour, no oversized type. Controls are hidden with print:hidden. */
 @media print {
   :root {
-    --ink: #111111;
-    --paper: #ffffff;
+    --swiss-text: #000000;
+    --swiss-clay: #000000;
+    --swiss-alert: #000000;
+    --swiss-paper: #ffffff;
   }
   body {
     font-size: 11pt;
     line-height: 1.5;
+    background: #ffffff;
+    color: #000000;
+  }
+  .t-title,
+  .t-risk {
+    font-size: 24pt;
+    line-height: 1.1;
+    font-weight: 400;
   }
   a {
+    color: #000000;
     text-decoration: underline;
   }
 }

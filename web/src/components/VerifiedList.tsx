@@ -14,9 +14,9 @@ function Row({ r }: { r: SourceResult }) {
       <p className="font-semibold">
         {STATUS[r.status]} · {r.sourceName}
       </p>
-      <p className="mt-1 text-muted">{r.summary}</p>
+      <p className="mt-1 text-swiss-text">{r.summary}</p>
       {r.facts.length > 0 && r.status !== "unavailable" && (
-        <dl className="t-small mt-2 grid grid-cols-[auto_1fr] gap-x-4 text-muted">
+        <dl className="t-small mt-2 grid grid-cols-[auto_1fr] gap-x-4 text-swiss-text">
           {r.facts.map((f, i) => (
             <div key={i} className="contents">
               <dt>{f.label}</dt>
@@ -25,7 +25,7 @@ function Row({ r }: { r: SourceResult }) {
           ))}
         </dl>
       )}
-      <p className="t-small mt-2 text-muted">
+      <p className="t-small mt-2 text-swiss-text">
         {r.sourceName}
         {r.dataAsOf ? ` · list dated ${r.dataAsOf}` : ""} · checked {r.checkedAt.slice(0, 16).replace("T", " ")} UTC ·{" "}
         <a href={r.link} target="_blank" rel="noreferrer">
@@ -47,7 +47,7 @@ export function VerifiedList({ results }: { results: SourceResult[] }) {
     <div className="flex flex-col gap-10">
       {[...groups.entries()].map(([key, rs]) => (
         <div key={key}>
-          <p className="t-small break-id text-muted">
+          <p className="t-small break-id text-swiss-text">
             {rs[0].identifier.type.toUpperCase()} {rs[0].identifier.value}
           </p>
           <ul className="mt-4 flex flex-col gap-6">

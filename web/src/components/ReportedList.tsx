@@ -13,7 +13,7 @@ function Contest({ id }: { id: Identifier }) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
-  if (msg) return <p className="t-small mt-2 text-muted" role="status">{msg}</p>;
+  if (msg) return <p className="t-small mt-2 text-swiss-text" role="status">{msg}</p>;
   if (!open)
     return (
       <button type="button" onClick={() => setOpen(true)} className="btn-link t-small mt-2 self-start" aria-expanded="false">
@@ -38,7 +38,7 @@ function Contest({ id }: { id: Identifier }) {
         }
       }}
     >
-      <label htmlFor={reasonId} className="t-small text-muted">
+      <label htmlFor={reasonId} className="t-small text-swiss-text">
         Why is this entry wrong? (10 to 500 characters)
       </label>
       <textarea
@@ -65,7 +65,7 @@ function Contest({ id }: { id: Identifier }) {
 
 export function ReportedList({ tier, identifiers }: { tier: ReportedTier; identifiers: Identifier[] }) {
   if (tier.status === "unavailable") {
-    return <p className="text-muted">Note: Reports database unavailable ({tier.reason}). This is not a clean result.</p>;
+    return <p className="text-swiss-text">Note: Reports database unavailable ({tier.reason}). This is not a clean result.</p>;
   }
   return (
     <ul className="flex flex-col gap-6">
@@ -73,16 +73,16 @@ export function ReportedList({ tier, identifiers }: { tier: ReportedTier; identi
         const own = identifiers.find((id) => id.type === e.type && maskIdentifier(id.type, id.value) === e.display);
         return (
           <li key={i} className="flex flex-col">
-            {e.synthetic && <p className="t-small text-muted">{WATERMARK}</p>}
+            {e.synthetic && <p className="t-small text-swiss-text">{WATERMARK}</p>}
             <p className="break-id font-semibold">
               {e.display} was reported by {e.reporters} independent people
             </p>
-            <p className="mt-1 text-muted">
+            <p className="mt-1 text-swiss-text">
               {e.categories.join(", ").replaceAll("_", " ")} · {e.firstReported} to {e.lastReported}
             </p>
             {e.contested && (
               <p className="mt-2">
-                <span className="font-semibold">{CONTESTED_LABEL}.</span> <span className="text-muted">{CONTESTED_NOTE}</span>
+                <span className="font-semibold">{CONTESTED_LABEL}.</span> <span className="text-swiss-text">{CONTESTED_NOTE}</span>
               </p>
             )}
             {own && !e.contested && <Contest id={own} />}

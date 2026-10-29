@@ -12,13 +12,13 @@ import { VerifiedList } from "./VerifiedList";
 import { WhatToDoNow } from "./WhatToDoNow";
 
 function Identifiers({ ids }: { ids: CheckResponse["identifiers"] }) {
-  if (!ids.length) return <p className="text-muted">No wallet, UPI, phone, Telegram, email or link found.</p>;
+  if (!ids.length) return <p className="text-swiss-text">No wallet, UPI, phone, Telegram, email or link found.</p>;
   return (
     <ul className="flex flex-col gap-2">
       {ids.map((i, k) => (
         <li key={k} className="break-id">
           <span className="font-semibold">{i.value}</span>
-          <span className="t-small text-muted">
+          <span className="t-small text-swiss-text">
             {" "}
             · {i.type} · {i.check === "checksum" ? "checksum valid" : "format valid"}
           </span>
@@ -32,16 +32,16 @@ export function RiskCard({ result, demo = false }: { result: CheckResponse | nul
   const [verified, reported, suspected] = TIERS;
   return (
     <div className="flex flex-col">
-      <h2 id="risk-card-title" tabIndex={-1} className="t-small text-muted outline-none">
+      <h2 id="risk-card-title" tabIndex={-1} className="t-small text-swiss-text outline-none">
         Risk card
       </h2>
-      {!result && <p className="mt-2 text-muted">Paste something and press Check</p>}
+      {!result && <p className="mt-2 text-swiss-text">Paste something and press Check</p>}
       {result && (
         <div className="mt-4 flex flex-col">
-          {demo && <p className="t-small mb-4 text-muted">{DEMO_LABEL}</p>}
+          {demo && <p className="t-small mb-4 text-swiss-text">{DEMO_LABEL}</p>}
           <RiskBadge risk={result.risk} />
           {result.notices.map((n, i) => (
-            <p key={i} className="t-small mt-4 text-muted">
+            <p key={i} className="t-small mt-4 text-swiss-text">
               Note: {n}
             </p>
           ))}
@@ -65,7 +65,7 @@ export function RiskCard({ result, demo = false }: { result: CheckResponse | nul
         <TierSection tier={reported}>
           {result ? (
             <div className="flex flex-col gap-6">
-              {result.risk.reportedMessage && <p className="text-muted">{result.risk.reportedMessage}</p>}
+              {result.risk.reportedMessage && <p className="text-swiss-text">{result.risk.reportedMessage}</p>}
               <ReportedList tier={result.reported} identifiers={result.identifiers} />
               <GraphPanel identifiers={result.identifiers} />
             </div>
@@ -73,7 +73,7 @@ export function RiskCard({ result, demo = false }: { result: CheckResponse | nul
         </TierSection>
         <TierSection tier={suspected}>{result ? <SuspectedList signals={result.suspected} ai={result.ai} /> : undefined}</TierSection>
         {result && (
-          <div className="flex flex-col gap-8 border-t border-hairline pt-8">
+          <div className="flex flex-col gap-8 border-t border-swiss-rule pt-8">
             <EvidencePackButton result={result} demo={demo} />
             {!demo && <ReportForm key={result.checkedAt} identifiers={result.identifiers} />}
           </div>

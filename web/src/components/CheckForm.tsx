@@ -51,7 +51,7 @@ export function CheckForm() {
           void submit();
         }}
       >
-        <label htmlFor="input" className="t-small text-muted">
+        <label htmlFor="input" className="t-small text-swiss-text">
           Paste a suspicious chat, wallet address, UPI ID or Telegram handle
         </label>
         <textarea
@@ -66,16 +66,16 @@ export function CheckForm() {
           placeholder="Paste the message here"
           className="field mt-2"
         />
-        {demo && <p className="t-small mt-3 text-muted">{SAMPLE_WATERMARK}</p>}
+        {demo && <p className="t-small mt-3 text-swiss-text">{SAMPLE_WATERMARK}</p>}
         <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4">
           <button type="submit" disabled={loading || text.trim().length === 0} className="btn-primary">
             {loading ? "Checking..." : "Check"}
           </button>
           <ScreenshotTrigger />
         </div>
-        <p className="t-small mt-4 text-muted">Processed in memory. We do not store your chat.</p>
+        <p className="t-small mt-4 text-swiss-text">Processed in memory. We do not store your chat.</p>
         <div className="t-small mt-6 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <span className="text-muted">Try a sample:</span>
+          <span className="text-swiss-text">Try a sample:</span>
           {SAMPLES.map((s) => (
             <button
               key={s.id}
@@ -97,7 +97,7 @@ export function CheckForm() {
             {error}
           </p>
         )}
-        {loading && <p className="mt-6 text-muted">Checking lists, on-chain history and reports. This can take up to 10 seconds.</p>}
+        {loading && <p className="mt-6 text-swiss-text">Checking lists, on-chain history and reports. This can take up to 10 seconds.</p>}
       </form>
       <div className="print:hidden">
         <ScreenshotInput

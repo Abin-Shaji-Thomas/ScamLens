@@ -10,9 +10,10 @@ import { MAX_GRAPH_LOOKUPS } from "@/lib/limits";
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), { ssr: false });
 
 // Grayscale only (G4): the checked identifier is a filled ink circle, others hollow with a 1px ink stroke.
-const INK = "#111111";
-const MUTED = "#767676";
-const PAPER = "#ffffff";
+const INK = "#000000";
+const GREY = "#808080";
+const ALERT = "#b00020"; // only the evidence-path link
+const WHITE = "#ffffff";
 const R_FOCUS = 6;
 const R_NODE = 4.5;
 const WAKING_AFTER_MS = 3000;
@@ -46,6 +47,8 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
   }, [view]);
 
   if (!linkable.length) return null;
+  // A link is on an evidence path when its evidence text is cited by one of the listed paths (Q1-Q3).
+  const onPath = new Set(view?.paths.flatMap((p) => p.evidence) ?? []);
 
   async function load(id: Identifier) {
     setLoading(id.value);
@@ -83,32 +86,32 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
         ))}
       </div>
       <div aria-live="polite" className="mt-3">
-        {waking && <p className="text-muted">The graph database is waking up. This can take up to a minute the first time.</p>}
+        {waking && <p className="text-swiss-text">The graph database is waking up. This can take up to a minute the first time.</p>}
         {error && <p>Note: {error}</p>}
         {view?.status === "unavailable" && <p>Note: Link graph unavailable ({view.reason}). This is not a clean result.</p>}
       </div>
       {view?.status === "ok" && (
         <>
-          {view.synthetic && <p className="t-small mt-4 text-muted">{DEMO_LABEL}</p>}
+          {view.synthetic && <p className="t-small mt-4 text-swiss-text">{DEMO_LABEL}</p>}
           {view.nodes.length === 0 ? (
-            <p className="mt-4 text-muted">No linked identifiers in reports. This does not mean safe.</p>
+            <p className="mt-4 text-swiss-text">No linked identifiers in reports. This does not mean safe.</p>
           ) : (
             <div ref={box} role="img" aria-label="Link graph; the same links are listed as text below." className="mt-4 w-full overflow-hidden print:hidden">
               <ForceGraph2D
                 graphData={{ nodes: view.nodes.map((n) => ({ ...n })), links: view.links.map((l) => ({ ...l })) }}
                 width={width}
                 height={Math.min(300, Math.round(width * 0.75))}
-                backgroundColor={PAPER}
+                backgroundColor={WHITE}
                 warmupTicks={reduceMotion ? 120 : 0}
                 cooldownTicks={reduceMotion ? 0 : Infinity}
                 enableNodeDrag={!reduceMotion}
                 nodeLabel={(n) => `${(n as Node).type}: ${(n as Node).label}`}
                 nodeVal={(n) => ((n as Node).focus ? 6 : 2)}
                 linkLabel={(l) => (l as Link).evidence}
-                linkColor={() => MUTED}
-                linkWidth={1}
+                linkColor={(l) => (onPath.has((l as Link).evidence) ? ALERT : GREY)}
+                linkWidth={(l) => (onPath.has((l as Link).evidence) ? 2.5 : 1)}
                 linkDirectionalArrowLength={(l) => ((l as Link).relation === "payment" ? 4 : 0)}
-                linkDirectionalArrowColor={() => MUTED}
+                linkDirectionalArrowColor={(l) => (onPath.has((l as Link).evidence) ? ALERT : GREY)}
                 nodeCanvasObjectMode={() => "replace"}
                 nodeCanvasObject={(n, ctx, scale) => {
                   const node = n as Node & { x?: number; y?: number };
@@ -116,7 +119,7 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
                   const r = node.focus ? R_FOCUS : R_NODE;
                   ctx.beginPath();
                   ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
-                  ctx.fillStyle = node.focus ? INK : PAPER;
+                  ctx.fillStyle = node.focus ? INK : WHITE;
                   ctx.fill();
                   ctx.lineWidth = 1 / scale;
                   ctx.strokeStyle = INK;
@@ -142,11 +145,11 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
             {view.paths.map((p, i) => (
               <li key={i}>
                 <span className="font-semibold">{p.query}</span> {p.text}
-                {p.evidence.length > 0 && <span className="text-muted"> Evidence: {p.evidence.join("; ")}.</span>}
+                {p.evidence.length > 0 && <span className="text-swiss-text"> Evidence: {p.evidence.join("; ")}.</span>}
               </li>
             ))}
           </ul>
-          <p className="t-small mt-4 text-muted">
+          <p className="t-small mt-4 text-swiss-text">
             Graph backend: {view.backend}. Links come from community reports and on-chain transfers; a link is not proof of
             wrongdoing. Exchange and high-traffic addresses are excluded so unrelated people are not linked.
           </p>

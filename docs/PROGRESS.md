@@ -249,3 +249,15 @@ Browser tooling for this round: headless Microsoft Edge driven over the Chrome D
 | Smallest tap target (before) | NOTE | 22 px (sample links), 19 px ("Back to the check" on /about) |
 | Sample 1 risk (before) | PASS | "High" (meter did not exist yet) |
 | Console (before) | PASS | no messages on /, after sample 1, /about |
+
+## U1 - Tokens and tests
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight | PASS | 298/298, typecheck 0, lint 0, tree clean (after U0) |
+| Ten Swiss tokens as CSS variables, light only | PASS | `globals.css` `:root` `--swiss-black` ... `--swiss-black-hover`, `color-scheme: only light`; Tailwind tokens `text-swiss-*`, `bg-swiss-*`, `border-swiss-*` (grey and tan deliberately not registered as Tailwind colours) |
+| Base styles | PASS | body 1.125rem/1.6, `.t-title` weight 300 clamp(2.5rem, 6vw, 6rem)/1.05, `.t-h2` 1.5rem weight 400, `.t-small` 0.875rem/1.5, `.eyebrow`, `.measure` 65ch, `.card`, `.band`, risk/meter alert selectors, focus 2px black offset 3px, links hover clay 200ms, reduced motion, print black on white |
+| Style test updated (deliberate requirement change) | PASS | allow-list = the ten hex values; still bans shadow, rounded (except rounded-none), gradient, dark:, Tailwind palette colours (now including black and white); new: 200ms colour-only transitions, no keyframes/animate-*, `color-scheme: only light`, font stack |
+| Contrast test | PASS | `src/lib/contrast.test.ts`: 9 text pairs >= 4.5 (lowest: clay on paper 6.23), 6 UI pairs >= 3 (lowest: tan on white 3.07); grey/tan never text; tan never on `.band`; alert only in `[data-level="high"]` CSS and GraphPanel |
+| Tests catch violations | PASS | injected `.x{color:var(--swiss-tan)}`, `.band .y{border-color:var(--swiss-tan)}`, `.z{color:var(--swiss-alert);transition:transform 300ms}` -> `Tests 4 failed | 28 passed (32)`; file restored |
+| Post-flight | PASS | `Tests 319 passed (319)`, typecheck 0, lint 0, build 0 |

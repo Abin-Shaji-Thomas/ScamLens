@@ -83,7 +83,7 @@ export function ScreenshotInput({ onCheck, disabled }: { onCheck: (text: string)
         }}
       />
       <div aria-live="polite">
-        {reading && <p className="mt-6 text-muted">Reading the screenshot...</p>}
+        {reading && <p className="mt-6 text-swiss-text">Reading the screenshot...</p>}
         {error && (
           <p className="mt-6">
             <span className="font-semibold">Error. </span>
@@ -93,7 +93,7 @@ export function ScreenshotInput({ onCheck, disabled }: { onCheck: (text: string)
       </div>
       {transcript !== null && (
         <div className="mt-12 flex flex-col">
-          <label htmlFor={textId} className="t-small text-muted">
+          <label htmlFor={textId} className="t-small text-swiss-text">
             Text read from your screenshot. Edit if needed, then check.
           </label>
           <textarea
@@ -104,7 +104,7 @@ export function ScreenshotInput({ onCheck, disabled }: { onCheck: (text: string)
             rows={6}
             className="field mt-2"
           />
-          {truncated && <p className="t-small mt-3 text-muted">Only the first {MAX_TEXT_CHARS.toLocaleString("en-IN")} characters were kept.</p>}
+          {truncated && <p className="t-small mt-3 text-swiss-text">Only the first {MAX_TEXT_CHARS.toLocaleString("en-IN")} characters were kept.</p>}
           <div className="mt-6">
             <button type="button" disabled={disabled || transcript.trim().length === 0} onClick={() => onCheck(transcript)} className="btn-primary">
               Check this text
@@ -112,7 +112,7 @@ export function ScreenshotInput({ onCheck, disabled }: { onCheck: (text: string)
           </div>
         </div>
       )}
-      <p className="t-small mt-4 text-muted">
+      <p className="t-small mt-4 text-swiss-text">
         Screenshots are shrunk in your browser, sent once to our AI provider to read the text, and not stored.
       </p>
     </div>
