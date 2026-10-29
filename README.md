@@ -26,12 +26,18 @@ Every card also shows a plain-language explanation of the risk level and a **Wha
 - **Elevated signals**: Suspected signals or reports that do not meet the High rule. **AI or pattern signals alone can never produce High.**
 - **Low signals - not a safety guarantee**: nothing found. The card always says *"No known reports. This does not mean safe."*, or that the reports database is unavailable.
 - **Failure rule**: a source that errors or times out is shown as **unavailable**, never as clean. There is no "safe" status in the code.
+- **Contested reports** stay visible, labelled **"Contested, under review"**, and count as a weak signal only: they can raise a result to Elevated, never to High. Nobody can erase a report by contesting it; a moderator upholds (removes the reports) or dismisses (clears the label) each contest with the SQL in [docs/MODERATION.md](docs/MODERATION.md).
+- **Warning context**: a rule hit inside a sentence that warns about scams or reports on them ("Police never ask you to stay on a video call", "guaranteed returns are a red flag", "News: ...") is still shown, under a collapsed note "Mentioned in a warning or news-style text", but carries no weight. Only protective phrases count as markers, only in the same sentence or a previous sentence that the hit's sentence clearly continues within the same message, so a decoy "Beware of fake sites." sentence does not switch off the scam lines after it (tested).
 
 ### Trust anchors
 
 - **AI proposes, code disposes.** Identifiers come only from our extractor (`web/src/lib/identifiers.ts`: EIP-55, Base58Check with version bytes, bech32/bech32m, strict UPI/+91/Telegram/email/domain formats). The LLM may only return `{rule_id, quote}`; unknown rule ids and quotes that are not exact substrings of the input are dropped. A screenshot is only transcribed; the user edits and confirms the text, and that text goes through the same extractor and rules.
 - **No raw chats stored or logged.** Checks run in memory. The logger accepts only an event name, a status and a duration (tested). Reports store a peppered HMAC of each identifier, a masked display (e.g. `zz***d@okdemo`), the scam type and a hashed network fingerprint.
 - **Wording.** "Reported", "linked", "matched list X on date Y". A test scans all source files for accusatory words.
+
+## Design
+
+Minimal and typographic, like a printed page: white `#ffffff`, ink `#111111`, secondary text `#767676` (4.54:1 on white) and hairline rules `#eeeeee`, nothing else. System sans-serif fonts only; hierarchy through weight and line height; one 40rem column with large gaps. No boxes, shadows, rounded corners, colour coding or dark mode. The risk level is a large word plus a "Low signals · Elevated · High" scale, so colour is never needed to read it. Every interactive element has a 2 px focus outline. The graph is grayscale and stays still when the system asks for reduced motion. A test (`web/src/lib/style.test.ts`) fails the build on any colour, shadow, rounded corner or dark-mode class outside this palette.
 
 ## Architecture
 
@@ -66,12 +72,12 @@ web/                        Next.js 16 app (Vercel root directory)
   src/lib/transcribe.ts     screenshot -> text
   src/lib/reports/          hashing, masking, 2-reporter rule, contest
   src/lib/graph/            findLinks: TigerGraph REST or Postgres recursive CTE
-  db/schema.sql             tables + SQL functions (Supabase or local PGlite)
+  db/schema.sql             tables + SQL functions (Supabase or local PGlite); db/migrations/ for later changes
   data/                     OFAC + ScamSniffer snapshots (scripts/sync-lists.ts)
-  scripts/                  sync-lists, smoke-verified, smoke-transcribe, smoke-live, probe-etherscan-chains, graph-demo, tg-setup, redos-check
+  scripts/                  sync-lists, smoke-verified, smoke-transcribe, smoke-live, check-headers, probe-etherscan-chains, graph-demo, tg-setup, redos-check
 graph/                      TigerGraph schema, migrations, GSQL queries Q1-Q4 (see graph/README.md)
 eval/                       synthetic labelled chats, scorer, RESULTS.md
-docs/                       SPEC, AUDIT, PROGRESS, HUMAN_TASKS, DEPLOY, CHAIN_SUPPORT, UI_CHECKLIST
+docs/                       SPEC, AUDIT, PROGRESS, HUMAN_TASKS, DEPLOY, MODERATION, CHAIN_SUPPORT, UI_CHECKLIST
 ```
 
 **Link graph (TigerGraph).** Q1 UPI -> wallet -> Telegram linked only through a shared wallet, with the two halves from two different reporters; Q2 wallet -> up to 2 payment hops -> flagged address; Q3 different Telegram handles reported with the same wallet by at least 2 different reporters; Q4 neighbourhood for the graph view. A hub filter drops nodes with more than `GRAPH_HUB_MAX` (default 25) counterparties and any exchange address, so unrelated people are not linked. `scripts/tg-setup.ts` checks that TigerGraph and Postgres give identical answers. Details: [graph/README.md](graph/README.md).
@@ -106,6 +112,7 @@ npm run eval                      # writes eval/RESULTS.md
 npx tsx scripts/sync-lists.ts     # refresh OFAC + ScamSniffer snapshots in web/data
 npx tsx scripts/smoke-verified.ts # live check of the verified tier
 npx tsx scripts/smoke-live.ts http://localhost:3000   # end-to-end smoke against a running server
+npx tsx scripts/check-headers.ts http://localhost:3000  # security headers, PASS/FAIL per header
 npx tsx scripts/graph-demo.ts     # seed synthetic data into local Postgres (PGlite) and run Q1-Q3
 npx tsx scripts/redos-check.ts    # time every regex on adversarial 6,000-char inputs
 ```
@@ -135,10 +142,10 @@ Open the live URL. Each sample is one click under **Try a sample** and is labell
 
 | Time | Do | What appears |
 |---|---|---|
-| 0:00-0:15 | Say: "ScamLens separates what is checked, what is reported and what is only suspected." | Empty risk card with Tier 1 Verified, Tier 2 Reported, Tier 3 Suspected |
-| 0:15-0:40 | **Sample 1 - "Digital arrest" call** -> Check | **High signals**, with no AI involved: the UPI ID has no verified source but is **reported by 3 independent reporters** (synthetic seed, labelled), and the text has *authority impersonation*, *digital arrest* and *urgency* signals with highlighted quotes. "What to do now" lists 1930 and cybercrime.gov.in. Press **Show links for upi ...**: the UPI is linked to Telegram handles only through a shared wallet, marked "Illustrative demo data". |
-| 0:40-1:05 | **Sample 2 - Crypto "investment"** -> Check | **High signals.** Verified: the wallet **matched the OFAC SDN list** (publish date + link to the Treasury entry); ScamSniffer and GoPlus rows with their dates and links; Etherscan facts for the free-plan chains, BNB Chain and Base shown as unavailable. Suspected: guaranteed returns, fake profit proof, small amount first, move to Telegram. |
-| 1:05-1:20 | **Sample 3 - Bank alert** -> Check | **Low signals - not a safety guarantee.** "Never share your OTP" does not fire the OTP rule (negation guard). |
+| 0:00-0:15 | Say: "ScamLens separates what is checked, what is reported and what is only suspected." | Empty risk card with 01 Verified, 02 Reported, 03 Suspected |
+| 0:15-0:40 | **Sample 1 - "Digital arrest" call** -> Check | The large word **High**, with no AI involved: the UPI ID has no verified source but is **reported by 3 independent reporters** (synthetic seed, labelled), and the text has *authority impersonation*, *digital arrest* and *urgency* signals with the quoted words underlined. "What to do now" lists 1930 and cybercrime.gov.in. Press **Show links for upi ...**: the UPI is linked to Telegram handles only through a shared wallet, marked "Illustrative demo data". |
+| 0:40-1:05 | **Sample 2 - Crypto "investment"** -> Check | **High.** Verified: the wallet **matched the OFAC SDN list** (publish date + link to the Treasury entry); ScamSniffer and GoPlus rows with their dates and links; Etherscan facts for the free-plan chains, BNB Chain and Base shown as unavailable. Suspected: guaranteed returns, fake profit proof, small amount first, move to Telegram. |
+| 1:05-1:20 | **Sample 3 - Bank alert** -> Check | **Low signals**, with the sentence "This does not mean safe". "Never share your OTP" does not fire the OTP rule (negation guard). Optional: paste "I read that guaranteed returns are a red flag" to show a warning-context hit that is shown but not counted. |
 | 1:20-1:30 | Click **Copy evidence pack** (or **Print or save as PDF**) | Plain-text summary with the three tiers separated, the demo label, and next steps. Not legal advice. Footer -> **/about** for sources, licences and privacy. |
 
 Sample 2 uses a real address from the OFAC SDN list so the Verified tier can be shown live; the chat around it is invented. Replay from a terminal: `cd web && npx tsx scripts/smoke-live.ts https://scam-lens-two.vercel.app`.
@@ -148,10 +155,10 @@ Sample 2 uses a real address from the OFAC SDN list so the Verified tier can be 
 - **Not a complete scam database** and not a safety guarantee. UPI IDs, phone numbers, Telegram handles, emails and domains have no verified source here; they can only be Reported or Suspected.
 - **The live Reported tier holds only synthetic seed data** (labelled). Real reports show only after two independent reporters name the same identifier.
 - **No accounts.** Independence is a hashed network fingerprint: people on one network count as one reporter; one person on several networks (Wi-Fi, mobile data, VPN) can count as several. The same applies to daily limits and contests.
-- **Contest has no review queue.** Anyone can hide a Reported badge (capped at 3 contests per network per day); hidden entries stay hidden until someone re-enables them in the database.
+- **Contest review is manual.** Contested entries stay visible and labelled until you uphold or dismiss them in the Supabase SQL editor ([docs/MODERATION.md](docs/MODERATION.md)); there is no admin screen. Until migration `002_contest_policy.sql` is run, new contests are refused. Contest reasons (10-500 characters) are stored for the moderator only. Removing an upheld report from TigerGraph needs a manual REST call that has not been tested.
 - **No LLM pass live.** Without an OpenAI-compatible key the card says "AI pass: unavailable" and screenshot reading asks users to paste text instead. The eval measures rules only.
-- **Rules are English-first.** Hinglish support is a small starter set; 4 tricky normal messages in the eval still trigger warnings (news and police-awareness messages that quote scam lines).
+- **Rules are English-first.** Hinglish support is a small starter set. 1 tricky normal message in the eval still triggers a warning (a bank advisory phrased without a protective marker). The warning-context rule can be gamed inside a single sentence ("Never trust other apps, ours pays guaranteed returns" marks that one hit as warning context); decoys in other sentences or messages do not work.
 - **Etherscan free plan:** Ethereum, Polygon and Arbitrum One only, first wallet per check only.
 - **Snapshots age.** OFAC and ScamSniffer are as fresh as the last `sync-lists` run (dates shown).
-- **Manual checks pending:** browser layout at 375 px, screen-reader and print behaviour ([docs/UI_CHECKLIST.md](docs/UI_CHECKLIST.md)); live Supabase/TigerGraph migrations and the vision model ([docs/HUMAN_TASKS.md](docs/HUMAN_TASKS.md)).
+- **Manual checks pending:** the redesign has not been seen in a real browser: 375 px layout, keyboard and screen-reader walk-through, 200% zoom, print preview and the CSP console check ([docs/UI_CHECKLIST.md](docs/UI_CHECKLIST.md)); live Supabase migrations, TigerGraph and the vision model ([docs/HUMAN_TASKS.md](docs/HUMAN_TASKS.md)).
 - Nothing here is legal advice.

@@ -2,8 +2,8 @@
 
 **Illustrative demo data**: every chat in `eval/chats.json` is synthetic and hand-written for this project.
 
-- Date: 2026-10-29T18:00:25.526Z
-- Git commit: e96bdbb (with uncommitted changes)
+- Date: 2026-10-29T18:13:18.563Z
+- Git commit: f69a340 (with uncommitted changes)
 - Cases: 74 (37 scam / 37 normal; 31 normal cases are deliberately tricky)
 - Modes run: regex-only. with-AI: not run (OPENAI_API_KEY / OPENAI_MODEL not set)
 - Command: `cd web && npm run eval`

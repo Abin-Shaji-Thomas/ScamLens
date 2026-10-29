@@ -59,7 +59,9 @@ Check a running server: `npx tsx scripts/check-headers.ts <base-url>` prints PAS
 1. All of `web/db/schema.sql` -> Run. Idempotent (`if not exists`, `create or replace`, `add column if not exists`), safe to re-run after every pull.
 2. All of `web/db/supabase-grants.sql` -> Run. Enables RLS and limits every table and function to the service role.
 3. Check: `select * from increment_usage('test:manual', 5);` returns `allowed = true, remaining = 4`; then `delete from usage_counters where key = 'test:manual';`.
-4. Demo data was seeded once already. **Do not re-run** `scripts/graph-demo.ts --supabase` on the live project.
+4. All of `web/db/migrations/002_contest_policy.sql` -> Run (round 2: contested reports stay visible and labelled). Idempotent. Check: `select count(*) from contests;` runs without error. Before it is run, the code falls back to the old reading function and refuses new contests. Future schema changes go into `web/db/migrations/NNN_name.sql`, run in number order after `schema.sql`.
+5. Demo data was seeded once already. **Do not re-run** `scripts/graph-demo.ts --supabase` on the live project.
+6. Contest moderation (uphold / dismiss / remove): `docs/MODERATION.md`.
 
 ## 4. TigerGraph (Savanna)
 
@@ -78,6 +80,10 @@ npx tsx scripts/tg-setup.ts --load   # reload data only (e.g. if a live upsert f
 - **Warm the functions:** `npx tsx scripts/smoke-live.ts https://scam-lens-two.vercel.app` (uses 3 of your network's 40 daily checks) must end with `ALL PASS`.
 - **Keep Supabase awake:** free Supabase projects are paused after a period of inactivity (about a week at the time of writing). Real database traffic keeps it active: any check (it queries reports) counts. Run the smoke script, or open the app and run a sample, at least every few days, especially in the 48 hours before judging. If it is paused, restore it from the Supabase dashboard; the app shows "Reports database unavailable ... not a clean result" until it is back.
 
-## 6. Rollback
+## 6. After deploying
+
+Run, against the live URL: `npx tsx scripts/smoke-live.ts <url>` (expect `ALL PASS (36 expectations)`) and `npx tsx scripts/check-headers.ts <url>` (expect `ALL PASS (48 checks)`). The UI has no web fonts and no third-party requests (system fonts only, round 2), so nothing besides the app itself needs to be allowed by the CSP.
+
+## 7. Rollback
 
 Vercel -> Deployments -> pick the last good deployment -> **Promote to Production** (instant, no rebuild). The SQL in `schema.sql` only adds tables, columns and functions, so an older deployment keeps working against the newer schema. To roll the code back in git: `git revert <commit>` on `main` and push; Vercel redeploys automatically. Then verify with `curl.exe -s https://scam-lens-two.vercel.app/api/health` and the smoke script.

@@ -223,3 +223,13 @@ Each step: pre-flight (git clean, npm test, typecheck, lint), build, post-flight
 | docs/UI_CHECKLIST.md rewritten | PASS | 375 px, visual rules, states, keyboard-only, screen reader, 200% zoom, print, motion, CSP console |
 | Live regression | PASS | `npm run start`: `/` 200, `/about` 200, `/nope` 404; check-headers `ALL PASS (48 checks)`; smoke-live `ALL PASS (36 expectations)` |
 | Post-flight | PASS | 298/298 tests (16 files), typecheck 0, lint 0, build 0 |
+
+## G5 - Docs and close-out
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight green | PASS | 298/298 tests, typecheck 0, lint 0, tree clean (after G4) |
+| README updated | PASS | Design section; contest policy and warning-context rules under the risk rules; eval before/after table from RESULTS.md; demo script uses the new headings and big-word levels; Known gaps rewritten (manual contest review, single-sentence warning-context gaming, 1 remaining FP, browser checks pending); scripts and docs lists |
+| DEPLOY.md, SPEC.md | PASS | DEPLOY: migration 002 step, MODERATION pointer, "After deploying" (smoke-live + check-headers), CSP trade-off (G1); SPEC: "ROUND 2 DECISIONS" appended |
+| HUMAN_TASKS.md in the required order | PASS | 1 Supabase SQL (schema.sql + grants, because round 1 is still unpushed, then 002), 2 merge round2 into main and push, 3 warm/update TigerGraph, 4 smoke-live live, 5 check-headers live, 6 UI_CHECKLIST in a browser; optional items after |
+| Final run | PASS | `Tests 298 passed (298)` (16 files), typecheck 0, lint 0, build 0; `npm run eval`: precision 97.4%, recall 100.0%, FP 1, FN 0; identifiers 100/100 |
