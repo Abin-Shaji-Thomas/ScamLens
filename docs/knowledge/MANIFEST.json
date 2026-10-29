@@ -1,0 +1,15 @@
+{
+  "02-HOW-IT-WORKS.md": ["web/src/lib/check.ts", "web/src/lib/api-schema.ts", "web/src/lib/body.ts", "web/src/app/api/check/route.ts"],
+  "03-ARCHITECTURE.md": ["web/src/app/", "web/next.config.ts"],
+  "04-TECH-STACK.md": ["web/package.json"],
+  "05-DATA-SOURCES.md": ["web/src/lib/verified/", "web/scripts/sync-lists.ts", "web/data/"],
+  "06-SIGNAL-RULES.md": ["web/src/lib/signals/"],
+  "07-RISK-ENGINE.md": ["web/src/lib/risk.ts"],
+  "08-REPORTS-AND-PRIVACY.md": ["web/src/lib/reports/", "web/db/", "web/src/app/api/report/"],
+  "09-GRAPH.md": ["graph/", "web/src/lib/graph/", "web/scripts/tg-setup.ts", "web/src/app/api/graph/route.ts"],
+  "10-SECURITY-AND-ABUSE.md": ["web/src/lib/security-headers.ts", "web/src/lib/usage.ts", "web/src/lib/limits.ts", "web/src/lib/log.ts", "web/src/lib/health.ts", "web/src/lib/transcribe.ts", "web/src/lib/receipts.ts"],
+  "11-UI-DESIGN-SYSTEM.md": ["web/src/app/globals.css", "web/src/components/"],
+  "12-TESTING-AND-EVAL.md": ["eval/", "web/vitest.config.mts"],
+  "13-OPERATIONS.md": ["web/.env.example", "docs/DEPLOY.md"],
+  "19-DISTINCTIVE-FEATURES.md": ["web/src/components/CoverageLedger.tsx", "web/src/components/PaidPlan.tsx", "web/src/lib/coverage.ts", "web/src/lib/complaint-draft.ts", "web/src/app/verify/", "web/src/app/patterns/"]
+}

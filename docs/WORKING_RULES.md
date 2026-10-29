@@ -47,3 +47,7 @@ At the very end print everything between `=== HANDOFF START ===` and `=== HANDOF
 4. Run `npx tsx scripts/smoke-live.ts https://scam-lens-two.vercel.app` and `npx tsx scripts/check-headers.ts https://scam-lens-two.vercel.app` (they use a few daily limits; that is fine). Print the result lines.
 5. Capture the live site in the browser at 375, 1440 and 1920 px (`docs/screens/live-<page>-<width>.png`, at most 6), check the console, and compare with the local after-screenshots. Describe any difference.
 6. If the live site fails any check, do not revert automatically. Stop and report exactly what failed, and print the owner's rollback steps: Vercel -> Deployments -> choose the previous Ready deployment -> Promote to Production.
+
+## Knowledge base rule
+
+Any change to code mapped in `docs/knowledge/MANIFEST.json` must update its doc and `docs/knowledge/17-CHANGELOG.md` in the same commit. From `web/`, run `npm run docs:generate` and then `npm run docs:check` before committing; `docs:check` is part of every step's post-flight, and `npm test` also fails when the docs are stale.

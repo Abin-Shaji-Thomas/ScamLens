@@ -9,7 +9,9 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "eval": "tsx ../eval/run.ts"
+    "eval": "tsx ../eval/run.ts",
+    "docs:generate": "tsx scripts/docs-generate.ts",
+    "docs:check": "tsx scripts/docs-check.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
