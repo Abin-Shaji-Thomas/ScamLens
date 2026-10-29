@@ -28,4 +28,18 @@ Fallback until done: without `OPENAI_API_KEY` + a vision model, `/api/transcribe
 Steps:
 1. In `web/.env.local` set `OPENAI_API_KEY`, `OPENAI_MODEL` and (if the text model cannot read images) `OPENAI_VISION_MODEL`; for a free OpenAI-compatible provider also `OPENAI_BASE_URL`.
 2. `cd web` then `npx tsx scripts/smoke-transcribe.ts C:\path\to\a-synthetic-chat-screenshot.png --show` (use a screenshot you made yourself, no real people's data).
-3. Expect `PASS: <n> chars ...`. Then set the same variables in Vercel (task 6) to enable it live.
+3. Expect `PASS: <n> chars ...`. Then set the same variables in Vercel (task 5) to enable it live.
+
+## 5. Vercel settings and env vars (F8)
+Why: the new features read new optional variables; the region setting cuts latency for Indian users.
+Fallback until done: defaults apply (limits 40/10/100/3 per day, global LLM cap 1500, no AI, no screenshots).
+Steps (Vercel -> Project -> Settings), names only, see `docs/DEPLOY.md` section 2:
+1. Environment Variables: confirm `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `REPORT_HASH_PEPPER`, `ETHERSCAN_API_KEY`, `TG_HOST`, `TG_GRAPH`, `TG_SECRET` are set for Production. Optional: `OPENAI_API_KEY`, `OPENAI_MODEL`, `OPENAI_VISION_MODEL`, `OPENAI_BASE_URL`, `USAGE_*_PER_DAY`. Remove `SUPABASE_ANON_KEY` if present (unused).
+2. Functions -> Function Region: Mumbai (`bom1`), unless Supabase is far from Mumbai (see DEPLOY.md).
+
+## 6. Push and redeploy
+Why: all F2-F8 commits are local only (the run was told not to push).
+Steps: run tasks 1 and 3 (SQL) first, then `git push origin main`. Vercel auto-deploys from `main`. Wait for the deployment to show Ready, then check `curl.exe -s https://scam-lens-two.vercel.app/api/health` returns JSON with `"ok":true` and `"usageStore":"supabase"`. Then run task 2 (TigerGraph).
+
+## 7. Smoke-test the live URL
+Steps: `cd web` then `npx tsx scripts/smoke-live.ts https://scam-lens-two.vercel.app`. Expect `ALL PASS (36 expectations)` (it passed against `npm run start` locally on 2026-10-29). Then click through `docs/UI_CHECKLIST.md` on a phone or at 375 px.

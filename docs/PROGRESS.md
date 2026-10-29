@@ -130,3 +130,17 @@ Each step: pre-flight (git clean, npm test, typecheck, lint), build, post-flight
 | docs/UI_CHECKLIST.md | PASS | 7 sections of manual click-through steps |
 | Banned-words test | PASS | still green (scans new components and lib copy) |
 | Post-flight | PASS | 239/239 tests (14 files), typecheck 0, lint 0, build 0 |
+
+## F8 - Deploy readiness
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight green | PASS | 239/239 tests, typecheck 0, lint 0 (after F7 commit) |
+| docs/DEPLOY.md | PASS | Vercel settings (Root Directory `web`, Mumbai `bom1` as a dashboard setting), required vs optional env names, SQL order + verification query, TigerGraph commands, keeping Supabase awake, warming TigerGraph, rollback. The env-name one-liner in it was run: prints only SET/MISSING |
+| /api/health booleans/short statuses, never secrets | PASS | `ok, db, reports, graph, usageStore, llm, vision, etherscan`; no network calls; test fills every env var with sentinel values and asserts none (nor a 12-char prefix) appears |
+| scripts/smoke-live.ts | PASS | against `npm run start` on :3312 (real .env.local: Supabase, TigerGraph, Etherscan): `ALL PASS (36 expectations)`; health showed `graph: tigergraph`, `usageStore: supabase`; sample 1 high, sample 2 high with the OFAC match (8.7 s), sample 3 low with no signals |
+| README sections | PASS | problem, solution, ASCII architecture, three tiers, data sources and licences, limits, run and test, eval table copied from RESULTS.md, demo script matching the current UI copy, Known gaps |
+| SPEC.md final decisions | PASS | appended "FINAL DECISIONS" (original prompt kept verbatim above it) |
+| HUMAN_TASKS queued | PASS | 5 Vercel env + region, 6 push + redeploy, 7 smoke-live on the live URL |
+| Live URL | UNKNOWN | not pushed (as instructed); HUMAN_TASKS 6-7 |
+| Post-flight | PASS | 241/241 tests (14 files), typecheck 0, lint 0, build 0 |

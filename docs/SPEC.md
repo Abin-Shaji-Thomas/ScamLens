@@ -89,3 +89,19 @@ VERIFY: run `npm run eval` and show the table unaltered. Run `npm run lint && np
 
 # FIRST ACTIONS
 Do Step 0 and the Step 1 audit now. Report the findings, then wait for my "next" before starting M1.
+
+# FINAL DECISIONS (finishing run F0-F8, 2026-10-29; these override the sections above where they differ)
+- No accounts, sign-in, OAuth or sessions. Reports, daily limits and contests are keyed to a network fingerprint = HMAC(REPORT_HASH_PEPPER, client IP). The User-Agent is no longer part of it (F1). /about states the consequences (shared networks count once; several networks can count several times).
+- Graph links (Q1, Q3) require two different reporters (`reporter_key` on edges), not just two submissions.
+- No new runtime dependencies. @electric-sql/pglite is a dev dependency for SQL tests only.
+- Hard limits (web/src/lib/limits.ts): 6,000 text characters, 1,500,000-character image data URLs, 20 identifiers, 10 graph lookups; enforced with zod and plain 400/413 messages that never echo input.
+- Abuse guard (web/src/lib/usage.ts): Supabase `usage_counters` + `increment_usage` (security definer, empty search_path, service_role only) with an in-memory fallback. Defaults per fingerprint per day: check 40, transcribe 10, graph 100, contest 3; reports keep REPORTS_MAX_PER_DAY (5); global 1,500 LLM-using calls per day. Over a limit: 429 + Retry-After, no external calls. Store failure: AI pass skipped with a notice, rule checks continue.
+- Screenshot input (stretch goal, built in F3): the model only transcribes; the user edits and confirms; only the confirmed text is checked by the normal extractor and rules. Images and transcripts are never stored or logged. Without a vision key the UI asks users to paste text.
+- Safe logging only: event name, status, duration (web/src/lib/log.ts); no other console calls in app code.
+- One demo label everywhere: "Illustrative demo data - not a real investigation" (replaces "Illustrative - not a real investigation").
+- Banned in user-facing text (test-enforced over web/src): scammer, fraudster, criminal, guilty, confirmed scam.
+- Etherscan: free-plan chains only (Ethereum, Polygon, Arbitrum One; probed in docs/CHAIN_SUPPORT.md), first EVM wallet per check, at most 2 chains in flight. BNB Chain and Base need ETHERSCAN_PLAN=paid. The SPEC's five-chain list above describes the paid plan.
+- ScamSniffer domain list: not used (9.1 MB > 8 MB budget); checks with a domain show a notice.
+- Rules: 18 fixed rules run on a de-obfuscated copy of the text with offsets mapped back; move_platform needs a second rule to count; narrow guards for the original 4 eval false positives. The eval (66 synthetic cases) writes eval/RESULTS.md; the README quotes only that file.
+- /about is the trust page (sources, licences, dates, privacy, independence rule, contest, emergency steps), with all numbers taken from code constants; every page has a footer link to it.
+- /api/health returns booleans and short statuses only, makes no network calls, and never echoes env values.
