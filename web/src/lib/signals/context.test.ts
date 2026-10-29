@@ -92,3 +92,37 @@ describe("G3: lucky draw guard", () => {
     expect(runRules("Lucky draw winner! Pay the fee to claim the car.").some((s) => s.rule_id === "prize_lottery")).toBe(true);
   });
 });
+
+describe("final round: a solicitation in the same sentence defeats the warning marker", () => {
+  it("'Never send money to strangers; guaranteed returns are a red flag' stays warning context", async () => {
+    const r = await check("Never send money to strangers; guaranteed returns are a red flag.");
+    expect(r.suspected.map((s) => [s.rule_id, s.context])).toEqual([["guaranteed_returns", "warning"]]);
+    expect(r.risk.level).toBe("low");
+  });
+  it("'Beware of fake sites, send 5000 USDT now to join our group, guaranteed profit' is NOT warning context", async () => {
+    const r = await check("Beware of fake sites, send 5000 USDT now to join our group, guaranteed profit.");
+    expect(counted(r)).toContain("guaranteed_returns");
+    expect(r.suspected.every((s) => s.context !== "warning")).toBe(true);
+    expect(r.risk.level).not.toBe("low");
+  });
+  it.each([
+    ["pay at the start of a clause", "Red flag alert for others, pay the activation fee today and get guaranteed returns."],
+    ["you must + verb", "Beware of copycats; you must deposit the processing fee before you can withdraw."],
+    ["contact me", "Never trust random agents, contact me for guaranteed returns of 3% daily."],
+    ["Hinglish imperative", "Savdhan rahiye, pehle 500 bhejo aur roz ka munafa pakka."],
+  ])("%s is flagged", async (_n, text) => {
+    const r = await check(text);
+    expect(counted(r).length).toBeGreaterThan(0);
+    expect(r.risk.level).not.toBe("low");
+  });
+  it.each([
+    ["description, not a request", "News: police said such messages ask people to pay a withdrawal fee before they can withdraw."],
+    ["negated in the same clause", "Bank advisory: never pay a processing fee to withdraw your own money."],
+    ["Hinglish negated", "Savdhan: kisi ko bhi activation fee mat bhejo, ye fraud hai."],
+  ])("%s stays warning context", async (_n, text) => {
+    const r = await check(text);
+    expect(counted(r)).toEqual([]);
+    expect(r.suspected.length).toBeGreaterThan(0);
+  });
+});
+

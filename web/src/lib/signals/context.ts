@@ -31,6 +31,31 @@ export const WARNING_MARKERS: readonly RegExp[] = [
   /\bkabhi\s+(bhi\s+)?(share|mat|na|nahi)\b/i,
 ];
 
+// Solicitation aimed at the reader (final round): "Beware of fake sites, send 5000 USDT now" must not hide the hit.
+// Checked per clause (commas, semicolons, colons, "but"/"lekin"/"par"); a negator earlier in the same clause cancels it
+// ("Never send money to strangers"). Descriptions such as "such messages ask people to pay" are not solicitations:
+// the verb must open the clause (an imperative, optionally after please/just/now/and/then) or follow "you must/should".
+const VERB = String.raw`(?:send|pay|transfer|deposit|invest|join|click|download|share\s+your)`;
+const SOLICIT_EN = new RegExp(
+  String.raw`^(?:(?:please|kindly|just|now|immediately|quickly|so|and|then|also)\s+)*${VERB}\b|\b(?:and|then)\s+(?:just\s+|now\s+|quickly\s+)?${VERB}\b|\b(?:you|u)\s+(?:must|should|need\s+to|have\s+to|can)\s+(?:now\s+|just\s+)?${VERB}\b`,
+  "i",
+);
+const SOLICIT_ME = /\b(?:contact|dm|text|message|whatsapp|call)\s+(?:me|us)\b/i;
+const SOLICIT_HI = /\b(?:bhejo|bhejiye|bhej\s+do|jama\s+(?:karo|kijiye|karein)|(?:transfer|pay|invest|join|click|download)\s+(?:karo|kijiye|karein)|mujhe\s+(?:call|message|whatsapp)\s+karo)\b/i;
+const NEGATOR = /\b(?:never|not|don'?t|do\s+not|no\s+one|nobody|mat|na|nahi|nahin)\b/i;
+
+/** True when some clause of the sentence asks the reader to pay, send, join, click... and is not negated. */
+export function solicitsReader(sentence: string): boolean {
+  return sentence.split(/[,;:]|\s+(?:but|lekin|par)\s+/i).some((raw) => {
+    const clause = raw.trim();
+    for (const re of [SOLICIT_EN, SOLICIT_ME, SOLICIT_HI]) {
+      const m = re.exec(clause);
+      if (m && !NEGATOR.test(clause.slice(0, m.index))) return true;
+    }
+    return false;
+  });
+}
+
 const CONTINUATION = /^\s*["“'‘(]?\s*(they|these|such|this\s+(message|call)|for\s+example|e\.g\.|examples?|officials?|police|for\s+instance|like)\b/i;
 
 interface Sentence {
@@ -68,6 +93,8 @@ export function inWarningContext(text: string, start: number): boolean {
   if (i < 0) return false;
   const cur = list[i];
   const curText = text.slice(cur.start, cur.end);
+  // A sentence that asks the reader to act is never "just a warning", whatever protective words it also contains.
+  if (solicitsReader(curText)) return false;
   if (hasMarker(curText)) return true;
   if (i === 0 || cur.newlineBefore) return false;
   const prev = text.slice(list[i - 1].start, list[i - 1].end);

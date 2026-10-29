@@ -21,7 +21,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/identifiers.test.ts` | 30 |
 | `web/src/lib/reports/reports.test.ts` | 28 |
 | `web/src/lib/risk.test.ts` | 17 |
-| `web/src/lib/signals/context.test.ts` | 13 |
+| `web/src/lib/signals/context.test.ts` | 17 |
 | `web/src/lib/signals/signals.test.ts` | 21 |
 | `web/src/lib/style.test.ts` | 11 |
 | `web/src/lib/transcribe.test.ts` | 17 |
