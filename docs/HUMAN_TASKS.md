@@ -21,3 +21,11 @@ Why: F2 adds `usage_counters` + `increment_usage(p_key, p_limit)` so daily limit
 Fallback until done: each server instance counts in memory (limits still apply per instance, reset on cold start); the AI pass is skipped with a notice whenever the shared counter cannot be reached, because a global LLM cap cannot be enforced from memory.
 Steps: same as task 1 (run all of `web/db/schema.sql`, then all of `web/db/supabase-grants.sql`). Then check in the SQL editor:
 `select * from increment_usage('test:manual', 5);` must return `allowed = true, remaining = 4`; then `delete from usage_counters where key = 'test:manual';`.
+
+## 4. Smoke-test screenshot reading once (F3; needs a vision-capable key)
+Why: tests use a mocked model; the real provider call has not been run.
+Fallback until done: without `OPENAI_API_KEY` + a vision model, `/api/transcribe` answers 503 "Screenshot reading is not available right now. Please paste the text of the chat instead." and the UI shows that message; text checks are unaffected.
+Steps:
+1. In `web/.env.local` set `OPENAI_API_KEY`, `OPENAI_MODEL` and (if the text model cannot read images) `OPENAI_VISION_MODEL`; for a free OpenAI-compatible provider also `OPENAI_BASE_URL`.
+2. `cd web` then `npx tsx scripts/smoke-transcribe.ts C:\path\to\a-synthetic-chat-screenshot.png --show` (use a screenshot you made yourself, no real people's data).
+3. Expect `PASS: <n> chars ...`. Then set the same variables in Vercel (task 6) to enable it live.

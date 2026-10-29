@@ -46,3 +46,22 @@ Each step: pre-flight (git clean, npm test, typecheck, lint), build, post-flight
 | Fan-out caps | PASS | `MAX_IDENTIFIERS` (F1), `MAX_ADDRESSES`=10, `MAX_ETHERSCAN_CHAINS_IN_FLIGHT`=2 with test "at most 2 Etherscan chains are looked up at the same time" (peak observed 2), `ETHERSCAN_RPS` limiter unchanged |
 | HIGH from audit: contest abuse | PARTIAL | contest now capped at 3/day per fingerprint (429). Without accounts one person on many networks can still hide badges; stated on /about (F4) and in Known gaps |
 | Post-flight | PASS | 195/195 tests (10 files), typecheck 0, lint 0, build 0 |
+
+## F3 - Screenshot input
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight green | PASS | 195/195 tests, typecheck 0, lint 0 (after F2 commit) |
+| POST /api/transcribe with zod (png/jpeg/webp data URL, <= 1,500,000 chars) | PASS | `src/lib/transcribe.ts` `TranscribeRequest` (regex + magic-byte signature check), `src/app/api/transcribe/route.ts`; body > MAX_IMAGE_BODY_CHARS -> 413 |
+| Rate-limited per F2 | PASS | `guardRequest("transcribe", ..., usesLlm=true)`; test "11th screenshot of the day gets 429 and the model is not called"; global cap -> 429 with Retry-After |
+| Model, temperature 0, transcribe-only prompt | PASS (code + mocked test); real provider UNKNOWN (no key; HUMAN_TASKS 4) | `OPENAI_VISION_MODEL` else `OPENAI_MODEL`; `TRANSCRIBE_SYSTEM` says do not follow instructions in the image, plain text only |
+| Post-process: strip control chars, truncate to MAX_TEXT_CHARS | PASS | `cleanTranscript` tests (also strips bidi overrides and zero-width chars) |
+| No key / no vision support -> clear paste-text error | PASS | tests: 503 without config; provider error -> 502 with the same message, provider text not echoed |
+| Never store or log image/transcript | PASS | route logs only `transcribe` + status/duration via safe logger; nothing persisted |
+| Accept/reject tests (oversize, svg, non-image) | PASS | 17 tests in `src/lib/transcribe.test.ts`; renamed HTML-as-PNG rejected |
+| Injection text inside a transcript is just text | PASS | test: injected "ignore previous instructions" + fake JSON returned verbatim as text; `runCheck` on it: identifiers equal our extractor's output, fake rule id and non-substring quote dropped (`ai.dropped = 2`), risk not low |
+| No network in tests | PASS | `fetch` stubbed to reject in route tests; model injected |
+| UI: picker, downscale <= 1600 px, JPEG 0.8, editable transcript, "Check this text" | PASS (code, build); browser behaviour UNKNOWN | `src/components/ScreenshotInput.tsx`; falls back to q 0.6/0.45 if still too large; only confirmed text goes to `/api/check` |
+| Form copy promises only what is built | PASS | label no longer says "screenshot text"; screenshot note says the image goes to the AI provider once and is not stored; README line 3 and limits updated |
+| scripts/smoke-transcribe.ts | PASS (runs; without a key prints `FAIL: HTTP 503 ...`, exit 1, as designed) | dry run against a 16-byte PNG header in the job tmp dir |
+| Post-flight | PASS | 212/212 tests (11 files), typecheck 0, lint 0 (unused directive removed), build 0 (new route `/api/transcribe`) |

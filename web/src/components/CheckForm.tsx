@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CheckResponse, MAX_INPUT_CHARS } from "@/lib/api-schema";
 import { SAMPLE_WATERMARK, SAMPLES } from "@/lib/samples";
 import { RiskCard } from "./RiskCard";
+import { ScreenshotInput } from "./ScreenshotInput";
 
 export function CheckForm() {
   const [text, setText] = useState("");
@@ -12,16 +13,20 @@ export function CheckForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function submit() {
+  async function submit(input: string = text) {
     setLoading(true);
     setError(null);
     try {
       const res = await fetch("/api/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text: input }),
       });
-      if (!res.ok) throw new Error(`Check failed (HTTP ${res.status})`);
+      if (!res.ok) {
+        // Server errors are plain sentences (limits, rate limits) and never echo the input.
+        const err = (await res.json().catch(() => null)) as { error?: string; issues?: string[] } | null;
+        throw new Error(err?.issues?.[0] ?? err?.error ?? `Check failed (HTTP ${res.status})`);
+      }
       setResult(CheckResponse.parse(await res.json()));
     } catch (e) {
       setResult(null);
@@ -41,7 +46,7 @@ export function CheckForm() {
         }}
       >
         <label htmlFor="input" className="text-sm font-medium">
-          Paste a suspicious chat, screenshot text, wallet address, UPI ID or Telegram handle
+          Paste a suspicious chat, wallet address, UPI ID or Telegram handle
         </label>
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className="text-neutral-500">Try a sample:</span>
@@ -84,6 +89,14 @@ export function CheckForm() {
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
       </form>
+      <ScreenshotInput
+        disabled={loading}
+        onCheck={(t) => {
+          setText(t);
+          setDemo(false);
+          void submit(t);
+        }}
+      />
       <RiskCard result={result} demo={demo} />
     </div>
   );
