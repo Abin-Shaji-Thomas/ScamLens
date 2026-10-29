@@ -12,7 +12,7 @@ import {
 import { NO_REPORTS_MESSAGE } from "@/lib/risk";
 import { SAMPLE_WATERMARK } from "@/lib/samples";
 import { RULES } from "@/lib/signals/rules";
-import { TIERS } from "@/lib/tiers";
+import { CONTESTED_LABEL, TIERS } from "@/lib/tiers";
 import { usageLimits } from "@/lib/usage";
 import { DEFAULT_ETHERSCAN_RPS, EVM_CHAINS } from "@/lib/verified/etherscan";
 import { DOMAIN_LIST_BUDGET_BYTES, ETHERSCAN_MAX_ADDRESSES, MAX_ADDRESSES, SCAMSNIFFER_DOMAINS_PROBED_BYTES } from "@/lib/verified/index";
@@ -125,8 +125,11 @@ export default function AboutPage() {
       <Section id="contest" title="Contesting an entry">
         <p>
           If an identifier that belongs to you is shown as Reported, use the &quot;Contest this entry&quot; button next to it and give a
-          short reason. The entry is hidden from public badges straight away until it is reviewed. Each network can
-          contest at most {limits.contest} entries per day. There is no review queue yet, so a contested entry stays hidden.
+          short reason (10 to 500 characters). The entry stays visible, labelled &quot;{CONTESTED_LABEL}&quot;, and from then
+          on it no longer counts toward a high risk level. Nobody can erase a report just by contesting it. A person
+          reviews each contest: if it is upheld the reports are removed; if it is dismissed the label is cleared. Your
+          reason is only seen by that reviewer and is never shown on the site. Each network can contest at most{" "}
+          {limits.contest} entries per day.
         </p>
       </Section>
 

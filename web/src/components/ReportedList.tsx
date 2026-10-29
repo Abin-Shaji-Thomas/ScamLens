@@ -5,6 +5,7 @@ import type { Identifier } from "@/lib/extract/types";
 import { maskIdentifier } from "@/lib/reports/mask";
 import type { ReportedTier } from "@/lib/reports/schema";
 import { DEMO_LABEL as WATERMARK } from "@/lib/demo";
+import { CONTESTED_LABEL, CONTESTED_NOTE } from "@/lib/tiers";
 
 function Contest({ id }: { id: Identifier }) {
   const [open, setOpen] = useState(false);
@@ -67,7 +68,12 @@ export function ReportedList({ tier, identifiers }: { tier: ReportedTier; identi
               <span className="font-mono">{e.display}</span> was <strong>reported</strong> by {e.reporters} independent people
               ({e.categories.join(", ")}), {e.firstReported} to {e.lastReported}.
             </p>
-            {own && <Contest id={own} />}
+            {e.contested && (
+              <p className="text-xs">
+                <strong>{CONTESTED_LABEL}.</strong> {CONTESTED_NOTE}
+              </p>
+            )}
+            {own && !e.contested && <Contest id={own} />}
           </li>
         );
       })}

@@ -1,5 +1,6 @@
 import { DEMO_LABEL } from "./demo";
 import type { CheckResponse } from "./api-schema";
+import { CONTESTED_LABEL } from "./tiers";
 
 export const NEXT_STEPS = [
   "Call 1930 (National Cyber Crime Helpline) as soon as possible, especially if money has left your account.",
@@ -37,7 +38,7 @@ export function buildEvidencePack(r: CheckResponse, opts: { demo?: boolean } = {
   if (r.reported.status === "unavailable") L.push(`  Reports database unavailable (${r.reported.reason}). This is not a clean result.`);
   else if (!r.reported.entries.length) L.push("  No known reports. This does not mean safe.");
   for (const e of r.reported.entries) {
-    L.push(`  - ${e.display}: reported by ${e.reporters} people (${e.categories.join(", ")}), ${e.firstReported} to ${e.lastReported}${e.synthetic ? ` [${WATERMARK}]` : ""}`);
+    L.push(`  - ${e.display}: reported by ${e.reporters} people (${e.categories.join(", ")}), ${e.firstReported} to ${e.lastReported}${e.contested ? ` [${CONTESTED_LABEL}]` : ""}${e.synthetic ? ` [${WATERMARK}]` : ""}`);
   }
 
   L.push("", "3. SUSPECTED (patterns in the message text; not proof)");

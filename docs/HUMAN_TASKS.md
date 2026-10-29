@@ -43,3 +43,8 @@ Steps: run tasks 1 and 3 (SQL) first, then `git push origin main`. Vercel auto-d
 
 ## 7. Smoke-test the live URL
 Steps: `cd web` then `npx tsx scripts/smoke-live.ts https://scam-lens-two.vercel.app`. Expect `ALL PASS (36 expectations)` (it passed against `npm run start` locally on 2026-10-29). Then click through `docs/UI_CHECKLIST.md` on a phone or at 375 px.
+
+## R2-1. Run migration 002 (contest policy, round 2 G2)
+Why: contested entries now stay visible and labelled instead of being hidden.
+Fallback until done: the site reads reports with the old function (contested rows stay hidden, as before) and refuses new contests with "Contesting is not available right now", so no new evidence can be hidden.
+Steps: Supabase -> SQL Editor -> New query -> paste all of `web/db/migrations/002_contest_policy.sql` -> Run (idempotent; safe to run again). Check: `select count(*) from contests;` returns 0 rows without error. How to review contests: `docs/MODERATION.md`.

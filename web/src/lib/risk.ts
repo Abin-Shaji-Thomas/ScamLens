@@ -32,6 +32,8 @@ export interface RiskInput {
   verifiedMatches: number;
   /** Identifiers with >= 2 independent, non-contested reports in the last 90 days. */
   reportedIdentifiers: number;
+  /** Reported identifiers someone contested (G2): shown, but only a weak signal; they never count toward High. */
+  contestedIdentifiers?: number;
   /** Distinct rule ids among suspected signals (rule pass or validated AI pass). */
   suspectedRules: number;
   /** Sources that could not be checked. */
@@ -45,19 +47,22 @@ export interface RiskInput {
  * High     = >= 1 verified match, OR (>= 1 reported identifier AND >= 1 suspected signal).
  * Elevated = any suspected signal or reported identifier that does not reach High.
  * Low      = nothing found; never presented as safe.
+ * Contested reports (G2) can raise Low to Elevated at most; they never count toward High.
  * Suspected signals alone (including any number of AI signals) can never produce High.
  */
 export function assessRisk(i: RiskInput): Risk {
   const reasons: string[] = [];
   if (i.verifiedMatches > 0) reasons.push(`${i.verifiedMatches} verified match(es) from independent sources`);
   if (i.reportedIdentifiers > 0) reasons.push(`${i.reportedIdentifiers} identifier(s) reported by 2+ independent people`);
+  const contested = i.contestedIdentifiers ?? 0;
+  if (contested > 0) reasons.push(`${contested} reported identifier(s) contested, under review (not counted toward High)`);
   if (i.suspectedRules > 0) reasons.push(`${i.suspectedRules} suspected pattern(s) in the text`);
   if (i.unavailableSources > 0) reasons.push(`${i.unavailableSources} source(s) unavailable - result is incomplete`);
 
   const level: RiskLevel =
     i.verifiedMatches > 0 || (i.reportedIdentifiers > 0 && i.suspectedRules > 0)
       ? "high"
-      : i.suspectedRules > 0 || i.reportedIdentifiers > 0
+      : i.suspectedRules > 0 || i.reportedIdentifiers > 0 || contested > 0
         ? "elevated"
         : "low";
 
@@ -65,6 +70,6 @@ export function assessRisk(i: RiskInput): Risk {
     level,
     label: RISK_LABEL[level],
     reasons,
-    reportedMessage: i.reportedIdentifiers === 0 && i.reportsAvailable !== false ? NO_REPORTS_MESSAGE : undefined,
+    reportedMessage: i.reportedIdentifiers === 0 && contested === 0 && i.reportsAvailable !== false ? NO_REPORTS_MESSAGE : undefined,
   };
 }

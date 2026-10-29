@@ -143,6 +143,19 @@ describe("routes", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
+  it("G2: the daily contest cap still applies (4th contest from one network is 429)", async () => {
+    setUsageStoreForTests(new MemoryUsageStore());
+    const body = { identifier: { type: "evm", value: WALLET }, reason: "This is my own wallet." };
+    for (let i = 0; i < 3; i++) expect((await contestRoute(post(body, "203.0.113.77"))).status).not.toBe(429);
+    const res = await contestRoute(post(body, "203.0.113.77"));
+    expect(res.status).toBe(429);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+  it("G2: contest reasons are length-limited (under 10 or over 500 characters is a 400)", async () => {
+    setUsageStoreForTests(new MemoryUsageStore());
+    expect((await contestRoute(post({ identifier: { type: "evm", value: WALLET }, reason: "short" }))).status).toBe(400);
+    expect((await contestRoute(post({ identifier: { type: "evm", value: WALLET }, reason: "x".repeat(501) }))).status).toBe(400);
+  });
   it("per-fingerprint counters are per network: another IP is still allowed", async () => {
     vi.stubEnv("USAGE_GRAPH_PER_DAY", "1");
     setUsageStoreForTests(new MemoryUsageStore());

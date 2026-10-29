@@ -62,3 +62,12 @@ describe("/about security trade-off (G1)", () => {
     expect(text).toMatch(/scripts from any other site are blocked/);
   });
 });
+
+describe("/about contest policy (G2)", () => {
+  it("says contested entries stay visible and labelled, and cannot be erased by contesting", () => {
+    expect(text).toMatch(/The entry stays visible, labelled "Contested, under review"/);
+    expect(text).toMatch(/no longer counts toward a high risk level/);
+    expect(text).toMatch(/Nobody can erase a report just by contesting it/);
+    expect(text).not.toMatch(/hidden from public badges/);
+  });
+});

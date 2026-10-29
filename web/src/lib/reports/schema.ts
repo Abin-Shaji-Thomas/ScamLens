@@ -32,6 +32,8 @@ export const ReportedEntry = z.object({
   firstReported: z.string(),
   lastReported: z.string(),
   synthetic: z.boolean(),
+  /** Someone contested this entry; it stays visible, labelled, and never counts toward High (G2). */
+  contested: z.boolean().default(false),
 });
 export type ReportedEntry = z.infer<typeof ReportedEntry>;
 
@@ -39,5 +41,7 @@ export const ReportedTier = z.object({
   status: z.enum(["ok", "unavailable"]),
   entries: z.array(ReportedEntry),
   reason: z.string().optional(),
+  /** false when the database predates migration 002: contested entries are then hidden (old policy). */
+  contestPolicy: z.enum(["visible", "legacy_hidden"]).optional(),
 });
 export type ReportedTier = z.infer<typeof ReportedTier>;

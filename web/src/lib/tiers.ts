@@ -29,3 +29,7 @@ export const TIERS: readonly TierInfo[] = [
     emptyText: "No pattern signals yet.",
   },
 ];
+
+/** Shown next to a Reported entry that someone contested (G2). The entry stays visible. */
+export const CONTESTED_LABEL = "Contested, under review";
+export const CONTESTED_NOTE = "Someone disputes this entry. It is still shown, but it does not count toward a high risk level until a person reviews it.";

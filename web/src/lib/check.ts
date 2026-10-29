@@ -30,7 +30,8 @@ export async function runCheck({ text }: CheckRequest, deps: RunDeps = defaultDe
   ]);
   const risk = assessRisk({
     verifiedMatches: verified.filter((v) => v.status === "match").length,
-    reportedIdentifiers: reported.entries.length,
+    reportedIdentifiers: reported.entries.filter((e) => !e.contested).length,
+    contestedIdentifiers: reported.entries.filter((e) => e.contested).length,
     suspectedRules: new Set(signals.map((s) => s.rule_id)).size,
     unavailableSources:
       verified.filter((v) => v.status === "unavailable").length +

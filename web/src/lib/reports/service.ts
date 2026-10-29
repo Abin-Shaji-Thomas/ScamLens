@@ -62,6 +62,7 @@ type CountRow = {
   first_reported: string | Date;
   last_reported: string | Date;
   synthetic: boolean;
+  contested?: boolean;
 };
 
 /** Reported tier for the identifiers in a check. DB failure is "unavailable", never "no reports". */
@@ -70,7 +71,16 @@ export async function reportedFor(ids: Identifier[], cfg: ReportsConfig | string
   if (!ids.length) return { status: "ok", entries: [] };
   try {
     const hashes = ids.map((i) => identifierHash(cfg.pepper, i.type, i.value));
-    const rows = await cfg.db.call<CountRow>("reported_counts", { p_hashes: hashes });
+    // Migration 002 adds reported_counts_v2 (contested entries visible). Before it, fall back to the old
+    // function, which hides contested entries; the response says which policy applied.
+    let rows: CountRow[];
+    let contestPolicy: "visible" | "legacy_hidden" = "visible";
+    try {
+      rows = await cfg.db.call<CountRow>("reported_counts_v2", { p_hashes: hashes });
+    } catch {
+      rows = await cfg.db.call<CountRow>("reported_counts", { p_hashes: hashes });
+      contestPolicy = "legacy_hidden";
+    }
     const entries: ReportedEntry[] = rows.map((r) => ({
       type: r.identifier_type,
       display: r.identifier_display,
@@ -79,20 +89,31 @@ export async function reportedFor(ids: Identifier[], cfg: ReportsConfig | string
       firstReported: new Date(r.first_reported).toISOString().slice(0, 10),
       lastReported: new Date(r.last_reported).toISOString().slice(0, 10),
       synthetic: r.synthetic,
+      contested: Boolean(r.contested),
     }));
-    return { status: "ok", entries };
+    return { status: "ok", entries, contestPolicy };
   } catch {
     return { status: "unavailable", entries: [], reason: "reports database error" };
   }
 }
 
+/**
+ * Records a contest. The entry stays visible, labelled "Contested, under review" (migration 002).
+ * On a database without migration 002 this refuses instead of calling the old function, which would
+ * hide the evidence from everyone. The reason is stored for the moderator only and never returned.
+ */
 export async function contestIdentifier(req: ContestRequest, cfg: ReportsConfig) {
   const id = canonicalIdentifier(req.identifier.type, req.identifier.value);
   if (!id) return { ok: false as const, reason: "invalid identifier" };
-  const [row] = await cfg.db.call<{ updated: number }>("contest_identifier", {
-    p_hash: identifierHash(cfg.pepper, id.type, id.value),
-  });
-  return { ok: true as const, updated: row?.updated ?? 0 };
+  try {
+    const [row] = await cfg.db.call<{ updated: number }>("contest_identifier_v2", {
+      p_hash: identifierHash(cfg.pepper, id.type, id.value),
+      p_reason: req.reason,
+    });
+    return { ok: true as const, updated: row?.updated ?? 0 };
+  } catch {
+    return { ok: false as const, reason: "contest_unavailable" as const };
+  }
 }
 
 /** Client IP as set by Vercel's edge (x-forwarded-for / x-real-ip are overwritten there, not client-controlled). */

@@ -97,3 +97,20 @@ describe("end to end through runCheck", () => {
     expect(r.risk.reportedMessage).toBeUndefined();
   });
 });
+
+describe("G2: contested reports never raise the level to High", () => {
+  it("contested + suspected signals is Elevated, not High", () => {
+    const r = assessRisk({ verifiedMatches: 0, reportedIdentifiers: 0, contestedIdentifiers: 1, suspectedRules: 3, unavailableSources: 0 });
+    expect(r.level).toBe("elevated");
+    expect(r.reasons.join(" ")).toMatch(/contested, under review \(not counted toward High\)/);
+  });
+  it("contested alone is a weak signal: Elevated at most", () => {
+    expect(assessRisk({ verifiedMatches: 0, reportedIdentifiers: 0, contestedIdentifiers: 2, suspectedRules: 0, unavailableSources: 0 }).level).toBe("elevated");
+  });
+  it("an uncontested report + a signal is still High", () => {
+    expect(assessRisk({ verifiedMatches: 0, reportedIdentifiers: 1, contestedIdentifiers: 1, suspectedRules: 1, unavailableSources: 0 }).level).toBe("high");
+  });
+  it("with only contested entries the card does not say 'No known reports'", () => {
+    expect(assessRisk({ verifiedMatches: 0, reportedIdentifiers: 0, contestedIdentifiers: 1, suspectedRules: 0, unavailableSources: 0 }).reportedMessage).toBeUndefined();
+  });
+});

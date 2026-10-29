@@ -166,3 +166,19 @@ Each step: pre-flight (git clean, npm test, typecheck, lint), build, post-flight
 | Trade-off on /about and DEPLOY.md, checklist line | PASS | /about privacy list (test), DEPLOY.md section 2b, UI_CHECKLIST section 7 |
 | CSP in a real browser | UNKNOWN | no browser; queued in the checklist |
 | Post-flight | PASS | 247/247 tests (14 files), typecheck 0, lint 0, build 0 |
+
+## G2 - Contest policy
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight green | PASS | 247/247 tests, typecheck 0, lint 0, tree clean (after G1) |
+| Contested report stays visible, labelled "Contested, under review" | PASS | `reported_counts_v2` in `db/migrations/002_contest_policy.sql` returns contested rows with `contested=true`; `ReportedList` + evidence pack show `CONTESTED_LABEL`; test "a contested entry stays visible, labelled contested" |
+| Never counts toward High; weak signal at most | PASS | `risk.ts` `contestedIdentifiers` raises Low to Elevated at most; 4 risk tests + end-to-end test "2 reports + scam text is High; after a contest it is visible, labelled, and Elevated" |
+| Per-network daily contest cap kept | PASS | test "4th contest from one network is 429" |
+| Reasons length-limited, never rendered | PASS | zod 10-500 (test: 400 for 5 and 501 chars); SQL check constraint; reason stored only in `contests`, test asserts it is absent from the API response; no component renders it |
+| docs/MODERATION.md with exact SQL | PASS | list / dismiss / uphold / remove / housekeeping; test runs the list, dismiss and uphold blocks verbatim from the file against PGlite |
+| Migration idempotent, code works before and after | PASS | `localDb({ migrations: false })` test: reads fall back to `reported_counts` (`contestPolicy: "legacy_hidden"`), contest refuses (`contest_unavailable` -> 503) and hides nothing. Migration runs on PGlite with the Supabase-only grants guarded by `pg_roles` |
+| /about wording | PASS | about test: "The entry stays visible...", "Nobody can erase a report just by contesting it" |
+| TigerGraph removal after an uphold | UNKNOWN | tg-setup never deletes; REST delete documented in MODERATION.md section 4, not run |
+| Changed test (justified) | NOTE | "contested entries are hidden" replaced: it asserted the old policy this step removes; the old behaviour is now covered by the old-schema fallback test. One exact `toEqual` gained the new `contestPolicy` field (kept strict) |
+| Post-flight | PASS | 260/260 tests (14 files), typecheck 0, lint 0, build 0 |

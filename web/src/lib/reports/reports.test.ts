@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 import { localDb } from "../../test-support/pglite";
 import { findLinks } from "../graph";
@@ -10,6 +12,7 @@ import type { Db } from "./db";
 import { fingerprintHash, maskIdentifier } from "./privacy";
 import type { ReportRequest } from "./schema";
 import { contestIdentifier, reportedFor, reportsConfig, submitReport, type ReportsConfig } from "./service";
+import { runCheck } from "../check";
 
 const PEPPER = "test-pepper-0123456789";
 const UPI = "victim.pay@okdemo";
@@ -32,7 +35,7 @@ const reported = () => reportedFor(extractIdentifiers(UPI), cfg);
 describe("2-reporter rule", () => {
   it("one reporter is not shown publicly", async () => {
     await submitReport(req(), fp(1), cfg);
-    expect(await reported()).toEqual({ status: "ok", entries: [] });
+    expect(await reported()).toEqual({ status: "ok", entries: [], contestPolicy: "visible" });
   });
   it("the same fingerprint reporting twice still counts once", async () => {
     await submitReport(req(), fp(1), cfg);
@@ -47,11 +50,50 @@ describe("2-reporter rule", () => {
     expect(r.entries[0]).toMatchObject({ type: "upi", display: maskIdentifier("upi", UPI), reporters: 2, synthetic: false });
     expect(r.entries[0].display).not.toContain("victim.pay");
   });
-  it("contested entries are hidden", async () => {
+  // G2 replaced the old policy ("contested entries are hidden"), which let anyone erase evidence.
+  it("G2: a contested entry stays visible, labelled contested; the reason is stored for the moderator only", async () => {
     await submitReport(req(), fp(1), cfg);
     await submitReport(req(), fp(2), cfg);
-    expect(await contestIdentifier({ identifier: { type: "upi", value: UPI }, reason: "This is my shop's UPI ID" }, cfg)).toEqual({ ok: true, updated: 2 });
+    const reason = "This is my shop's UPI ID <b>really</b>";
+    expect(await contestIdentifier({ identifier: { type: "upi", value: UPI }, reason }, cfg)).toEqual({ ok: true, updated: 2 });
+    const tier = await reported();
+    expect(tier.contestPolicy).toBe("visible");
+    expect(tier.entries).toHaveLength(1);
+    expect(tier.entries[0]).toMatchObject({ reporters: 2, contested: true });
+    expect(JSON.stringify(tier)).not.toContain("really");
+    const { rows } = await pg.query<{ reason: string; status: string }>("select reason, status from contests");
+    expect(rows).toEqual([{ reason, status: "pending" }]);
+  });
+  it("G2: an uncontested entry is not labelled", async () => {
+    await submitReport(req(), fp(1), cfg);
+    await submitReport(req(), fp(2), cfg);
+    expect((await reported()).entries[0].contested).toBe(false);
+  });
+  it("G2: dismissing a contest (MODERATION.md SQL) clears the label; upholding removes the reports", async () => {
+    await submitReport(req(), fp(1), cfg);
+    await submitReport(req(), fp(2), cfg);
+    await contestIdentifier({ identifier: { type: "upi", value: UPI }, reason: "This is my shop's UPI ID" }, cfg);
+    const hash = (await pg.query<{ identifier_hash: string }>("select identifier_hash from contests")).rows[0].identifier_hash;
+    await pg.query("update contests set status = 'dismissed', decided_at = now() where identifier_hash = $1 and status = 'pending'", [hash]);
+    await pg.query("update reports set contested = false where identifier_hash = $1", [hash]);
+    expect((await reported()).entries[0].contested).toBe(false);
+    await pg.query("update contests set status = 'upheld', decided_at = now() where identifier_hash = $1", [hash]);
+    await pg.query("delete from reports where identifier_hash = $1", [hash]);
+    await pg.query("delete from graph_edges where src_hash = $1 or dst_hash = $1", [hash]);
     expect((await reported()).entries).toEqual([]);
+  });
+  it("G2 old-schema fallback: before migration 002, reading still works (old policy, said so) and contesting refuses instead of hiding", async () => {
+    const old = await localDb({ migrations: false });
+    const c = reportsConfig({ REPORT_HASH_PEPPER: PEPPER }, old.db);
+    if (typeof c === "string") throw new Error(c);
+    await submitReport(req(), fp(1), c);
+    await submitReport(req(), fp(2), c);
+    const before = await reportedFor(extractIdentifiers(UPI), c);
+    expect(before).toMatchObject({ status: "ok", contestPolicy: "legacy_hidden" });
+    expect(before.entries).toHaveLength(1);
+    expect(await contestIdentifier({ identifier: { type: "upi", value: UPI }, reason: "This is my shop's UPI ID" }, c)).toEqual({ ok: false, reason: "contest_unavailable" });
+    // Nothing was hidden by the refused contest.
+    expect((await reportedFor(extractIdentifiers(UPI), c)).entries).toHaveLength(1);
   });
   it("reports older than 90 days / expired do not count", async () => {
     await submitReport(req(), fp(1), cfg);
@@ -167,5 +209,46 @@ describe("graph on synthetic seed (Postgres fallback vs independent reference)",
   it("seeded UPI u1 shows as Reported (3 reporters), marked synthetic", async () => {
     const r = await reportedFor(extractIdentifiers(SEED_IDS.u1), cfg);
     expect(r.entries[0]).toMatchObject({ reporters: 3, synthetic: true });
+  });
+});
+
+describe("G2 end to end: contesting cannot erase evidence or keep a High", () => {
+  it("2 reports + scam text is High; after a contest it is visible, labelled, and Elevated", async () => {
+    await submitReport(req(), fp(1), cfg);
+    await submitReport(req(), fp(2), cfg);
+    const deps = { fetch: (() => Promise.reject(new Error("offline"))) as typeof fetch, timeoutMs: 20, now: () => new Date(), env: { REPORT_HASH_PEPPER: PEPPER }, db };
+    const text = `Your KYC has expired, account will be blocked today. Pay the refund fee to ${UPI}`;
+    expect((await runCheck({ text }, deps)).risk.level).toBe("high");
+    await contestIdentifier({ identifier: { type: "upi", value: UPI }, reason: "This is my shop's UPI ID" }, cfg);
+    const after = await runCheck({ text }, deps);
+    expect(after.reported.entries).toHaveLength(1);
+    expect(after.reported.entries[0].contested).toBe(true);
+    expect(after.risk.level).toBe("elevated");
+  });
+});
+
+describe("G2: the exact SQL in docs/MODERATION.md runs and does what it says", () => {
+  const doc = readFileSync(join(import.meta.dirname, "..", "..", "..", "..", "docs", "MODERATION.md"), "utf8");
+  const blocks = [...doc.matchAll(/```sql\n([\s\S]*?)```/g)].map((m) => m[1]);
+  const setup = async () => {
+    await submitReport(req(), fp(1), cfg);
+    await submitReport(req(), fp(2), cfg);
+    await contestIdentifier({ identifier: { type: "upi", value: UPI }, reason: "This is my shop's UPI ID" }, cfg);
+    return (await pg.query<{ id: number }>("select id from contests")).rows[0].id;
+  };
+  it("list, then dismiss: label cleared, reports kept", async () => {
+    const id = await setup();
+    const list = await pg.query<{ contest_id: number; independent_reporters: number }>(blocks[0]);
+    expect(list.rows).toHaveLength(1);
+    expect(list.rows[0].independent_reporters).toBe(2);
+    await pg.exec(blocks[1].replaceAll("123", String(id)));
+    expect((await reported()).entries[0]).toMatchObject({ contested: false, reporters: 2 });
+  });
+  it("uphold: reports and graph edges removed", async () => {
+    const id = await setup();
+    await pg.exec(blocks[2].replaceAll("123", String(id)));
+    expect((await reported()).entries).toEqual([]);
+    expect((await pg.query("select 1 from reports")).rows).toHaveLength(0);
+    expect((await pg.query<{ status: string }>("select status from contests")).rows[0].status).toBe("upheld");
   });
 });
