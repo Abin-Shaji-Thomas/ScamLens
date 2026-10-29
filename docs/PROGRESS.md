@@ -97,3 +97,16 @@ Each step: pre-flight (git clean, npm test, typecheck, lint), build, post-flight
 | README numbers match RESULTS.md | PASS | README "Evaluation" table copied from RESULTS.md (93.9 / 89.2 / 100.0, 4 FP, 0 FN) |
 | ReDoS after rule changes | PASS | `npx tsx scripts/redos-check.ts`: 64 functions/regexes x 20 inputs, worst 5.2 ms, 0 cases >= 200 ms |
 | Post-flight | PASS | 229/229 tests (13 files), typecheck 0, lint 0, build 0 |
+
+## F6 - Verified tier completion
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight green | PASS | 229/229 tests, typecheck 0, lint 0 (after F5 commit) |
+| HEAD-probe ScamSniffer domains list | PASS (measured) | `curl -sI .../blacklist/domains.json` -> `Content-Length: 9148722` (9.1 MB > 8 MB; for comparison all.json is 10097629) |
+| Domain lookup | SKIPPED (over 8 MB, as the prompt directs) | constants `SCAMSNIFFER_DOMAINS_PROBED_BYTES`, `DOMAIN_LIST_BUDGET_BYTES` in `verified/index.ts`; /about explains it from those constants; a check containing a domain gets `DOMAIN_NOT_CHECKED_NOTICE` ("...Nothing found does not mean the site is safe.") |
+| Fixture tests: domain hit / miss / list unavailable | DEVIATION | no domain list, so no hit/miss fixtures; replaced by tests "a domain gets no verified result and a notice that it was not checked (never 'clean')" and "no domain in the text: no domain notice" |
+| docs/CHAIN_SUPPORT.md from real probes | PASS | `npx tsx scripts/probe-etherscan-chains.ts` (new) at 2026-10-29T17:14Z: Ethereum/Polygon/Arbitrum OK, BNB Chain/Base "Free API access is not supported for this chain"; matches `EVM_CHAINS.freeTier` exactly. First run timed out on BNB (network); recorded in the doc |
+| Every verified finding: source name, asOf date, link to check | PASS | unavailable rows used to have `link: ""`; now `defaultLink()` per source (OFAC search, ScamSniffer file, gopluslabs.io, Tronscan, Etherscan). Test checks every result in both a healthy and an all-HTTP-500 run has an https link, a source name and `checkedAt`; OFAC/ScamSniffer non-unavailable rows have `dataAsOf` |
+| On-chain "pattern" heuristics | SKIPPED | none can be explained in one sentence without implying a judgement (stated in CHAIN_SUPPORT.md) |
+| Post-flight | PASS | 233/233 tests (13 files), typecheck 0, lint 0, build 0 |

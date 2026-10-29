@@ -3,7 +3,7 @@ import { normaliseAddress } from "./lists-schema";
 import { ofacList } from "./lists";
 import type { CheckDeps, SourceResult } from "./types";
 
-const SEARCH_URL = "https://sanctionssearch.ofac.treas.gov/";
+export const SEARCH_URL = "https://sanctionssearch.ofac.treas.gov/";
 
 export function checkOfac(id: Identifier, deps: Pick<CheckDeps, "now">): SourceResult {
   const { meta, byAddress } = ofacList();

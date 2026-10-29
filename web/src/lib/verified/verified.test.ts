@@ -263,3 +263,38 @@ describe("runCheck / POST /api/check", () => {
     expect(await res.json()).toMatchObject({ identifiers: [], verified: [], reported: { status: "unavailable" }, suspected: [] });
   });
 });
+
+describe("F6: verified findings are checkable, domains are honestly unchecked", () => {
+  it("every result (match, no match, info or unavailable) names its source, a date and an https link", async () => {
+    const text = `${OFAC_ETH} ${CLEAN} ${OFAC_TRX}`;
+    for (const route of [(url: string) => (url.includes("etherscan") ? etherscanRoute(url) : json(GOPLUS_CLEAN)), (() => json({}, 500)) as Route]) {
+      const results = await runVerifiedChecks(ids(text), deps(route, { ETHERSCAN_API_KEY: "k" }));
+      expect(results.length).toBeGreaterThan(5);
+      for (const r of results) {
+        expect(r.sourceName.length, r.source).toBeGreaterThan(0);
+        expect(r.link, `${r.source} ${r.status}`).toMatch(/^https:\/\//);
+        expect(r.checkedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+        if (r.source === "ofac" || r.source === "scamsniffer") if (r.status !== "unavailable") expect(r.dataAsOf).toBeTruthy();
+      }
+    }
+  });
+  it("domain list was probed over budget, so it is not loaded", async () => {
+    const { DOMAIN_LIST_BUDGET_BYTES, SCAMSNIFFER_DOMAINS_PROBED_BYTES } = await import("./index");
+    expect(SCAMSNIFFER_DOMAINS_PROBED_BYTES).toBeGreaterThan(DOMAIN_LIST_BUDGET_BYTES);
+  });
+  it("a domain gets no verified result and a notice that it was not checked (never 'clean')", async () => {
+    const { DOMAIN_NOT_CHECKED_NOTICE } = await import("./index");
+    const r = await runCheck(
+      { text: "Claim your bonus at zz-demo-bonus-claim.example.com today" },
+      { ...deps(() => json({}, 500)), db: null },
+    );
+    expect(r.identifiers.some((i) => i.type === "domain")).toBe(true);
+    expect(r.verified.filter((v) => v.identifier.type === "domain")).toEqual([]);
+    expect(r.notices).toContain(DOMAIN_NOT_CHECKED_NOTICE);
+  });
+  it("no domain in the text: no domain notice", async () => {
+    const { DOMAIN_NOT_CHECKED_NOTICE } = await import("./index");
+    const r = await runCheck({ text: "pay the fee now" }, { ...deps(() => json({}, 500)), db: null });
+    expect(r.notices).not.toContain(DOMAIN_NOT_CHECKED_NOTICE);
+  });
+});

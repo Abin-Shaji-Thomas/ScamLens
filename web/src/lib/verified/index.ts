@@ -3,8 +3,8 @@ import { uniqueIdentifiers } from "../identifiers";
 import { checkEtherscanChain, EVM_CHAINS } from "./etherscan";
 import { checkGoPlus } from "./goplus";
 import { Unavailable, withTimeout } from "./http";
-import { checkOfac } from "./ofac";
-import { checkScamSniffer } from "./scamsniffer";
+import { checkOfac, SEARCH_URL } from "./ofac";
+import { BLOB_URL, checkScamSniffer } from "./scamsniffer";
 import { checkTronGrid } from "./tron";
 import { defaultDeps, unavailable, type CheckDeps, type ResultBase, type SourceResult } from "./types";
 
@@ -22,8 +22,24 @@ async function runTask(t: Task): Promise<SourceResult> {
   }
 }
 
+// Where a user can check a finding themselves. Also used when a source is unavailable, so every row has a working link.
+function defaultLink(id: Identifier, source: ResultBase["source"]): string {
+  switch (source) {
+    case "ofac":
+      return SEARCH_URL;
+    case "scamsniffer":
+      return BLOB_URL;
+    case "goplus":
+      return "https://gopluslabs.io/";
+    case "trongrid":
+      return `https://tronscan.org/#/address/${id.value}`;
+    case "etherscan":
+      return `https://etherscan.io/address/${id.value}`;
+  }
+}
+
 function base(id: Identifier, source: ResultBase["source"], sourceName: string, deps: CheckDeps): ResultBase {
-  return { source, sourceName, identifier: { type: id.type, value: id.value }, checkedAt: deps.now().toISOString(), link: "" };
+  return { source, sourceName, identifier: { type: id.type, value: id.value }, checkedAt: deps.now().toISOString(), link: defaultLink(id, source) };
 }
 
 function tasksFor(id: Identifier, deps: CheckDeps, etherscanBudget: boolean): Task[] {
@@ -67,3 +83,10 @@ export async function runVerifiedChecks(ids: Identifier[], deps: CheckDeps = def
     addresses.flatMap((id) => tasksFor(id, deps, evmOrder.indexOf(id) < ETHERSCAN_MAX_ADDRESSES)).map(runTask),
   );
 }
+
+// F6: ScamSniffer's domain list (blacklist/domains.json) was HEAD-probed on 2026-10-29 at 9,148,722 bytes,
+// over the 8 MB budget for a lazily loaded serverless lookup, so domains are NOT checked against it.
+export const SCAMSNIFFER_DOMAINS_PROBED_BYTES = 9_148_722;
+export const DOMAIN_LIST_BUDGET_BYTES = 8 * 1024 * 1024;
+export const DOMAIN_NOT_CHECKED_NOTICE =
+  "Website domains are not checked against a blocklist here (ScamSniffer's domain list is too large for this deployment). Nothing found does not mean the site is safe.";

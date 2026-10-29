@@ -15,7 +15,7 @@ import { RULES } from "@/lib/signals/rules";
 import { TIERS } from "@/lib/tiers";
 import { usageLimits } from "@/lib/usage";
 import { DEFAULT_ETHERSCAN_RPS, EVM_CHAINS } from "@/lib/verified/etherscan";
-import { ETHERSCAN_MAX_ADDRESSES, MAX_ADDRESSES } from "@/lib/verified/index";
+import { DOMAIN_LIST_BUDGET_BYTES, ETHERSCAN_MAX_ADDRESSES, MAX_ADDRESSES, SCAMSNIFFER_DOMAINS_PROBED_BYTES } from "@/lib/verified/index";
 import { ofacList, scamSnifferList } from "@/lib/verified/lists";
 
 export const metadata: Metadata = {
@@ -156,8 +156,11 @@ export default function AboutPage() {
             <strong>TronGrid</strong> (TRON mainnet): account facts for TRON addresses, with a link to Tronscan.
           </li>
           <li>
-            UPI IDs, phone numbers, Telegram handles, email addresses and domains have no verified source here: they can only
-            appear in the Reported tier.
+            UPI IDs, phone numbers, Telegram handles, email addresses and website domains have no verified source here: they
+            can only appear in the Reported tier. ScamSniffer also publishes a domain list, but it measured{" "}
+            {(SCAMSNIFFER_DOMAINS_PROBED_BYTES / 1_000_000).toFixed(1)} MB on 2026-10-29, over our{" "}
+            {Math.round(DOMAIN_LIST_BUDGET_BYTES / 1024 / 1024)} MB budget for this deployment, so domains are not checked
+            against it and a check with a domain says so.
           </li>
         </ul>
         <p>

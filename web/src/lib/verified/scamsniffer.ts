@@ -2,7 +2,7 @@ import type { Identifier } from "../extract/types";
 import { scamSnifferList } from "./lists";
 import type { CheckDeps, SourceResult } from "./types";
 
-const BLOB_URL = "https://github.com/scamsniffer/scam-database/blob/main/blacklist/all.json";
+export const BLOB_URL = "https://github.com/scamsniffer/scam-database/blob/main/blacklist/all.json";
 
 export function checkScamSniffer(id: Identifier, deps: Pick<CheckDeps, "now">): SourceResult {
   const { meta, set } = scamSnifferList();
