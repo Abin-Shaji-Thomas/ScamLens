@@ -316,3 +316,13 @@ Measured per window size (same on /, samples 1-3; /about and /nope have no form)
 | Deviations found and fixed | FIXED | (1) every graph link was alert because shared evidence wording matched unrelated links -> match by both end labels in one path; (2) graph rule printed as an empty line -> hidden in print; (3) /about emergency steps split into grid cells -> numerals positioned absolutely; (4) header/footer About 37 px wide and sentence links 16-20 px tall -> 44 px; (5) visible gap beside sentence links -> negative margin |
 | Screenshots | PASS | `docs/screens/after-{home-375,home-1920,sample1-375,sample1-768,sample1-1440,sample1-1920,about-375,about-1920,nope-1440,graph-1440,report-1440,print-1440}.png` (taken before the last 1px tap padding change, which is not visible) |
 | Post-flight | PASS | `Tests 338 passed (338)`, typecheck 0, lint 0, build 0 |
+
+## U5 - Health build field and docs
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight | PASS | 338/338, typecheck 0, lint 0, tree clean (after U4) |
+| `/api/health` returns `build` | PASS | `buildId()` = first 7 hex chars of `VERCEL_GIT_COMMIT_SHA`, else `"local"`; local `npm run start`: `{"ok":true,...,"etherscan":true,"build":"local"}`; check-headers `ALL PASS (48 checks)` |
+| Health test | PASS | exact key list incl. `build`; at most 7 characters of the SHA; no secret prefix in the JSON; non-hex input -> `"local"`; schema rejects a non-hash build |
+| README, SPEC, DEPLOY, HUMAN_TASKS | PASS | README Design rewritten (palette, why grey/tan carry no text, Windows font note), health line, Known gaps; SPEC "UI ROUND DECISIONS"; DEPLOY section 6 compares `build` with `git rev-parse --short HEAD`; HUMAN_TASKS updated to the pushed state (old "merge round2" task replaced) |
+| Post-flight | PASS | `Tests 339 passed (339)`, typecheck 0, lint 0, build 0 |

@@ -37,7 +37,7 @@ Every card also shows a plain-language explanation of the risk level and a **Wha
 
 ## Design
 
-Minimal and typographic, like a printed page: white `#ffffff`, ink `#111111`, secondary text `#767676` (4.54:1 on white) and hairline rules `#eeeeee`, nothing else. System sans-serif fonts only; hierarchy through weight and line height; one 40rem column with large gaps. No boxes, shadows, rounded corners, colour coding or dark mode. The risk level is a large word plus a "Low signals · Elevated · High" scale, so colour is never needed to read it. Every interactive element has a 2 px focus outline. The graph is grayscale and stays still when the system asks for reduced motion. A test (`web/src/lib/style.test.ts`) fails the build on any colour, shadow, rounded corner or dark-mode class outside this palette.
+Minimalism & Swiss Style: a 12-column grid that fills the window up to 1760 px (one column below 768 px), large light headings, generous white space, 2 px black rules instead of boxes and 1 px light dividers between sections. Palette (CSS variables in `web/src/app/globals.css`): black `#000000`, white `#ffffff`, paper `#f5f1e8` (alternate bands such as "What to do now"), secondary text `#4b5563`, rules `#e5e7eb`, grey `#808080`, tan `#b38b6d`, clay `#7a4f32` (link hover, "Contested, under review"), alert `#b00020` (only the word "High", its meter and the graph's evidence-path links) and button hover `#1f2937`. Grey and tan never carry text: grey is 3.95:1 on white and tan 3.07:1, enough for lines but not for reading, and tan drops to 2.73:1 on paper, so it is used only on white. The risk level never depends on colour: the word, the bold underlined position in "Low signals · Elevated · High" and a 1-, 2- or 3-segment meter all say the same thing. System fonts only (`"Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial`); on Windows this resolves to Arial, which has no light face, so headings show at regular weight there. 200 ms colour transitions only, none with reduced motion; square buttons; a 2 px black focus outline on every control; 44 px tap targets. Tests enforce it: `style.test.ts` (palette, no shadows, gradients, rounded corners, dark mode or other animation) and `contrast.test.ts` (WCAG ratios computed from the CSS variables; where grey, tan and alert may appear).
 
 ## Architecture
 
@@ -59,7 +59,7 @@ Minimal and typographic, like a printed page: white `#ffffff`, ink `#111111`, se
 
  POST /api/graph  -> TigerGraph Savanna (Q1-Q4 over REST)  --fallback-->  Postgres recursive CTEs (same answers)
  POST /api/report -> submit_report() in SQL (rate limit, one fingerprint per identifier) -> mirrored to TigerGraph
- GET  /api/health -> booleans / short statuses only
+ GET  /api/health -> booleans / short statuses only, plus "build" (deployed commit, 7 chars, or "local")
 ```
 
 ```
@@ -160,5 +160,5 @@ Sample 2 uses a real address from the OFAC SDN list so the Verified tier can be 
 - **Rules are English-first.** Hinglish support is a small starter set. 1 tricky normal message in the eval still triggers a warning (a bank advisory phrased without a protective marker). The warning-context rule can be gamed inside a single sentence ("Never trust other apps, ours pays guaranteed returns" marks that one hit as warning context); decoys in other sentences or messages do not work.
 - **Etherscan free plan:** Ethereum, Polygon and Arbitrum One only, first wallet per check only.
 - **Snapshots age.** OFAC and ScamSniffer are as fresh as the last `sync-lists` run (dates shown).
-- **Manual checks pending:** the redesign has not been seen in a real browser: 375 px layout, keyboard and screen-reader walk-through, 200% zoom, print preview and the CSP console check ([docs/UI_CHECKLIST.md](docs/UI_CHECKLIST.md)); live Supabase migrations, TigerGraph and the vision model ([docs/HUMAN_TASKS.md](docs/HUMAN_TASKS.md)).
+- **Manual checks pending:** the Swiss redesign was checked in headless Edge (layout at 5 widths, keyboard focus, reduced motion, print, 200% zoom, contrast, console), but a screen-reader walk-through, hover colours, the offline error, a cold TigerGraph and the screenshot flow still need a person ([docs/UI_CHECKLIST.md](docs/UI_CHECKLIST.md)); live Supabase migrations, TigerGraph and the vision model ([docs/HUMAN_TASKS.md](docs/HUMAN_TASKS.md)).
 - Nothing here is legal advice.

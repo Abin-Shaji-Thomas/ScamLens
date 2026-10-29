@@ -82,7 +82,16 @@ npx tsx scripts/tg-setup.ts --load   # reload data only (e.g. if a live upsert f
 
 ## 6. After deploying
 
-Run, against the live URL: `npx tsx scripts/smoke-live.ts <url>` (expect `ALL PASS (36 expectations)`) and `npx tsx scripts/check-headers.ts <url>` (expect `ALL PASS (48 checks)`). The UI has no web fonts and no third-party requests (system fonts only, round 2), so nothing besides the app itself needs to be allowed by the CSP.
+First confirm the live site runs the commit you pushed: `/api/health` returns `"build"` = the first 7 characters of the deployed commit (Vercel sets `VERCEL_GIT_COMMIT_SHA`; locally it says `"local"`). Compare:
+
+```powershell
+git rev-parse --short HEAD
+curl.exe -s https://scam-lens-two.vercel.app/api/health
+```
+
+The two must match (if git prints more than 7 characters, compare the first 7). If they differ after a few minutes, the deployment is still building or failed: check Vercel -> Deployments.
+
+Then run, against the live URL: `npx tsx scripts/smoke-live.ts <url>` (expect `ALL PASS (36 expectations)`) and `npx tsx scripts/check-headers.ts <url>` (expect `ALL PASS (48 checks)`). The UI has no web fonts and no third-party requests (system fonts only, round 2), so nothing besides the app itself needs to be allowed by the CSP.
 
 ## 7. Rollback
 
