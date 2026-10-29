@@ -59,7 +59,9 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
                   ctx.font = `${11 / scale}px sans-serif`;
                   ctx.fillStyle = "#a3a3a3";
                   ctx.textAlign = "center";
-                  ctx.fillText(node.label, node.x, node.y + 10 / scale);
+                  // react-force-graph draws a node with radius sqrt(val) * 4; put the label just below it.
+                  const radius = Math.sqrt(node.focus ? 6 : 2) * 4;
+                  ctx.fillText(node.label, node.x, node.y + radius + 10 / scale);
                 }}
                 linkDirectionalArrowLength={(l) => ((l as GraphView["links"][number]).relation === "payment" ? 4 : 0)}
               />
