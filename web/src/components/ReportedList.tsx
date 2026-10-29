@@ -4,8 +4,7 @@ import { useState } from "react";
 import type { Identifier } from "@/lib/extract/types";
 import { maskIdentifier } from "@/lib/reports/mask";
 import type { ReportedTier } from "@/lib/reports/schema";
-
-const WATERMARK = "Illustrative - not a real investigation";
+import { DEMO_LABEL as WATERMARK } from "@/lib/demo";
 
 function Contest({ id }: { id: Identifier }) {
   const [open, setOpen] = useState(false);

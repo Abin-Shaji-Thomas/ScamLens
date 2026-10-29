@@ -1,3 +1,4 @@
+import { DEMO_LABEL } from "./demo";
 import type { CheckResponse } from "./api-schema";
 
 export const NEXT_STEPS = [
@@ -6,7 +7,7 @@ export const NEXT_STEPS = [
   "Contact your bank or UPI app through its official helpline to block cards/UPI and dispute the transaction.",
   "Do not pay any further 'fees', 'taxes' or 'refund charges', and do not share OTPs, PINs or screen access.",
 ];
-export const WATERMARK = "Illustrative - not a real investigation";
+export const WATERMARK = DEMO_LABEL;
 
 const STATUS_TEXT = { match: "MATCH", no_match: "not listed", info: "on-chain facts", unavailable: "UNAVAILABLE" } as const;
 

@@ -10,6 +10,15 @@ export const RISK_LABEL: Record<RiskLevel, string> = {
 };
 export const NO_REPORTS_MESSAGE = "No known reports. This does not mean safe.";
 
+/** Plain-language explanation shown under the risk header. Describes evidence, never a person. */
+export const RISK_EXPLANATION: Record<RiskLevel, string> = {
+  high: "Strong evidence needs your attention: an address matched a checked list, or a reported identifier appears together with warning signs. Stop and verify before you pay or share anything.",
+  elevated: "Warning signs or community reports were found. That is not proof, but pause and verify the other person through an official channel before you pay.",
+  low: "We found nothing in the sources we checked. This does not mean safe: new numbers, UPI IDs and wallets are not on any list yet.",
+};
+/** Text marker so the level is never shown by colour alone. */
+export const RISK_SYMBOL: Record<RiskLevel, string> = { high: "▲", elevated: "!", low: "○" };
+
 export const Risk = z.object({
   level: RiskLevel,
   label: z.string(),

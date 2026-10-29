@@ -11,7 +11,7 @@ export function SuspectedList({ signals, ai }: { signals: Signal[]; ai: AiStatus
             <li key={i} className="text-sm">
               <span className="font-medium">{s.label}</span>
               <blockquote className="mt-0.5 border-l-2 border-sky-600 pl-2 font-mono text-xs break-words">
-                &ldquo;{s.quote}&rdquo;
+                &ldquo;<mark className="rounded-sm bg-yellow-200 px-0.5 text-neutral-900 dark:bg-yellow-700 dark:text-neutral-50 print:bg-transparent print:underline">{s.quote}</mark>&rdquo;
               </blockquote>
               <span className="text-xs text-neutral-500">
                 rule <code>{s.rule_id}</code> · {s.source === "rule" ? "fixed pattern" : "AI, quote verified in your text"}

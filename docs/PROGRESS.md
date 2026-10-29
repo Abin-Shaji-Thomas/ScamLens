@@ -110,3 +110,23 @@ Each step: pre-flight (git clean, npm test, typecheck, lint), build, post-flight
 | Every verified finding: source name, asOf date, link to check | PASS | unavailable rows used to have `link: ""`; now `defaultLink()` per source (OFAC search, ScamSniffer file, gopluslabs.io, Tronscan, Etherscan). Test checks every result in both a healthy and an all-HTTP-500 run has an https link, a source name and `checkedAt`; OFAC/ScamSniffer non-unavailable rows have `dataAsOf` |
 | On-chain "pattern" heuristics | SKIPPED | none can be explained in one sentence without implying a judgement (stated in CHAIN_SUPPORT.md) |
 | Post-flight | PASS | 233/233 tests (13 files), typecheck 0, lint 0, build 0 |
+
+## F7 - UI and accessibility
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight green | PASS | 233/233 tests, typecheck 0, lint 0 (after F6 commit) |
+| Clear separation of the three tiers | PASS (code + render test) | "Tier N of 3" text label on each tier plus its existing title and coloured border; `ui.test.ts` checks the labels |
+| Risk header with plain-language explanation | PASS | `RISK_EXPLANATION` + `RISK_SYMBOL` (▲/!/○ text marker so colour is not the only signal) in `lib/risk.ts`, rendered by `RiskBadge` |
+| Highlighted quotes | PASS | `<mark>` around each suspected quote (test) |
+| Loading / error / empty / graph waking states | PASS (code); visual UNKNOWN | loading line + button text; error `role="alert"`; empty card text and tier empty texts (test); graph "waking up" after 3 s (existing) |
+| Graph loads separately and never blocks the card | PASS | graph is fetched only on the user's click, after the card has rendered (unchanged design) |
+| "What to do now" block | PASS | `lib/next-steps.ts` + `WhatToDoNow.tsx`: pause, verify via official channels, keep chat and transaction IDs, 1930 + cybercrime.gov.in, bank immediately; test checks every step |
+| Notices shown on the card | FIXED (found in F7) | before F7 the card never rendered `notices`, so the identifier-cap (F1), AI-skipped (F2) and domain-not-checked (F6) notices were invisible; now shown as "Note:" lines (test) |
+| Labels, focus order, aria-live | PASS (code); screen-reader behaviour UNKNOWN | focus moves to `#risk-card-title` after a result; `role="status" aria-live="polite"` "Result ready: <label>."; graph canvas has `role="img"` + label and the same links listed as text |
+| Print stylesheet for the evidence pack | ADDED (none existed); print output UNKNOWN | "Print or save as PDF" button expands the pack then calls `window.print()`; `print:hidden` on form, screenshot picker, report form, buttons, canvas; `@media print` white background |
+| "Illustrative demo data" wherever synthetic data appears | PASS | single `DEMO_LABEL` ("Illustrative demo data - not a real investigation") used by samples, evidence pack, seeded reports, graph script, eval data; graph view gains `synthetic` computed exactly from the seed scenario's hashes, and GraphPanel shows the label (PGlite test: seeded UPI -> true, other UPI -> false); the card shows the label for samples (test) |
+| 375 px | PASS (code); rendering UNKNOWN | identifier chips `break-all`, card padding `p-4 sm:p-5`, existing ResizeObserver graph width |
+| docs/UI_CHECKLIST.md | PASS | 7 sections of manual click-through steps |
+| Banned-words test | PASS | still green (scans new components and lib copy) |
+| Post-flight | PASS | 239/239 tests (14 files), typecheck 0, lint 0, build 0 |

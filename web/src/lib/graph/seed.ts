@@ -6,7 +6,7 @@ import { identifierHash, maskIdentifier } from "../reports/privacy";
 import { canonicalIdentifier, submitReport, type ReportsConfig } from "../reports/service";
 import type { ReportRequest } from "../reports/schema";
 
-export const SYNTHETIC_WATERMARK = "Illustrative - not a real investigation";
+export { DEMO_LABEL as SYNTHETIC_WATERMARK } from "../demo";
 
 const fakeEvm = (label: string) => "0x" + createHash("sha256").update(`scamlens-synthetic:${label}`).digest("hex").slice(0, 40);
 

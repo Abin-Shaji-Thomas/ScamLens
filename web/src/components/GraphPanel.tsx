@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import type { Identifier } from "@/lib/extract/types";
 import type { GraphView } from "@/lib/graph/view";
+import { DEMO_LABEL } from "@/lib/demo";
 import { MAX_GRAPH_LOOKUPS } from "@/lib/limits";
 
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), { ssr: false });
@@ -60,7 +61,7 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 print:hidden">
         {linkable.map((id, i) => (
           <button
             key={i}
@@ -80,10 +81,11 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
       </div>
       {view?.status === "ok" && (
         <>
+          {view.synthetic && <p className="text-xs font-semibold uppercase text-fuchsia-700 dark:text-fuchsia-400">{DEMO_LABEL}</p>}
           {view.nodes.length === 0 ? (
             <p className="text-xs text-neutral-500">No linked identifiers in reports. This does not mean safe.</p>
           ) : (
-            <div ref={box} className="w-full overflow-hidden rounded border border-neutral-200 dark:border-neutral-800">
+            <div ref={box} role="img" aria-label="Link graph; the same links are listed as text below." className="w-full overflow-hidden rounded border border-neutral-200 dark:border-neutral-800 print:hidden">
               <ForceGraph2D
                 graphData={{ nodes: view.nodes.map((n) => ({ ...n })), links: view.links.map((l) => ({ ...l })) }}
                 width={width}

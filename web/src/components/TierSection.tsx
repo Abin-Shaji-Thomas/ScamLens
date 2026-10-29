@@ -7,13 +7,16 @@ const ACCENT: Record<TierInfo["id"], string> = {
   suspected: "border-l-sky-600",
 };
 
+const TIER_NUMBER: Record<TierInfo["id"], number> = { verified: 1, reported: 2, suspected: 3 };
+
 export function TierSection({ tier, children }: { tier: TierInfo; children?: ReactNode }) {
   return (
     <section
       aria-labelledby={`tier-${tier.id}`}
-      className={`border-l-4 ${ACCENT[tier.id]} rounded-md bg-neutral-50 p-4 dark:bg-neutral-900`}
+      className={`border-l-4 ${ACCENT[tier.id]} rounded-md bg-neutral-50 p-4 dark:bg-neutral-900 print:break-inside-avoid print:border print:border-l-4 print:bg-transparent`}
     >
       <h3 id={`tier-${tier.id}`} className="text-base font-semibold">
+        <span className="mr-2 text-xs font-medium uppercase tracking-wide text-neutral-500">Tier {TIER_NUMBER[tier.id]} of 3</span>
         {tier.title}
       </h3>
       <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{tier.description}</p>

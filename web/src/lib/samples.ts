@@ -1,7 +1,9 @@
 // Demo inputs used in the UI and in the README's 90-second demo script.
 // All are synthetic. Sample 2 uses a wallet address that is genuinely on the OFAC SDN list
 // so the Verified tier can be shown live; the surrounding chat is invented.
-export const SAMPLE_WATERMARK = "Illustrative - not a real investigation";
+import { DEMO_LABEL } from "./demo";
+
+export const SAMPLE_WATERMARK = DEMO_LABEL;
 
 export const SAMPLES = [
   {

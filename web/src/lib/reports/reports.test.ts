@@ -140,6 +140,13 @@ describe("graph on synthetic seed (Postgres fallback vs independent reference)",
     const w2 = await buildGraphView({ type: "evm", value: SEED_IDS.w2 }, { REPORT_HASH_PEPPER: PEPPER }, db);
     expect(w2.paths.map((p) => p.query)).toEqual(["Q2"]);
   });
+  it("F7: a graph view of the seeded scenario is flagged synthetic; a real identifier's view is not", async () => {
+    const v = await buildGraphView({ type: "upi", value: SEED_IDS.u1 }, { REPORT_HASH_PEPPER: PEPPER }, db);
+    expect(v.synthetic).toBe(true);
+    const other = await buildGraphView({ type: "upi", value: "someone.else@okaxis" }, { REPORT_HASH_PEPPER: PEPPER }, db);
+    expect(other.status).toBe("ok");
+    expect(other.synthetic).toBe(false);
+  });
   it("graph view without a database is 'unavailable'", async () => {
     expect((await buildGraphView({ type: "upi", value: SEED_IDS.u1 }, {}, null)).status).toBe("unavailable");
   });

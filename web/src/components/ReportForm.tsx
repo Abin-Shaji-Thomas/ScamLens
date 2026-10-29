@@ -14,7 +14,7 @@ export function ReportForm({ identifiers }: { identifiers: Identifier[] }) {
 
   return (
     <form
-      className="flex flex-col gap-2 rounded-md border border-neutral-200 p-3 text-sm dark:border-neutral-800"
+      className="flex flex-col gap-2 rounded-md border border-neutral-200 p-3 text-sm dark:border-neutral-800 print:hidden"
       onSubmit={async (e) => {
         e.preventDefault();
         try {

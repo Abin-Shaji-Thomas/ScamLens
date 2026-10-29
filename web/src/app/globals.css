@@ -24,3 +24,17 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Print: the evidence pack and the result card print on white with readable text; controls are hidden via print:hidden. */
+@media print {
+  :root {
+    --background: #ffffff;
+    --foreground: #000000;
+  }
+  body {
+    font-size: 11pt;
+  }
+  a {
+    text-decoration: underline;
+  }
+}

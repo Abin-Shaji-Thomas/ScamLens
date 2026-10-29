@@ -5,6 +5,7 @@ import { identifierHash } from "../reports/privacy";
 import { canonicalIdentifier } from "../reports/service";
 import { findLinks, graphBackend } from "./index";
 import { postgresBackend } from "./postgres";
+import { buildScenario } from "./seed";
 import type { GraphBackend } from "./types";
 
 export const GraphRequest = z.object({ type: IdentifierType, value: z.string().trim().min(3).max(200) });
@@ -16,11 +17,18 @@ export const GraphView = z.object({
   nodes: z.array(z.object({ id: z.string(), label: z.string(), type: z.string(), focus: z.boolean() })),
   links: z.array(z.object({ source: z.string(), target: z.string(), relation: z.string(), evidence: z.string() })),
   paths: z.array(z.object({ query: z.string(), text: z.string(), evidence: z.array(z.string()) })),
+  /** True when any node is part of the seeded synthetic scenario: the UI must label it "Illustrative demo data". */
+  synthetic: z.boolean().default(false),
 });
 export type GraphView = z.infer<typeof GraphView>;
 
 const short = (h: string) => h.slice(0, 12); // node ids are hash prefixes, never raw identifiers
-const EMPTY = { nodes: [], links: [], paths: [] };
+const EMPTY = { nodes: [], links: [], paths: [], synthetic: false };
+
+/** Exact check against the seed scenario's hashes (not a naming heuristic). */
+function seedNodeIds(pepper: string): Set<string> {
+  return new Set(Object.values(buildScenario(pepper).nodes).map((n) => short(n.hash)));
+}
 
 async function viewFrom(backend: GraphBackend, id: Identifier, hash: string, env: Record<string, string | undefined>, db: Db | null) {
   const deps = { env, db };
@@ -58,7 +66,8 @@ async function viewFrom(backend: GraphBackend, id: Identifier, hash: string, env
       });
     }
   }
-  return { nodes: [...nodes.values()], links, paths };
+  const seed = seedNodeIds(env.REPORT_HASH_PEPPER ?? "");
+  return { nodes: [...nodes.values()], links, paths, synthetic: [...nodes.keys()].some((k) => seed.has(k)) };
 }
 
 export async function buildGraphView(

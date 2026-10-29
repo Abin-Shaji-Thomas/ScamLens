@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CheckResponse, MAX_INPUT_CHARS } from "@/lib/api-schema";
 import { SAMPLE_WATERMARK, SAMPLES } from "@/lib/samples";
 import { RiskCard } from "./RiskCard";
@@ -12,6 +12,12 @@ export function CheckForm() {
   const [result, setResult] = useState<CheckResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const resultBox = useRef<HTMLDivElement>(null);
+
+  // Move focus to the result so keyboard and screen-reader users land on it.
+  useEffect(() => {
+    if (result) resultBox.current?.querySelector<HTMLElement>("#risk-card-title")?.focus();
+  }, [result]);
 
   async function submit(input: string = text) {
     setLoading(true);
@@ -39,7 +45,7 @@ export function CheckForm() {
   return (
     <div className="flex flex-col gap-6">
       <form
-        className="flex flex-col gap-3"
+        className="flex flex-col gap-3 print:hidden"
         onSubmit={(e) => {
           e.preventDefault();
           void submit();
@@ -65,7 +71,7 @@ export function CheckForm() {
             </button>
           ))}
         </div>
-        {demo && <p className="text-xs font-semibold uppercase text-fuchsia-700">{SAMPLE_WATERMARK}</p>}
+        {demo && <p className="text-xs font-semibold uppercase text-fuchsia-700 dark:text-fuchsia-400">{SAMPLE_WATERMARK}</p>}
         <textarea
           id="input"
           value={text}
@@ -87,17 +93,31 @@ export function CheckForm() {
             {loading ? "Checking..." : "Check"}
           </button>
         </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && (
+          <p role="alert" className="text-sm text-red-700 dark:text-red-400">
+            {error}
+          </p>
+        )}
+        {loading && (
+          <p className="text-xs text-neutral-500">Checking lists, on-chain history and reports. This can take up to 10 seconds.</p>
+        )}
       </form>
-      <ScreenshotInput
-        disabled={loading}
-        onCheck={(t) => {
-          setText(t);
-          setDemo(false);
-          void submit(t);
-        }}
-      />
-      <RiskCard result={result} demo={demo} />
+      <div className="print:hidden">
+        <ScreenshotInput
+          disabled={loading}
+          onCheck={(t) => {
+            setText(t);
+            setDemo(false);
+            void submit(t);
+          }}
+        />
+      </div>
+      <p role="status" aria-live="polite" className="sr-only">
+        {loading ? "Checking." : result ? `Result ready: ${result.risk.label}.` : ""}
+      </p>
+      <div ref={resultBox}>
+        <RiskCard result={result} demo={demo} />
+      </div>
     </div>
   );
 }
