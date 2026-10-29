@@ -65,3 +65,18 @@ Each step: pre-flight (git clean, npm test, typecheck, lint), build, post-flight
 | Form copy promises only what is built | PASS | label no longer says "screenshot text"; screenshot note says the image goes to the AI provider once and is not stored; README line 3 and limits updated |
 | scripts/smoke-transcribe.ts | PASS (runs; without a key prints `FAIL: HTTP 503 ...`, exit 1, as designed) | dry run against a 16-byte PNG header in the job tmp dir |
 | Post-flight | PASS | 212/212 tests (11 files), typecheck 0, lint 0 (unused directive removed), build 0 (new route `/api/transcribe`) |
+
+## F4 - Trust surface
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight green | PASS | 212/212 tests, typecheck 0, lint 0 (after F3 commit) |
+| /about server component, renders statically | PASS | `src/app/about/page.tsx`; `npm run build` lists `○ /about` (static); `npm run start` -> `GET /about` 200 |
+| Content: is/is not, three tiers + wording rules, independence rule incl. no-accounts caveat, sources with dates/licences/limits, privacy + retention, contest, demo data, emergency steps (1930, cybercrime.gov.in, bank) | PASS | `src/lib/about.test.ts` (5 tests) renders the page with `react-dom/server` and checks each item |
+| Numbers from code constants | PASS | page imports `MIN_INDEPENDENT_REPORTERS`, `REPORT_RETENTION_DAYS`, `DEFAULT_REPORTS_MAX_PER_DAY` (new, now used by `reports/service.ts`), `usageLimits({})`, `EVM_CHAINS`, `ETHERSCAN_MAX_ADDRESSES`, `DEFAULT_HUB_MAX`, `RULES.length`, OFAC/ScamSniffer snapshot metadata; test asserts several |
+| Etherscan chains named from code | PASS | free-tier names from `EVM_CHAINS.filter(freeTier)` (Ethereum, Polygon, Arbitrum One); paid-only (BNB Chain, Base) stated as unavailable |
+| Footer on every page linking /about | PASS | `src/components/SiteFooter.tsx` in `app/layout.tsx`; live: `/` and `/about` HTML contain `href="/about"` |
+| Banned-words test | PASS | `f1-safety.test.ts` scans .tsx too; still green |
+| Links work | PASS (internal + URL shape); external sites reachable UNKNOWN (not fetched) | test: every href is an existing `app/**/page.tsx` route or an https URL |
+| "optional note" in privacy | DEVIATION | there is no note field in the code (reports schema has none); the page says so instead of promising one |
+| Post-flight | PASS | 217/217 tests (12 files), typecheck 0, lint 0, build 0 |
