@@ -1,6 +1,6 @@
 import { DEMO_LABEL } from "./demo";
 import type { CheckResponse } from "./api-schema";
-import { CONTESTED_LABEL } from "./tiers";
+import { CONTESTED_LABEL, WARNING_CONTEXT_TITLE } from "./tiers";
 
 export const NEXT_STEPS = [
   "Call 1930 (National Cyber Crime Helpline) as soon as possible, especially if money has left your account.",
@@ -43,7 +43,7 @@ export function buildEvidencePack(r: CheckResponse, opts: { demo?: boolean } = {
 
   L.push("", "3. SUSPECTED (patterns in the message text; not proof)");
   if (!r.suspected.length) L.push("  No pattern signals found.");
-  for (const s of r.suspected) L.push(`  - ${s.label} [rule ${s.rule_id}, ${s.source === "ai" ? "AI, quote verified" : "fixed pattern"}]: "${s.quote}"`);
+  for (const s of r.suspected) L.push(`  - ${s.label} [rule ${s.rule_id}, ${s.source === "ai" ? "AI, quote verified" : "fixed pattern"}${s.context === "warning" ? `; ${WARNING_CONTEXT_TITLE.toLowerCase()}, not counted` : ""}]: "${s.quote}"`);
 
   L.push("", "WHAT TO DO NEXT");
   NEXT_STEPS.forEach((s, i) => L.push(`  ${i + 1}. ${s}`));

@@ -53,7 +53,8 @@ async function score(chats: Chat[], env: Record<string, string | undefined>, mod
   for (const c of chats) {
     const { signals, ai } = await detectSignals(c.text, { env });
     if (mode !== "regex-only" && ai.status !== "ok") r.mode = `${mode} (AI unavailable on some cases: ${ai.reason ?? "error"})`;
-    const fired = new Set(signals.map((s) => s.rule_id));
+    // Hits in warning/news-style context (G3) are shown but not counted, exactly as in the risk level.
+    const fired = new Set(signals.filter((s) => s.context !== "warning").map((s) => s.rule_id));
     const predicted = fired.size > 0;
     const rules = [...fired].join(", ");
     if (c.label === "scam" && predicted) r.tp++;

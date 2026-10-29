@@ -33,3 +33,8 @@ export const TIERS: readonly TierInfo[] = [
 /** Shown next to a Reported entry that someone contested (G2). The entry stays visible. */
 export const CONTESTED_LABEL = "Contested, under review";
 export const CONTESTED_NOTE = "Someone disputes this entry. It is still shown, but it does not count toward a high risk level until a person reviews it.";
+
+/** Collapsed group for suspected hits that sit inside warning, news or awareness sentences (G3). */
+export const WARNING_CONTEXT_TITLE = "Mentioned in a warning or news-style text";
+export const WARNING_CONTEXT_NOTE =
+  "These phrases appear in a sentence that warns about scams or reports on them, so they are not counted toward the risk level.";

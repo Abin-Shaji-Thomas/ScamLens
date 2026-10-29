@@ -1,4 +1,5 @@
 import { aiSignals, type LlmDeps } from "./llm";
+import { markWarningContext } from "./context";
 import { applyCorroboration, runRules } from "./regex";
 import type { AiStatus, Signal } from "./types";
 
@@ -16,5 +17,5 @@ export async function detectSignals(text: string, deps: LlmDeps): Promise<{ sign
     seen.add(key);
     merged.push(s);
   }
-  return { signals: applyCorroboration(merged).sort((a, b) => a.start - b.start || a.rule_id.localeCompare(b.rule_id)), ai: status };
+  return { signals: applyCorroboration(markWarningContext(text, merged)).sort((a, b) => a.start - b.start || a.rule_id.localeCompare(b.rule_id)), ai: status };
 }

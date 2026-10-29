@@ -101,6 +101,9 @@ export const RULES: readonly Rule[] = [
   {
     id: "digital_arrest",
     label: "\"Digital arrest\" or arrest-warrant threat",
+    // G3: advice that tells people NOT to trust such calls is not a threat ("there is no such thing as a
+    // digital arrest", "police never ask you to stay on a video call").
+    negation: /\b(no\s+such\s+thing\s+as|never\s+(ask|asks|put|puts|place|places|conduct|conducts)|do\s+not\s+(trust|believe|fall\s+for)|don'?t\s+(trust|believe|fall\s+for))\b[^.\n]*$/i,
     patterns: [
       /\bdigital(ly)?\s+arrest/gi,
       /\b(arrest|non[- ]bailable)\s+warrant\b/gi,
@@ -171,7 +174,13 @@ export const RULES: readonly Rule[] = [
   {
     id: "prize_lottery",
     label: "Prize, lottery or lucky draw win",
-    patterns: [/\b(you have won|you've won|lucky draw|lottery|kbc|jackpot|prize money)\b/gi],
+    // G3: "lucky draw" alone also names genuine draws (a housing society's festival draw); it counts only with a
+    // second-person, claim or payment word nearby. The other phrases are unchanged.
+    patterns: [
+      /\b(you have won|you've won|lottery|kbc|jackpot|prize money)\b/gi,
+      /\blucky draw\b(?=[^.\n]{0,60}\b(you|your|bonus|claim|fee|pay|send)\b)/gi,
+      /\b(you|your|claim)\b[^.\n]{0,40}\blucky draw\b/gi,
+    ],
   },
   {
     id: "utility_disconnection",

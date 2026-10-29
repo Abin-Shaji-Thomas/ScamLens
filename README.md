@@ -114,18 +114,18 @@ Tests use mocked network calls, an in-memory Postgres (PGlite) loaded with `db/s
 
 ## Evaluation (synthetic)
 
-`eval/chats.json` holds 66 **synthetic**, hand-written labelled chats (33 scam, 33 normal). 26 of them were added in F5: 13 scam cases using obfuscation (spaced letters, emoji separators, line breaks, mixed Hindi/English) and 13 deliberately tricky normal ones (a bank OTP alert, a news article about scams, a police awareness message about "digital arrest"). A chat counts as "scam" when the engine finds at least one suspected signal. Numbers below are copied from [eval/RESULTS.md](eval/RESULTS.md), which `cd web && npm run eval` writes (regex-only mode; the AI pass was not run because no key is set):
+`eval/chats.json` holds 74 **synthetic**, hand-written labelled chats (37 scam, 37 normal): the original 40, 26 added in round 1 (obfuscated scams and tricky normal messages) and 8 added in round 2 (4 scams that include decoy warning words, 4 genuine warnings). A chat counts as "scam" when at least one *counted* suspected signal fires; hits inside warning or news-style sentences are shown but not counted, exactly as on the risk card. Numbers below are copied from [eval/RESULTS.md](eval/RESULTS.md), which `cd web && npm run eval` writes (regex-only mode; the AI pass was not run because no key is set):
 
-| metric | value |
-|---|---|
-| accuracy | 93.9% |
-| precision | 89.2% |
-| recall | 100.0% |
-| false positives | 4 of 33 normal |
-| false negatives | 0 of 33 scam |
-| identifier extraction precision / recall | 100.0% / 100.0% (6 hand-listed identifiers) |
+| metric | before round 2 (66 cases) | after round 2 (74 cases) |
+|---|---|---|
+| accuracy | 93.9% | 98.6% |
+| precision | 89.2% | 97.4% |
+| recall | 100.0% | 100.0% |
+| false positives | 4 of 33 normal | 1 of 37 normal |
+| false negatives | 0 of 33 scam | 0 of 37 scam |
+| identifier extraction precision / recall | 100.0% / 100.0% | 100.0% / 100.0% (6 hand-listed identifiers) |
 
-The 4 false positives in the first 40-case run (a delivery OTP, a college Telegram group, a mutual-fund disclaimer and a family WhatsApp chat) were fixed with narrow guards, each with a regression test (see the header of `web/src/lib/signals/rules.ts`). The 4 that remain are all new tricky cases and were left in on purpose: a news article and a police awareness message that quote scam lines, a housing-society "lucky draw" and a friend saying "guaranteed returns are a red flag".
+Round 2 removed the 4 remaining false positives (a news article, a police awareness message, a housing-society lucky draw, "guaranteed returns are a red flag") with the warning-context rule, a narrower "digital arrest" rule and a narrower "lucky draw" phrase, each with tests, including adversarial ones where a scam adds a decoy warning sentence. The 1 false positive left is a new case written for this round and kept on purpose: a bank advisory that says "If someone says your account will be blocked unless you pay, it is a fraud call" (the sentence has no protective marker the rule recognises).
 
 The same person wrote the rules and the chats, so these numbers are optimistic and are **not** a real-world accuracy claim. RESULTS.md has per-rule precision and recall and a section on what this evaluation is not.
 

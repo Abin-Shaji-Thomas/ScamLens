@@ -36,6 +36,8 @@ export interface RiskInput {
   contestedIdentifiers?: number;
   /** Distinct rule ids among suspected signals (rule pass or validated AI pass). */
   suspectedRules: number;
+  /** Distinct rules found ONLY inside warning, news or awareness sentences (G3): shown, never counted. */
+  warningOnlyRules?: number;
   /** Sources that could not be checked. */
   unavailableSources: number;
   /** False when the reports database could not be queried: then we must not claim "no known reports". */
@@ -57,6 +59,11 @@ export function assessRisk(i: RiskInput): Risk {
   const contested = i.contestedIdentifiers ?? 0;
   if (contested > 0) reasons.push(`${contested} reported identifier(s) contested, under review (not counted toward High)`);
   if (i.suspectedRules > 0) reasons.push(`${i.suspectedRules} suspected pattern(s) in the text`);
+  if ((i.warningOnlyRules ?? 0) > 0) {
+    reasons.push(
+      `${i.warningOnlyRules} pattern(s) appear only in warning or news-style text (for example "never share your OTP"), so they are shown but not counted`,
+    );
+  }
   if (i.unavailableSources > 0) reasons.push(`${i.unavailableSources} source(s) unavailable - result is incomplete`);
 
   const level: RiskLevel =

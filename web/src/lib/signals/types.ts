@@ -12,6 +12,8 @@ export interface Rule {
   unlessFollowedBy?: RegExp;
   /** Weak on its own: kept only when at least one OTHER rule also fired in the same text. */
   needsCorroboration?: boolean;
+  /** Rule-specific negation, tested on the text before a match within the same sentence (advice that quotes the threat). */
+  negation?: RegExp;
 }
 
 export const Signal = z.object({
@@ -21,6 +23,8 @@ export const Signal = z.object({
   start: z.number().int().nonnegative(),
   end: z.number().int().nonnegative(),
   source: z.enum(["rule", "ai"]),
+  /** "warning": found inside a warning, news or awareness sentence; shown, but not counted toward the level (G3). */
+  context: z.enum(["warning"]).optional(),
 });
 export type Signal = z.infer<typeof Signal>;
 

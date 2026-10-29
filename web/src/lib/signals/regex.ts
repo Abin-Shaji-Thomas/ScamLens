@@ -36,6 +36,12 @@ export function normalise(text: string): { norm: string; map: number[] } {
   return { norm, map };
 }
 
+/** Up to NEGATION_WINDOW characters before `at`, cut at the last sentence break. */
+function sameSentenceBefore(text: string, at: number): string {
+  const before = text.slice(Math.max(0, at - NEGATION_WINDOW), at);
+  return before.slice(Math.max(before.lastIndexOf("."), before.lastIndexOf("!"), before.lastIndexOf("?"), before.lastIndexOf("\n")) + 1);
+}
+
 /** Deterministic pass: every regex hit becomes a signal with exact offsets into the ORIGINAL text. */
 export function runRules(text: string): Signal[] {
   const { norm, map } = normalise(text);
@@ -48,7 +54,8 @@ export function runRules(text: string): Signal[] {
         const ns = m.index;
         const ne = ns + m[0].length;
         if (rule.negatable && NEGATION.test(norm.slice(Math.max(0, ns - NEGATION_WINDOW), ns))) continue;
-        if (rule.adjacentNegation && ADJACENT_NEGATION.test(norm.slice(Math.max(0, ns - ADJACENT_WINDOW), ns))) continue;
+        if (rule.negation?.test(sameSentenceBefore(norm, ns))) continue;
+        if (rule.adjacentNegation &&ADJACENT_NEGATION.test(norm.slice(Math.max(0, ns - ADJACENT_WINDOW), ns))) continue;
         if (rule.unlessFollowedBy?.test(norm.slice(ne, ne + FOLLOW_WINDOW))) continue;
         const start = map[ns];
         const end = map[ne - 1] + 1;
@@ -66,7 +73,8 @@ const NEEDS_CORROBORATION = new Set(RULES.filter((r) => r.needsCorroboration).ma
 
 /** Drops signals of weak rules (needsCorroboration) when no other rule fired in the same text. */
 export function applyCorroboration(signals: Signal[]): Signal[] {
-  const ids = new Set(signals.map((s) => s.rule_id));
+  // Hits in warning context do not corroborate anything.
+  const ids = new Set(signals.filter((s) => s.context !== "warning").map((s) => s.rule_id));
   const strong = [...ids].filter((id) => !NEEDS_CORROBORATION.has(id));
   return strong.length > 0 ? signals : signals.filter((s) => !NEEDS_CORROBORATION.has(s.rule_id));
 }

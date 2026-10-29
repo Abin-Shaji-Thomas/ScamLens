@@ -32,7 +32,9 @@ export async function runCheck({ text }: CheckRequest, deps: RunDeps = defaultDe
     verifiedMatches: verified.filter((v) => v.status === "match").length,
     reportedIdentifiers: reported.entries.filter((e) => !e.contested).length,
     contestedIdentifiers: reported.entries.filter((e) => e.contested).length,
-    suspectedRules: new Set(signals.map((s) => s.rule_id)).size,
+    // Hits inside warning/news-style sentences are shown but carry no weight (G3).
+    suspectedRules: new Set(signals.filter((s) => s.context !== "warning").map((s) => s.rule_id)).size,
+    warningOnlyRules: new Set(signals.filter((s) => s.context === "warning").map((s) => s.rule_id)).size,
     unavailableSources:
       verified.filter((v) => v.status === "unavailable").length +
       (ai.status === "unavailable" ? 1 : 0) +

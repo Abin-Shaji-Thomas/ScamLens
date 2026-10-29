@@ -182,3 +182,20 @@ Each step: pre-flight (git clean, npm test, typecheck, lint), build, post-flight
 | TigerGraph removal after an uphold | UNKNOWN | tg-setup never deletes; REST delete documented in MODERATION.md section 4, not run |
 | Changed test (justified) | NOTE | "contested entries are hidden" replaced: it asserted the old policy this step removes; the old behaviour is now covered by the old-schema fallback test. One exact `toEqual` gained the new `contestPolicy` field (kept strict) |
 | Post-flight | PASS | 260/260 tests (14 files), typecheck 0, lint 0, build 0 |
+
+## G3 - Warning-context handling
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight green | PASS | 260/260 tests, typecheck 0, lint 0, tree clean (after G2) |
+| Warning/news/awareness detection (same sentence + previous sentence, Hinglish markers) | PASS | `src/lib/signals/context.ts`: protective-phrase markers only; previous sentence counts only within the same message and when this sentence continues it ("They...", "Such...", a quote, or the previous sentence ends with ":") |
+| Hits still shown, collapsed, no weight | PASS | `Signal.context = "warning"`; `SuspectedList` `<details>` "Mentioned in a warning or news-style text"; `check.ts` counts only non-warning rules; warning hits do not corroborate `move_platform`; risk reason explains it |
+| All hits in warning context, nothing else -> Low with explanation | PASS | test "warning-context hits are still shown (marked), with a plain reason" |
+| Adversarial tests | PASS | decoy "Beware of fake sites." + scam in a different sentence still flagged; warning in a separate message still flagged; "Final warning" still flagged; Hinglish decoy still flagged |
+| 4 known false positives -> Low | PASS | `context.test.ts` it.each (news article, police awareness, society lucky draw, red flag) |
+| Digital arrest narrowed | PASS | rule-level `negation` ("no such thing as", "never ask...", "do not trust..."); test that the threat itself, incl. "do not tell anyone", still fires 3+ times |
+| Lucky draw | NOTE | the society draw is not a warning text, so warning context alone could not fix it; "lucky draw" now needs a you/your/claim/bonus/fee/pay/send word nearby (other prize phrases unchanged), with tests |
+| 8 new eval cases, existing untouched | PASS | w01-w04 scam with decoy warnings, v01-v04 benign warnings; script asserted the first 66 cases are byte-identical as JSON; `eval-data.test.ts` checks counts |
+| Eval rerun, README matches | PASS | before: 66 cases, acc 93.9, P 89.2, R 100, FP 4, FN 0. After: 74 cases, acc 98.6, P 97.4, R 100, FP 1 (v01 bank advisory <- urgency_deadline), FN 0. Eval now counts only non-warning hits, same as the risk card |
+| ReDoS | PASS | worst 4.8 ms, 0 cases >= 200 ms (context markers are simple linear regexes run per sentence) |
+| Post-flight | PASS | 278/278 tests (15 files), typecheck 0, lint 0, build 0 |
