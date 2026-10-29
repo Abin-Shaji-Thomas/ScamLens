@@ -284,3 +284,26 @@ describe("Swiss tiers and risk header (server-rendered)", () => {
     expect(text).toContain("This is not a clean result.");
   });
 });
+
+describe("Swiss graph panel", () => {
+  const src = readFileSync(join(import.meta.dirname, "..", "components", "GraphPanel.tsx"), "utf8");
+
+  it("canvas drawing follows the spec (the canvas itself needs a browser; this pins the drawing code)", () => {
+    expect(src).toContain('const INK = "#000000";');
+    expect(src).toContain('const GREY = "#808080";');
+    expect(src).toMatch(/ctx\.fillStyle = node\.focus \? INK : WHITE;/); // checked = filled black, others hollow
+    expect(src).toContain("ctx.lineWidth = 1.5 / scale;");
+    expect(src).toMatch(/linkColor=\{\(l\) => \(onPath\.has\(\(l as Link\)\.evidence\) \? ALERT : GREY\)\}/);
+    expect(src).toMatch(/linkWidth=\{\(l\) => \(onPath\.has\(\(l as Link\)\.evidence\) \? 2\.5 : 1\)\}/);
+    expect(src).toMatch(/ctx\.fillStyle = INK;\s*ctx\.textAlign = "center";\s*ctx\.textBaseline = "top";/); // labels black, below
+    // reduced motion kept: layout settled before first paint, no drag animation
+    expect(src).toContain("warmupTicks={reduceMotion ? 120 : 0}");
+    expect(src).toContain("cooldownTicks={reduceMotion ? 0 : Infinity}");
+  });
+
+  it("server render: full-width panel with a 2px top rule and text-link buttons, no canvas yet", () => {
+    const html = renderToStaticMarkup(createElement(GraphPanel, { identifiers: extractIdentifiers("0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359") }));
+    expect(html).toMatch(/^<div class="flex flex-col border-t-2 border-swiss-black pt-4">/);
+    expect(html).not.toContain("<canvas");
+  });
+});

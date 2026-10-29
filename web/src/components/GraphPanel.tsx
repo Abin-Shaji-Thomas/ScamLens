@@ -9,13 +9,15 @@ import { MAX_GRAPH_LOOKUPS } from "@/lib/limits";
 
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), { ssr: false });
 
-// Grayscale only (G4): the checked identifier is a filled ink circle, others hollow with a 1px ink stroke.
+// Swiss graph: the checked identifier is a filled black circle, others hollow with a 1.5px black stroke;
+// links are 1px grey, the evidence-path link 2.5px alert; labels are black below the nodes.
 const INK = "#000000";
 const GREY = "#808080";
 const ALERT = "#b00020"; // only the evidence-path link
 const WHITE = "#ffffff";
 const R_FOCUS = 6;
 const R_NODE = 4.5;
+const FONT = '"Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif';
 const WAKING_AFTER_MS = 3000;
 const REDUCED = "(prefers-reduced-motion: reduce)";
 const prefersReducedMotion = () => window.matchMedia(REDUCED).matches;
@@ -77,8 +79,8 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
   }
 
   return (
-    <div className="flex flex-col">
-      <div className="flex flex-wrap gap-x-6 gap-y-2 print:hidden">
+    <div className="flex flex-col border-t-2 border-swiss-black pt-4">
+      <div className="flex flex-wrap gap-x-8 print:hidden">
         {linkable.map((id, i) => (
           <button key={i} type="button" onClick={() => load(id)} disabled={loading !== null} className="btn-link break-id text-left">
             {loading === id.value ? "Loading links..." : `Show links for ${id.type} ${id.value.slice(0, 14)}`}
@@ -87,8 +89,8 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
       </div>
       <div aria-live="polite" className="mt-3">
         {waking && <p className="text-swiss-text">The graph database is waking up. This can take up to a minute the first time.</p>}
-        {error && <p>Note: {error}</p>}
-        {view?.status === "unavailable" && <p>Note: Link graph unavailable ({view.reason}). This is not a clean result.</p>}
+        {error && <p className="text-swiss-text">Note: {error}</p>}
+        {view?.status === "unavailable" && <p className="text-swiss-text">Note: Link graph unavailable ({view.reason}). This is not a clean result.</p>}
       </div>
       {view?.status === "ok" && (
         <>
@@ -100,7 +102,7 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
               <ForceGraph2D
                 graphData={{ nodes: view.nodes.map((n) => ({ ...n })), links: view.links.map((l) => ({ ...l })) }}
                 width={width}
-                height={Math.min(300, Math.round(width * 0.75))}
+                height={Math.min(420, Math.round(width * 0.75))}
                 backgroundColor={WHITE}
                 warmupTicks={reduceMotion ? 120 : 0}
                 cooldownTicks={reduceMotion ? 0 : Infinity}
@@ -121,10 +123,10 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
                   ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
                   ctx.fillStyle = node.focus ? INK : WHITE;
                   ctx.fill();
-                  ctx.lineWidth = 1 / scale;
+                  ctx.lineWidth = 1.5 / scale;
                   ctx.strokeStyle = INK;
                   ctx.stroke();
-                  ctx.font = `${12 / scale}px ui-sans-serif, system-ui, sans-serif`;
+                  ctx.font = `${12 / scale}px ${FONT}`;
                   ctx.fillStyle = INK;
                   ctx.textAlign = "center";
                   ctx.textBaseline = "top";
@@ -141,9 +143,9 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
               />
             </div>
           )}
-          <ul className="mt-4 flex flex-col gap-3">
+          <ul className="mt-6 flex flex-col divide-y divide-swiss-rule border-t border-swiss-rule">
             {view.paths.map((p, i) => (
-              <li key={i}>
+              <li key={i} className="py-3">
                 <span className="font-semibold">{p.query}</span> {p.text}
                 {p.evidence.length > 0 && <span className="text-swiss-text"> Evidence: {p.evidence.join("; ")}.</span>}
               </li>
