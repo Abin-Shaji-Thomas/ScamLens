@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { TierInfo } from "@/lib/tiers";
 
 const ACCENT: Record<TierInfo["id"], string> = {
@@ -6,7 +7,7 @@ const ACCENT: Record<TierInfo["id"], string> = {
   suspected: "border-l-sky-600",
 };
 
-export function TierSection({ tier }: { tier: TierInfo }) {
+export function TierSection({ tier, children }: { tier: TierInfo; children?: ReactNode }) {
   return (
     <section
       aria-labelledby={`tier-${tier.id}`}
@@ -16,7 +17,7 @@ export function TierSection({ tier }: { tier: TierInfo }) {
         {tier.title}
       </h3>
       <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{tier.description}</p>
-      <p className="mt-3 text-sm italic text-neutral-500">{tier.emptyText}</p>
+      <div className="mt-3">{children ?? <p className="text-sm italic text-neutral-500">{tier.emptyText}</p>}</div>
     </section>
   );
 }

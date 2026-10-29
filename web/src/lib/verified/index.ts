@@ -1,0 +1,59 @@
+import type { Identifier } from "../extract/types";
+import { uniqueIdentifiers } from "../identifiers";
+import { checkEtherscanChain, EVM_CHAINS } from "./etherscan";
+import { checkGoPlus } from "./goplus";
+import { Unavailable, withTimeout } from "./http";
+import { checkOfac } from "./ofac";
+import { checkScamSniffer } from "./scamsniffer";
+import { checkTronGrid } from "./tron";
+import { defaultDeps, unavailable, type CheckDeps, type ResultBase, type SourceResult } from "./types";
+
+export const MAX_ADDRESSES = 10;
+
+type Task = { base: ResultBase; run: () => Promise<SourceResult> | SourceResult; guardMs: number };
+
+/** Any error — network, timeout, schema, bug — becomes "unavailable". Never a pass. */
+async function runTask(t: Task): Promise<SourceResult> {
+  try {
+    return await withTimeout(Promise.resolve().then(t.run), t.guardMs);
+  } catch (e) {
+    return unavailable(t.base, e instanceof Unavailable ? e.message : "internal error");
+  }
+}
+
+function base(id: Identifier, source: ResultBase["source"], sourceName: string, deps: CheckDeps): ResultBase {
+  return { source, sourceName, identifier: { type: id.type, value: id.value }, checkedAt: deps.now().toISOString(), link: "" };
+}
+
+function tasksFor(id: Identifier, deps: CheckDeps): Task[] {
+  const g = deps.timeoutMs + 250; // per-request timeout + scheduling slack
+  const ofac: Task = { base: base(id, "ofac", "OFAC SDN list", deps), run: () => checkOfac(id, deps), guardMs: g };
+  const goplus: Task = { base: base(id, "goplus", "GoPlus address security", deps), run: () => checkGoPlus(id, deps), guardMs: g };
+  switch (id.type) {
+    case "evm":
+      return [
+        ofac,
+        { base: base(id, "scamsniffer", "ScamSniffer open blacklist", deps), run: () => checkScamSniffer(id, deps), guardMs: g },
+        goplus,
+        ...EVM_CHAINS.map((c) => ({
+          base: { ...base(id, "etherscan", `Etherscan V2 (${c.name})`, deps), link: `${c.explorer}/address/${id.value}` },
+          run: () => checkEtherscanChain(id, c, deps),
+          // Requests are rate-limited, so allow queueing time on top of the per-request timeout.
+          guardMs: 2 * deps.timeoutMs + 500,
+        })),
+      ];
+    case "tron":
+      return [ofac, goplus, { base: base(id, "trongrid", "TronGrid (TRON mainnet)", deps), run: () => checkTronGrid(id, deps), guardMs: g }];
+    case "btc":
+      return [ofac];
+    default:
+      return []; // UPI, phone, Telegram, email, domain: no verified source (report-only).
+  }
+}
+
+export async function runVerifiedChecks(ids: Identifier[], deps: CheckDeps = defaultDeps()): Promise<SourceResult[]> {
+  const addresses = uniqueIdentifiers(ids)
+    .filter((i) => i.type === "evm" || i.type === "tron" || i.type === "btc")
+    .slice(0, MAX_ADDRESSES);
+  return Promise.all(addresses.flatMap((id) => tasksFor(id, deps)).map(runTask));
+}
