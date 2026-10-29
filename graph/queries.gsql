@@ -76,8 +76,8 @@ CREATE OR REPLACE QUERY q3_telegram_clusters(INT min_size, INT hub_max) FOR GRAP
   PRINT @@rows AS rows, @@handles AS handles;
 }
 
-CREATE OR REPLACE QUERY q4_neighbourhood(VERTEX v, INT depth, INT hub_max) FOR GRAPH ScamLens SYNTAX v2 {
-  # Q4: identifier-to-identifier edges within `depth` hops of v, for the graph view.
+CREATE OR REPLACE QUERY q4_neighbourhood(VERTEX center, INT depth, INT hub_max) FOR GRAPH ScamLens SYNTAX v2 {
+  # Q4: identifier-to-identifier edges within `depth` hops of `center`, for the graph view.
   # Report vertices are collapsed into "co_reported" edges; expansion never continues through a hub.
   TYPEDEF TUPLE<STRING src, STRING src_type, STRING src_display, STRING dst, STRING dst_type, STRING dst_display, STRING relation, STRING evidence> Row;
   SetAccum<Row> @@rows;
@@ -86,7 +86,7 @@ CREATE OR REPLACE QUERY q4_neighbourhood(VERTEX v, INT depth, INT hub_max) FOR G
   OrAccum @is_start;
   SetAccum<VERTEX> @nbrs;
 
-  F = {v};
+  F = {center};
   F = SELECT s FROM F:s POST-ACCUM s.@seen += TRUE, s.@is_start += TRUE, @@reached += s;
   WHILE F.size() > 0 LIMIT depth DO
     C1 = SELECT x FROM F:x -(MENTIONS)- Report:r -(MENTIONS)- :n WHERE n != x ACCUM x.@nbrs += n;

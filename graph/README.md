@@ -21,7 +21,7 @@ One scam usually reuses the same money trail across many victims: a "refund desk
                                           (Wallet, flagged_source = "OFAC ...")
 ```
 
-- **Identifier vertices**: `Wallet`, `UPI`, `TelegramHandle`, `Phone`, `Domain` (emails share `Domain`, told apart by `kind`). Each one stores `kind`, `display`, `flagged_source` and `is_exchange`. Its primary id is the **peppered HMAC-SHA256 hash** the app already stores, and `display` is the masked form such as `zz***d@okdemo`. Raw UPI IDs, phone numbers and chats never reach TigerGraph.
+- **Identifier vertices**: `Wallet`, `UPI`, `TelegramHandle`, `PhoneNumber`, `Domain` (emails share `Domain`, told apart by `kind`). Each one stores `kind`, `display`, `flagged_source` and `is_exchange`. Its primary id is the **peppered HMAC-SHA256 hash** the app already stores, and `display` is the masked form such as `zz***d@okdemo`. Raw UPI IDs, phone numbers and chats never reach TigerGraph.
 - **`Report` vertex**: one community report. It holds the evidence sentence ("Named together in one investment report on 2026-10-29") and whether it is synthetic demo data.
 - **`MENTIONS`** joins a Report to each identifier it named. Two identifiers are "co-reported" when they share a Report.
 - **`PAID`** is a directed transfer between two wallets.
@@ -55,3 +55,9 @@ Postgres (Supabase) is the source of truth, and TigerGraph holds the same links 
 3. Copy the workspace host from the workspace's **Connect** panel (`https://<id>.i.tgcloud.io`).
 4. In `web/.env.local` set `TG_HOST=...`, `TG_SECRET=...` and `TG_GRAPH=ScamLens`. Add the same three in Vercel → Settings → Environment Variables and redeploy.
 5. `cd web && npx tsx scripts/tg-setup.ts` creates the schema, installs Q1-Q4 (a few minutes), loads the data and runs the parity check.
+
+## Verified on a live Savanna workspace (2026-10-29)
+
+`npx tsx scripts/tg-setup.ts` against the project's Savanna workspace: schema created, all four queries compiled and installed, 22 vertices / 21 edges accepted from Supabase, and **19/19 queries SAME** as Postgres (every UPI for Q1, every wallet for Q2 and Q4, plus Q3). Re-run with `GRAPH_HUB_MAX=3`, so that the shared wallet becomes a hub: Q1 returns nothing on both backends, again 19/19 SAME.
+
+`PhoneNumber` (not `Phone`) avoids a clash with the global `Phone` type that Savanna's starter *Transaction_Fraud* graph defines.

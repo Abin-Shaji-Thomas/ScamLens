@@ -112,8 +112,8 @@ export function queryParams(q: LinkQuery, hubMax: number): URLSearchParams {
   if (q.kind === "q2") p.set("wallet", q.walletHash);
   if (q.kind === "q3") p.set("min_size", String(q.minSize));
   if (q.kind === "q4") {
-    p.set("v", q.hash);
-    p.set("v.type", VERTEX_TYPE[q.idType]); // untyped VERTEX parameter: id + type
+    p.set("center", q.hash);
+    p.set("center.type", VERTEX_TYPE[q.idType]); // untyped VERTEX parameter: id + type
     p.set("depth", String(q.depth));
   }
   return p;

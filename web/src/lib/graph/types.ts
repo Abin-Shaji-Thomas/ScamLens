@@ -60,7 +60,7 @@ export const VERTEX_TYPE: Record<IdentifierType, string> = {
   btc: "Wallet",
   upi: "UPI",
   telegram: "TelegramHandle",
-  phone: "Phone",
+  phone: "PhoneNumber", // not "Phone": Savanna's starter fraud graph already defines a global Phone type
   email: "Domain",
   domain: "Domain",
 };

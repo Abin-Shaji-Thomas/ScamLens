@@ -36,7 +36,7 @@ describe("query parameters (REST++ conventions)", () => {
   it("typed vertex params are the bare id; untyped q4 vertex carries v.type", () => {
     expect(queryParams({ kind: "q1", upiHash: "abc" }, 25).toString()).toBe("hub_max=25&upi=abc");
     expect(queryParams({ kind: "q2", walletHash: "w" }, 3).toString()).toBe("hub_max=3&wallet=w");
-    expect(queryParams({ kind: "q4", hash: "h", depth: 2, idType: "telegram" }, 25).toString()).toBe("hub_max=25&v=h&v.type=TelegramHandle&depth=2");
+    expect(queryParams({ kind: "q4", hash: "h", depth: 2, idType: "telegram" }, 25).toString()).toBe("hub_max=25&center=h&center.type=TelegramHandle&depth=2");
   });
 });
 
