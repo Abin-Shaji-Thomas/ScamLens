@@ -40,26 +40,20 @@ You can replay the demo from a terminal: `cd web && npx tsx scripts/demo-samples
 
 ## Evaluation (synthetic)
 
-`eval/chats.json` holds 40 **synthetic** labelled chats (20 scam, 20 normal, including hard negatives such as genuine bank alerts, an exchange maintenance notice, a friend asking for a UPI payment and an Amazon delivery OTP). A chat counts as "scam" when the engine finds at least one suspected signal. Output of `npm run eval`, unaltered:
+`eval/chats.json` holds 66 **synthetic**, hand-written labelled chats (33 scam, 33 normal). 26 of them were added in F5: 13 scam cases using obfuscation (spaced letters, emoji separators, line breaks, mixed Hindi/English) and 13 deliberately tricky normal ones (a bank OTP alert, a news article about scams, a police awareness message about "digital arrest"). A chat counts as "scam" when the engine finds at least one suspected signal. Numbers below are copied from [eval/RESULTS.md](eval/RESULTS.md), which `cd web && npm run eval` writes (regex-only mode; the AI pass was not run because no key is set):
 
-```
-ScamLens eval - SYNTHETIC dataset (Illustrative - not a real investigation)
-date: 2026-10-29T08:09:22.753Z   model: rules only   chats: 40 (20 scam / 20 normal)
+| metric | value |
+|---|---|
+| accuracy | 93.9% |
+| precision | 89.2% |
+| recall | 100.0% |
+| false positives | 4 of 33 normal |
+| false negatives | 0 of 33 scam |
+| identifier extraction precision / recall | 100.0% / 100.0% (6 hand-listed identifiers) |
 
-| metric          | value |
-|-----------------|-------|
-| accuracy        | 90.0% |
-| precision       | 83.3% |
-| recall          | 100.0% |
-| false positives | 4 of 20 normal |
-| false negatives | 0 of 20 scam |
-| TP / FP / TN / FN | 20 / 4 / 16 / 0 |
+The 4 false positives in the first 40-case run (a delivery OTP, a college Telegram group, a mutual-fund disclaimer and a family WhatsApp chat) were fixed with narrow guards, each with a regression test (see the header of `web/src/lib/signals/rules.ts`). The 4 that remain are all new tricky cases and were left in on purpose: a news article and a police awareness message that quote scam lines, a housing-society "lucky draw" and a friend saying "guaranteed returns are a red flag".
 
-false positives: n05 (delivery_otp) <- otp_pin_request; n06 (college_group) <- move_platform; n09 (mutual_fund) <- guaranteed_returns; n18 (whatsapp_family) <- move_platform
-false negatives: none
-```
-
-The same person wrote the rules and the chats, so these numbers are optimistic and are **not** a real-world accuracy claim. The rules were not tuned after seeing this result.
+The same person wrote the rules and the chats, so these numbers are optimistic and are **not** a real-world accuracy claim. RESULTS.md has per-rule precision and recall and a section on what this evaluation is not.
 
 ## Architecture
 
@@ -123,7 +117,7 @@ npx tsx scripts/graph-demo.ts       # seed synthetic data into local Postgres (P
 - **Etherscan free plan**: Ethereum, Polygon and Arbitrum are looked up; BNB Chain and Base need a paid Etherscan plan (`ETHERSCAN_PLAN=paid`) and show "unavailable" otherwise. To stay under the free plan's rate limit, on-chain history is fetched for the first EVM wallet in a message only (about 8 s, cached 10 minutes).
 - **No LLM pass in the live demo**: the AI signal pass needs an OpenAI-compatible key. Without it the card says "AI pass: unavailable" and uses the 18 fixed rules only, which is what the eval above measures.
 - **Snapshots age.** OFAC and ScamSniffer data are as fresh as the last `sync-lists` run (dates are shown).
-- **Rules are English-first.** Hindi/Hinglish phrasing is not covered yet; screenshot reading needs an OpenAI-compatible vision model key; the eval set is small, synthetic and written by the same author as the rules.
+- **Rules are English-first.** Hinglish coverage is a small hand-written starter set (a few patterns); screenshot reading needs an OpenAI-compatible vision model key; the eval set is small, synthetic and written by the same author as the rules.
 - **Fingerprints are approximate** (HMAC of the client IP only, so changing browsers does not create a new reporter). A person with two networks (Wi-Fi and mobile data) can still count as two reporters, and people sharing one IP count as one. Reports expire after 90 days and can be contested. Graph links additionally require two different reporters.
 - **Contest has no review queue yet**: a contested identifier is hidden from public badges until someone re-enables it in the database.
 - Nothing here is legal advice.

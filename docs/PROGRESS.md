@@ -80,3 +80,20 @@ Each step: pre-flight (git clean, npm test, typecheck, lint), build, post-flight
 | Links work | PASS (internal + URL shape); external sites reachable UNKNOWN (not fetched) | test: every href is an existing `app/**/page.tsx` route or an https URL |
 | "optional note" in privacy | DEVIATION | there is no note field in the code (reports schema has none); the page says so instead of promising one |
 | Post-flight | PASS | 217/217 tests (12 files), typecheck 0, lint 0, build 0 |
+
+## F5 - Eval honesty and better rules
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight green | PASS | 217/217 tests, typecheck 0, lint 0 (after F4 commit) |
+| >= 25 new synthetic cases (12 scam covering every rule twice incl. obfuscation; 13 tricky benign) | PASS | 26 added (x01-x13 scam, b01-b13 normal), no real brands or numbers; `eval-data.test.ts` asserts >= 12/13, every one of the 18 rules labelled >= 2 times in the new scam cases, all 4 obfuscation styles, no 10-digit phone numbers. Originals kept (now annotated with `expected_rules` and `identifiers`) |
+| n05 delivery OTP FP | FIXED | `otp_pin_request.unlessFollowedBy`: a code right after "share OTP" means the message issued the code; test also proves "share the OTP you received with our delivery agent" still fires |
+| n09 "do not guarantee future returns" FP | FIXED | `guaranteed_returns.adjacentNegation`; test proves "This is not a scam, guaranteed returns..." still fires |
+| n06 / n18 move_platform FPs | FIXED by requiring corroboration | `move_platform.needsCorroboration` (stated in rules.ts header): kept only with another rule in the same text; `runRules` still reports it raw |
+| Obfuscation support | ADDED | `normalise()` in `signals/regex.ts` (spaced letters, emoji separators, zero-width chars) with an offset map, so quotes stay exact substrings of the input (test); small Hinglish pattern set with "mat/nahi" negation guards (tests) |
+| eval/run.ts writes eval/RESULTS.md | PASS | `npm run eval` -> "regex-only: precision 89.2%, recall 100.0%, FP 4, FN 0; identifiers: precision 100.0%, recall 100.0%". RESULTS.md has date, commit, modes, per-rule P/R, FP/FN lists, identifier P/R, "What this evaluation is NOT". Generated on the F5 working tree, so it says "bc47d7b (with uncommitted changes)"; those changes are this commit |
+| with-AI mode | UNKNOWN (not run) | OPENAI_API_KEY not set; RESULTS.md says so |
+| Remaining FPs (new tricky cases, left in on purpose) | REPORTED | b06 news article, b07 police awareness (digital_arrest), b08 society lucky draw, b11 "guaranteed returns are a red flag" |
+| README numbers match RESULTS.md | PASS | README "Evaluation" table copied from RESULTS.md (93.9 / 89.2 / 100.0, 4 FP, 0 FN) |
+| ReDoS after rule changes | PASS | `npx tsx scripts/redos-check.ts`: 64 functions/regexes x 20 inputs, worst 5.2 ms, 0 cases >= 200 ms |
+| Post-flight | PASS | 229/229 tests (13 files), typecheck 0, lint 0, build 0 |

@@ -1,10 +1,10 @@
 import { aiSignals, type LlmDeps } from "./llm";
-import { runRules } from "./regex";
+import { applyCorroboration, runRules } from "./regex";
 import type { AiStatus, Signal } from "./types";
 
 export type { AiStatus, Signal } from "./types";
 
-/** Regex pass + validated AI pass, deduplicated by (rule, span), ordered by position. */
+/** Regex pass + validated AI pass, deduplicated by (rule, span), weak rules kept only when corroborated, ordered by position. */
 export async function detectSignals(text: string, deps: LlmDeps): Promise<{ signals: Signal[]; ai: AiStatus }> {
   const rule = runRules(text);
   const { signals: ai, ai: status } = await aiSignals(text, deps);
@@ -16,5 +16,5 @@ export async function detectSignals(text: string, deps: LlmDeps): Promise<{ sign
     seen.add(key);
     merged.push(s);
   }
-  return { signals: merged.sort((a, b) => a.start - b.start || a.rule_id.localeCompare(b.rule_id)), ai: status };
+  return { signals: applyCorroboration(merged).sort((a, b) => a.start - b.start || a.rule_id.localeCompare(b.rule_id)), ai: status };
 }

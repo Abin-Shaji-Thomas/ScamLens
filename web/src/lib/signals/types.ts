@@ -6,6 +6,12 @@ export interface Rule {
   patterns: RegExp[];
   /** Drop matches preceded by a negation ("never share your OTP") — typical of genuine warnings. */
   negatable?: boolean;
+  /** Narrower negation: only a negator directly before the match ("do not guarantee"), not anywhere earlier in the sentence. */
+  adjacentNegation?: boolean;
+  /** Drop a match when the text right after it matches this (checked on the next 12 characters). */
+  unlessFollowedBy?: RegExp;
+  /** Weak on its own: kept only when at least one OTHER rule also fired in the same text. */
+  needsCorroboration?: boolean;
 }
 
 export const Signal = z.object({

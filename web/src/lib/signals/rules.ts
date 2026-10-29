@@ -1,12 +1,26 @@
 import type { Rule } from "./types";
 
 // Fixed rule list. The LLM may only cite these ids. Patterns are case-insensitive,
-// and `[^.\n]{0,N}` keeps multi-part patterns inside one sentence.
+// and `[^.\n]{0,N}` keeps multi-part patterns inside one sentence. Patterns run on a de-obfuscated
+// copy of the text (regex.ts normalise: spaced letters, emoji separators, zero-width characters);
+// quotes are always cut from the original. The Hinglish patterns are a small hand-written starter set.
+//
+// Narrow guards added in F5 after the eval false positives (each has a regression test):
+// - guaranteed_returns: adjacentNegation ("past returns do not guarantee future returns").
+// - otp_pin_request: a code right after "share OTP" means the message IS the code's issuer
+//   ("Share OTP 4821 with the delivery agent"), not someone asking for it.
+// - move_platform: too noisy alone ("Telegram group for the project notes", "continue planning on
+//   WhatsApp"), so it now needs a second, different rule in the same text (needsCorroboration).
+const NOT_HI = String.raw`(?![^.\n]{0,12}\b(?:mat|nahi|nahin|na)\b)`;
+
 export const RULES: readonly Rule[] = [
   {
     id: "guaranteed_returns",
     label: "Guaranteed or fixed daily returns",
+    adjacentNegation: true,
     patterns: [
+      /\b(pakka|fixed)\s+(returns?|profits?|munafa|income)\b/gi,
+      /\broz(ana)?\s+(ka\s+)?(returns?|profits?|munafa|kamai)\b/gi,
       /\bguarantee[ds]?\b[^.\n]{0,40}\b(returns?|profits?|income)\b/gi,
       /\b(daily|weekly)\s+(returns?|profits?|income|earnings?)\b/gi,
       /\b\d{1,3}(\.\d+)?\s?%\s*(daily|per day|every day|a day|weekly|per week)\b/gi,
@@ -31,6 +45,8 @@ export const RULES: readonly Rule[] = [
       /\bwithin\s+(\d+|one|two|an?)\s*(minutes?|mins?|hours?|hrs?)\b/gi,
       /\b(last chance|final (notice|warning|reminder)|offer (ends|expires)|expires? today|today only|before midnight)\b/gi,
       /\byour\s+(account|card|number|sim|kyc|wallet|connection)\s+(will|shall)\s+be\s+(blocked|suspended|deactivated|disconnected|frozen|closed)\b/gi,
+      /\b(account|khata|sim|number|card)\b[^.\n]{0,20}\b(band|bandh|block)\s+(ho\s+jayega|kar\s+diya\s+jayega|hoga)\b/gi,
+      /\b\d+\s+ghante\s+(mein|me|ke\s+andar)\b/gi,
     ],
   },
   {
@@ -47,12 +63,18 @@ export const RULES: readonly Rule[] = [
     id: "otp_pin_request",
     label: "Asks for OTP, UPI PIN or CVV",
     negatable: true,
-    patterns: [/\b(share|tell|send|give|read out|forward|provide)\b[^.\n]{0,15}\b(otp|one[- ]time password|upi pin|cvv|atm pin|mpin)\b/gi],
+    unlessFollowedBy: /^\s*(is\s*)?[:#-]?\s*\d{4,8}\b/,
+    patterns: [
+      /\b(share|tell|send|give|read out|forward|provide)\b[^.\n]{0,15}\b(otp|one[- ]time password|upi pin|cvv|atm pin|mpin)\b/gi,
+      new RegExp(String.raw`\b(otp|upi pin|cvv|atm pin|mpin)\b(?:(?!\b(?:mat|nahi|nahin|na)\b)[^.\n]){0,15}\b(share|bata\w*|bhej\w*|de do|dijiye)\b${NOT_HI}`, "gi"),
+    ],
   },
   {
     id: "move_platform",
     label: "Moves the conversation to Telegram or WhatsApp",
+    needsCorroboration: true,
     patterns: [
+      /\b(telegram|whatsapp)\s+(pe|par|per)\s+(aao|aaiye|baat|message|msg|join|add)\b/gi,
       /\b(move|switch|shift|continue|talk|chat|contact|message|add|join)\b[^.\n]{0,25}\b(on|to|via|in)\s+(telegram|whatsapp|signal)\b/gi,
       /\b(telegram|whatsapp)\s+(group|channel)\b/gi,
     ],
@@ -85,6 +107,7 @@ export const RULES: readonly Rule[] = [
       /\b(stay|remain)\s+on\s+(the\s+)?(video\s+)?call\b/gi,
       /\b(parcel|package|courier)\b[^.\n]{0,60}\b(drugs|narcotics|illegal items|seized|mdma|fake passports?)\b/gi,
       /\bmoney\s+laundering\s+(case|charges?|complaint)\b/gi,
+      /\b(giraftar|giraftaar|arrest)\s+(ho\s+jaoge|ho\s+jayenge|kar\s+liya\s+jayega|kar\s+lenge)\b/gi,
     ],
   },
   {
@@ -112,6 +135,7 @@ export const RULES: readonly Rule[] = [
       /\b(like|rate|review|subscribe|follow)\b[^.\n]{0,40}\b(earn|get paid|per (task|like|video|review)|commission)\b/gi,
       /\b(prepaid|merchant|vip)\s+tasks?\b/gi,
       /\b(part[- ]time|work from home)\b[^.\n]{0,60}\b(earn|per day|daily)\b/gi,
+      /\bghar\s+(baithe|se)\b[^.\n]{0,40}\b(kamao|kamaiye|kamai|earn)\b/gi,
     ],
   },
   {
