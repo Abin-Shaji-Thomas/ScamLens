@@ -15,11 +15,11 @@ Steps (Supabase -> SQL Editor -> New query, one file per run, in this order; all
 `curl.exe -s https://scam-lens-two.vercel.app/api/health` must show `"build"` equal to `git rev-parse --short HEAD` (first 7 characters). If not, open Vercel -> Deployments and check the latest deployment. Rollback: Vercel -> Deployments -> choose the previous Ready deployment -> **Promote to Production**.
 Optional in the same visit (Vercel -> Settings): Function Region = Mumbai (`bom1`); remove `SUPABASE_ANON_KEY` (unused); optional AI variables are listed in `docs/DEPLOY.md` section 2.
 
-## 3. Warm and update TigerGraph
-Why: round 1 changed the graph queries (links need two different reporters); they have not been compiled against the live workspace yet.
+## 3. Resume TigerGraph and run the setup script
+Why: on 2026-10-30 the workspace did not wake: `/restpp/echo` returned HTTP 500 "Failed to start workspace. Auto start is not enabled for this workspace." for 5 minutes, so `tg-setup.ts` (round 1's two-reporter queries) has still not been compiled live. Fallback until done: the graph answers from Postgres and says `postgres (TigerGraph unavailable)` (confirmed through the app the same day).
 Steps:
-1. TigerGraph Savanna: make sure the workspace is **Running** (resume it if suspended).
-2. `cd web` then `npx tsx scripts/tg-setup.ts`. It must end with `parity TigerGraph vs Postgres: N/N queries SAME`. Expect possible GSQL compile errors on the first run; the fallback until fixed is Postgres (the app says `postgres (TigerGraph unavailable)`).
+1. TigerGraph Savanna -> Workspaces -> the ScamLens workspace -> **Resume** (and, if offered, turn on **Auto start** so it wakes on the first request).
+2. `cd web` then `npx tsx scripts/tg-setup.ts`. It must end with `parity TigerGraph vs Postgres: N/N queries SAME`. If GSQL fails to compile, copy the exact error into an issue; the Postgres fallback keeps working.
 3. In the app, run sample 1 and press "Show links for upi ..." until the note under the graph says `Graph backend: tigergraph`.
 
 ## 4. Smoke-test the live URL
@@ -37,6 +37,6 @@ Most of `docs/UI_CHECKLIST.md` was verified in headless Edge on 2026-10-30 (layo
 5. On macOS or iOS, check that the big headings render in a light weight (Helvetica Neue Light); on Windows they are regular weight (see the font question in the UI round handoff).
 
 ## Later / optional
-- **Screenshot reading** (needs an OpenAI-compatible key with a vision model): set `OPENAI_API_KEY`, `OPENAI_MODEL` (and `OPENAI_VISION_MODEL` if needed, `OPENAI_BASE_URL` for other providers) in `web/.env.local` and in Vercel; then `npx tsx scripts/smoke-transcribe.ts <your-own-synthetic-screenshot.png> --show` must print `PASS`. Without it the UI asks people to paste text.
+- **Add an AI key later, if wanted** (not needed; ScamLens is rules-only by design right now): set `OPENAI_API_KEY`, `OPENAI_MODEL` (and `OPENAI_VISION_MODEL` if needed, `OPENAI_BASE_URL` for other providers) in `web/.env.local` and in Vercel, then redeploy. The AI pass and screenshot reading switch on automatically (`/api/health` shows `"llm": true`). Then run `npx tsx scripts/smoke-transcribe.ts <your-own-synthetic-screenshot.png> --show` (must print `PASS`) and `npm run eval` in both modes before claiming any benefit.
 - **Moderating contests**: `docs/MODERATION.md` (list, uphold, dismiss, remove; TigerGraph clean-up after an uphold).
 - **Before judging**: keep Supabase awake and warm TigerGraph as in `docs/DEPLOY.md` section 5.

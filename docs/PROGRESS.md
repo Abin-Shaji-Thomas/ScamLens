@@ -359,3 +359,17 @@ Measured per window size (same on /, samples 1-3; /about and /nope have no form)
 | docs:check | PASS | `docs:check PASS` |
 | Stale edit detected | PASS | rule_count fact 18 -> 17 and a rule id edited in a copy: `FAIL ... generated block "rules" is stale`, `FAIL ... fact "rule_count" says "17" but the code says "18"`, `docs:check FAILED (2 problem(s))`; restored, `docs:check PASS` |
 | vitest docs test | PASS | `web/src/lib/docs.test.ts` (4 tests incl. one proving each checker rule fires) |
+
+## J2 - Live truth
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| tg-setup scope reviewed | PASS | queries `FOR GRAPH <TG_GRAPH>`, upserts to that graph, no deletes; one global step (migration 001 adds an attribute to the global `Report` type) noted |
+| TigerGraph awake and parity | FAIL (human task) | 9 wake attempts over 5 minutes, each `HTTP 500 ... Failed to start workspace. Auto start is not enabled for this workspace.`; tg-setup not run; nothing changed in TigerGraph |
+| App fallback | PASS | `POST /api/graph` (sample 1 UPI) on `npm run start`: `backend: 'postgres (TigerGraph unavailable)', nodes: 5, paths: 2, synthetic: true` |
+| Live health | PASS | `"usageStore":"supabase"`, `"llm":false`, `"vision":false` (J0) |
+| AI mode truth (owner: AI permanently off, zero model calls) | PASS | new AI status `off`; Suspected tier says "Suspected signals come from fixed pattern rules only."; AI off no longer counted as an unavailable source; skipped-but-configured stays `unavailable` |
+| Screenshot reading off | PASS | `CheckForm screenshots={visionConfigured(process.env)}`; local home page: "Screenshot reading is off. Paste the text instead."; `/api/transcribe`: `{"ok":false,"error":"Screenshot reading is off. Paste the text instead."}` (503) |
+| Tests for both states | PASS | ui.test.ts +6 (form off/on, home page from env, result with AI off has no AI words, skipped AI named, /about off/on); transcribe test asserts no provider named |
+| Changed tests (deliberate) | NOTE | signals test "no key -> unavailable" became "no key -> off"; transcribe "not configured" now expects the screenshot-off sentence |
+| Post-flight | PASS | `Tests 349 passed (349)`, typecheck 0, lint 0, build 0, `docs:check PASS` |

@@ -36,7 +36,7 @@ Drawing (`web/src/components/GraphPanel.tsx`): the checked identifier is a fille
 
 Live status: verified on 2026-10-29 (19/19 SAME, recorded in `graph/README.md`). This round's re-run result is recorded below by step J2.
 
-<!-- J2 graph status is appended here -->
+**2026-10-30 re-run (final round, J2):** the scope was reviewed first (queries are created for `TG_GRAPH` only, upserts go to that graph, nothing is deleted; the one global step is migration `graph/migrations/001_report_reporter_key.gsql`, which adds an attribute to the global `Report` vertex type). The workspace did not wake: every `/restpp/echo` for 5 minutes returned HTTP 500 "Failed to start workspace. Auto start is not enabled for this workspace." `tg-setup.ts` was therefore not run and nothing in TigerGraph changed. The app falls back as designed: `POST /api/graph` for the sample 1 UPI ID answered `backend: "postgres (TigerGraph unavailable)"`, 5 nodes, 2 paths. Resuming the workspace (or enabling auto start) is a human task in `docs/HUMAN_TASKS.md`.
 
 ## Where in the code
 
