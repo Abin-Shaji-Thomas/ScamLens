@@ -2,7 +2,7 @@
 
 ## In plain words
 
-Every change must pass the unit tests, the type checker, the linter, a production build and the docs check. Database code is tested against real Postgres SQL running inside the test (PGlite). The pattern rules are also measured on <!-- FACT:eval_cases -->74<!-- /FACT --> hand-written synthetic chats; that "eval" tells us how the rules behave on examples we wrote, not how they behave on real scams in the wild.
+Every change must pass the unit tests, the type checker, the linter, a production build and the docs check. Database code is tested against real Postgres SQL running inside the test (PGlite). The pattern rules are also measured on <!-- FACT:eval_cases -->80<!-- /FACT --> hand-written synthetic chats; that "eval" tells us how the rules behave on examples we wrote, not how they behave on real scams in the wild.
 
 ## Details
 
@@ -13,7 +13,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/about.test.ts` | 7 |
 | `web/src/lib/contrast.test.ts` | 8 |
 | `web/src/lib/docs.test.ts` | 4 |
-| `web/src/lib/eval-data.test.ts` | 6 |
+| `web/src/lib/eval-data.test.ts` | 7 |
 | `web/src/lib/evidence-pack.test.ts` | 4 |
 | `web/src/lib/f1-safety.test.ts` | 19 |
 | `web/src/lib/graph/tigergraph.test.ts` | 13 |
@@ -52,15 +52,15 @@ Current results (generated from `eval/RESULTS.md`):
 <!-- GENERATED:START eval -->
 | metric (rules only) | value |
 |---|---|
-| cases | 74 |
-| accuracy | 98.6% |
-| precision | 97.4% |
+| cases | 80 |
+| accuracy | 100.0% |
+| precision | 100.0% |
 | recall | 100.0% |
-| false positives | 1 |
+| false positives | 0 |
 | false negatives | 0 |
-| false positive cases | v01 (bank_advisory) <- urgency_deadline |
-| run date | 2026-10-29T18:13:18.563Z |
-| commit | f69a340 (with uncommitted changes) |
+| false positive cases | none |
+| run date | 2026-10-29T20:12:17.444Z |
+| commit | 6babc79 (with uncommitted changes) |
 <!-- GENERATED:END eval -->
 
 ### What the eval is NOT

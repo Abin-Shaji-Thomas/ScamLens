@@ -373,3 +373,14 @@ Measured per window size (same on /, samples 1-3; /about and /nope have no form)
 | Tests for both states | PASS | ui.test.ts +6 (form off/on, home page from env, result with AI off has no AI words, skipped AI named, /about off/on); transcribe test asserts no provider named |
 | Changed tests (deliberate) | NOTE | signals test "no key -> unavailable" became "no key -> off"; transcribe "not configured" now expects the screenshot-off sentence |
 | Post-flight | PASS | `Tests 349 passed (349)`, typecheck 0, lint 0, build 0, `docs:check PASS` |
+
+## J3 - Detection quality
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Solicitation beats a marker (both ways) | PASS | "Never send money to strangers; guaranteed returns are a red flag" -> warning context, Low; "Beware of fake sites, send 5000 USDT now to join our group, guaranteed profit" -> counted, not Low; +4 flagged and +3 stay-warning cases (Hinglish included) |
+| General conditional-awareness marker | PASS | v01 bank advisory -> Low; English and Hinglish variants -> warning; decoys "If you do not pay the clearance fee within 2 hours, police will arrest you", "If someone says this is a fraud, ignore them and pay ...", Hinglish threat -> still flagged. Found and fixed on the way: the old "do not + advice" marker read "If you do not pay" as advice |
+| ReDoS | PASS | `worst case: 5.5 ms (runRules (all) on "devanagari"); cases >= 200 ms: 0` (66 functions x 20 inputs) |
+| 6 eval cases, old cases untouched | PASS | j01-j06 appended; first 74 cases byte-identical to HEAD (script check); `eval-data.test.ts` asserts 3 + 3, 80 total, unique ids |
+| Eval before/after | PASS | 74 cases, round 2 code: P 97.4%, R 100.0%, FP 1 (v01), FN 0. Same 80 cases with the pre-J3 code: acc 93.8%, P 92.7%, R 95.0%, FP 3 (v01, j04, j06), FN 2 (j01, j03). Final: acc 100.0%, P 100.0%, R 100.0%, FP 0, FN 0. New false negatives: none |
+| Honesty note | NOTE | the 6 cases were written after the fix (regression examples, not a blind test); README says so |
