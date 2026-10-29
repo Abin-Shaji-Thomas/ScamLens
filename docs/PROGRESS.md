@@ -31,3 +31,18 @@ Each step: pre-flight (git clean, npm test, typecheck, lint), build, post-flight
 | .env.example synced | PASS | every name read by code present; SUPABASE_ANON_KEY marked unused |
 | ReDoS < 200 ms | PASS | worst 3.4 ms, 0 slow cases |
 | Post-flight | PASS | 178/178 tests (9 files), typecheck 0, lint 0, build 0 |
+
+## F2 - Abuse guard without accounts
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight green | PASS | 178/178 tests (9 files), typecheck 0, lint 0, tree clean |
+| UsageStore interface + Supabase + memory | PASS | `src/lib/usage.ts`: `MemoryUsageStore`, `sqlUsageStore` (RPC `increment_usage`), `withFallback` (logs `usage_store_fallback`, marks `degraded`) |
+| SQL: usage_counters + increment_usage (security definer, search_path '', service_role only) | PASS (PGlite); live Supabase UNKNOWN until HUMAN_TASKS 3 | `db/schema.sql` (end), `db/supabase-grants.sql`; test "SQL increment_usage: atomic count, denied calls are not counted" checks `prosecdef` and `search_path=""` |
+| Keys and defaults | PASS | `fp:<sha256(usage:HMAC(pepper, ip))[:32]>:<route>` and `global:llm`; check 40, transcribe 10, graph 100, contest 3, global LLM 1500/day via `positiveIntEnv`; reports keep `REPORTS_MAX_PER_DAY` in SQL |
+| Over limit: 429 + Retry-After + zero external calls | PASS | tests "over the limit: /api/check returns 429 and makes ZERO external calls" (with a control test proving the same request does call fetch under the limit), graph + contest 429 |
+| Global cap before any LLM call | PASS | test "global LLM cap reached: the check runs regex-only with a notice and never calls the LLM" |
+| Store failure: skip AI, local checks keep working | PASS | test "usage store down: the check still works without AI and says why" |
+| Fan-out caps | PASS | `MAX_IDENTIFIERS` (F1), `MAX_ADDRESSES`=10, `MAX_ETHERSCAN_CHAINS_IN_FLIGHT`=2 with test "at most 2 Etherscan chains are looked up at the same time" (peak observed 2), `ETHERSCAN_RPS` limiter unchanged |
+| HIGH from audit: contest abuse | PARTIAL | contest now capped at 3/day per fingerprint (429). Without accounts one person on many networks can still hide badges; stated on /about (F4) and in Known gaps |
+| Post-flight | PASS | 195/195 tests (10 files), typecheck 0, lint 0, build 0 |

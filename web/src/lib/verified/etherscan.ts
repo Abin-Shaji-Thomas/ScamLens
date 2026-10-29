@@ -31,6 +31,22 @@ async function slot(rps: number) {
   if (at > now) await new Promise((r) => setTimeout(r, at - now));
 }
 
+// At most this many chains are looked up at the same time (each lookup is 5 rate-limited calls).
+export const MAX_ETHERSCAN_CHAINS_IN_FLIGHT = 2;
+let inFlight = 0;
+const waiting: (() => void)[] = [];
+export const etherscanInFlight = () => inFlight;
+async function withChainSlot<T>(fn: () => Promise<T>): Promise<T> {
+  while (inFlight >= MAX_ETHERSCAN_CHAINS_IN_FLIGHT) await new Promise<void>((r) => waiting.push(r));
+  inFlight++;
+  try {
+    return await fn();
+  } finally {
+    inFlight--;
+    waiting.shift()?.();
+  }
+}
+
 export const chainEnabled = (chain: Chain, env: CheckDeps["env"]) => chain.freeTier || env.ETHERSCAN_PLAN === "paid";
 
 const isRateLimited = (raw: unknown) => {
@@ -106,13 +122,13 @@ async function lookupChain(id: Identifier, chain: Chain, deps: CheckDeps): Promi
   if (!deps.env.ETHERSCAN_API_KEY) return unavailable(base, "ETHERSCAN_API_KEY not configured");
   if (!chainEnabled(chain, deps.env)) return unavailable(base, `${chain.name} is not included in the Etherscan free API plan`);
 
-  const [balance, nonce, code, first, last] = await Promise.all([
+  const [balance, nonce, code, first, last] = await withChainSlot(() => Promise.all([
     account(deps, chain, `action=balance&address=${id.value}&tag=latest`),
     proxy(deps, chain, "eth_getTransactionCount", id.value),
     proxy(deps, chain, "eth_getCode", id.value),
     firstTxTime(deps, chain, id.value, "asc"),
     firstTxTime(deps, chain, id.value, "desc"),
-  ]);
+  ]));
   if (typeof balance !== "string" || !/^\d+$/.test(balance)) throw new Unavailable("invalid balance");
 
   const sent = Number(BigInt(nonce));

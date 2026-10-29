@@ -4,14 +4,15 @@ alter table reports enable row level security;
 alter table graph_edges enable row level security;
 alter table flagged_addresses enable row level security;
 alter table exchange_addresses enable row level security;
+alter table usage_counters enable row level security;
 
-revoke all on reports, graph_edges, flagged_addresses, exchange_addresses from anon, authenticated;
+revoke all on reports, graph_edges, flagged_addresses, exchange_addresses, usage_counters from anon, authenticated;
 revoke all on active_edges, co_edges from anon, authenticated;
 revoke execute on function submit_report, reported_counts, contest_identifier, hub_nodes,
   q1_upi_wallet_telegram, q2_payment_to_flagged, q3_telegram_clusters, q4_neighbourhood,
-  add_payment_edge, add_flagged, add_exchange
+  add_payment_edge, add_flagged, add_exchange, increment_usage
   from public, anon, authenticated;
 grant execute on function submit_report, reported_counts, contest_identifier, hub_nodes,
   q1_upi_wallet_telegram, q2_payment_to_flagged, q3_telegram_clusters, q4_neighbourhood,
-  add_payment_edge, add_flagged, add_exchange
+  add_payment_edge, add_flagged, add_exchange, increment_usage
   to service_role;

@@ -223,3 +223,34 @@ language sql stable as $$
   from active_edges e
   where e.src_hash in (select node from reach) and e.dst_hash in (select node from reach)
 $$;
+
+-- F2: daily usage counters for the abuse guard (no accounts). `key` is "fp:<hash>:<route>" or "global:<route>";
+-- the hash is derived from the peppered reporter fingerprint, never a raw IP. Rows older than a week are pruned.
+create table if not exists usage_counters (
+  key text not null,
+  day date not null,
+  count int not null default 0,
+  primary key (key, day)
+);
+
+-- Atomically counts one use of `p_key` today (UTC). Denied once the count reaches p_limit; a denied call is not counted.
+create or replace function increment_usage(p_key text, p_limit int)
+returns table (allowed boolean, remaining int)
+language plpgsql security definer set search_path = '' as $$
+declare
+  d date := (now() at time zone 'utc')::date;
+  c int;
+begin
+  insert into public.usage_counters as u (key, day, count) values (p_key, d, 1)
+  on conflict (key, day) do update set count = u.count + 1 where u.count < p_limit
+  returning u.count into c;
+  if random() < 0.01 then
+    delete from public.usage_counters where day < d - 7;
+  end if;
+  if c is null or c > p_limit then
+    return query select false, 0;
+  else
+    return query select true, p_limit - c;
+  end if;
+end $$;
+revoke execute on function increment_usage(text, int) from public;

@@ -4,7 +4,7 @@ import ssJson from "../../../data/scamsniffer-addresses.json";
 import { POST } from "../../app/api/check/route";
 import { runCheck } from "../check";
 import { extractIdentifiers } from "../identifiers";
-import { clearEtherscanCache, EVM_CHAINS, setRetryPauseForTests } from "./etherscan";
+import { clearEtherscanCache, etherscanInFlight, EVM_CHAINS, MAX_ETHERSCAN_CHAINS_IN_FLIGHT, setRetryPauseForTests } from "./etherscan";
 import { runVerifiedChecks } from "./index";
 import type { CheckDeps, SourceResult } from "./types";
 
@@ -139,6 +139,20 @@ describe("Etherscan V2", () => {
     const d = deps((url) => (url.includes("etherscan") ? etherscanRoute(url) : json(GOPLUS_CLEAN)), { ETHERSCAN_API_KEY: "k", ETHERSCAN_PLAN: "paid" });
     const r = by(await runVerifiedChecks(ids(CLEAN), d), "etherscan");
     expect(r.every((x) => x.status === "info")).toBe(true);
+  });
+  it("F2: at most 2 Etherscan chains are looked up at the same time", async () => {
+    let peak = 0;
+    const route = async (url: string) => {
+      if (!url.includes("etherscan")) return json(GOPLUS_CLEAN);
+      peak = Math.max(peak, etherscanInFlight());
+      await new Promise((r) => setTimeout(r, 5));
+      return etherscanRoute(url);
+    };
+    const r = by(await runVerifiedChecks(ids(CLEAN), deps(route, { ETHERSCAN_API_KEY: "k", ETHERSCAN_PLAN: "paid" }, 2000)), "etherscan");
+    expect(r.every((x) => x.status === "info")).toBe(true);
+    expect(MAX_ETHERSCAN_CHAINS_IN_FLIGHT).toBe(2);
+    expect(peak).toBe(2);
+    expect(etherscanInFlight()).toBe(0);
   });
   it("only the first EVM wallet gets on-chain lookups", async () => {
     const two = `0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb 0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB`;
