@@ -71,9 +71,19 @@ describe("tigerGraphBackend over REST", () => {
   });
   it("an identifier that was never loaded is 'no links', not an outage", async () => {
     const { f } = mockFetch((url) =>
-      url.endsWith("/tokens") ? new Response(JSON.stringify({ token: "t" })) : new Response(JSON.stringify({ error: true, message: "upi 'x' is not a valid vertex id" }), { status: 200 }),
+      url.endsWith("/tokens")
+        ? new Response(JSON.stringify({ token: "t" }))
+        : new Response(JSON.stringify({ error: true, message: "Failed to convert user vertex id for parameter upi" }), { status: 200 }),
     );
     expect(await tigerGraphBackend({ host: HOST, graph: "G", secret: "s", fetch: f }).run({ kind: "q1", upiHash: "x" }, 25)).toEqual([]);
+  });
+  it("a wrong graph name / uninstalled query is an error, not 'no links'", async () => {
+    const { f } = mockFetch((url) =>
+      url.endsWith("/tokens")
+        ? new Response(JSON.stringify({ token: "t" }))
+        : new Response(JSON.stringify({ error: true, message: "Endpoint is not found from url = /query/Typo/q1" }), { status: 404 }),
+    );
+    await expect(tigerGraphBackend({ host: HOST, graph: "Typo", secret: "s", fetch: f }).run({ kind: "q1", upiHash: "x" }, 25)).rejects.toThrow(/not found/);
   });
   it("other TigerGraph errors are thrown", async () => {
     const { f } = mockFetch((url) => (url.endsWith("/tokens") ? new Response(JSON.stringify({ token: "t" })) : new Response("down", { status: 503 })));

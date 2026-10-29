@@ -150,8 +150,10 @@ export function mapResult<Q extends LinkQuery>(q: Q, body: unknown): LinkResult<
   }
 }
 
-// A vertex id that was never loaded is "no links", not an outage.
-const MISSING_VERTEX = /not a valid vertex|does not exist|not found|invalid vertex/i;
+// A vertex id that was never loaded is "no links", not an outage. This is TigerGraph's exact wording
+// (observed on Savanna 2026-10-29). Keep it narrow: "Endpoint is not found" (wrong graph name, query
+// not installed) must stay an error so the view falls back to Postgres instead of showing no links.
+const MISSING_VERTEX = /Failed to convert user vertex id for parameter/;
 
 export function tigerGraphBackend(cfg: TgConfig): GraphBackend {
   const client = tigerGraphClient(cfg);
