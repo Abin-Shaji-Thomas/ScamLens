@@ -16,8 +16,8 @@ export const RISK_EXPLANATION: Record<RiskLevel, string> = {
   elevated: "Warning signs or community reports were found. That is not proof, but pause and verify the other person through an official channel before you pay.",
   low: "We found nothing in the sources we checked. This does not mean safe: new numbers, UPI IDs and wallets are not on any list yet.",
 };
-/** Text marker so the level is never shown by colour alone. */
-export const RISK_SYMBOL: Record<RiskLevel, string> = { high: "▲", elevated: "!", low: "○" };
+/** The large word on the card and the scale "Low signals · Elevated · High" (G4). The full label stays in RISK_LABEL. */
+export const RISK_SHORT: Record<RiskLevel, string> = { low: "Low signals", elevated: "Elevated", high: "High" };
 
 export const Risk = z.object({
   level: RiskLevel,

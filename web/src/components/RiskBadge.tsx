@@ -1,21 +1,25 @@
-import { RISK_EXPLANATION, RISK_SYMBOL, type Risk } from "@/lib/risk";
+import { RISK_EXPLANATION, RISK_SHORT, type Risk, type RiskLevel } from "@/lib/risk";
 
-const STYLE: Record<Risk["level"], string> = {
-  high: "bg-red-600 text-white",
-  elevated: "bg-amber-500 text-black",
-  low: "bg-neutral-200 text-neutral-900 dark:bg-neutral-700 dark:text-neutral-100",
-};
+const ORDER: RiskLevel[] = ["low", "elevated", "high"];
 
+/** Risk level without colour: a large word, one plain sentence, and the scale with the current level in bold. */
 export function RiskBadge({ risk }: { risk: Risk }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <p className={`self-start rounded-md px-3 py-1 text-sm font-semibold ${STYLE[risk.level]} print:border print:border-black`}>
-        <span aria-hidden="true">{RISK_SYMBOL[risk.level]} </span>
-        {risk.label}
+    <div className="flex flex-col">
+      <p className="t-risk">{RISK_SHORT[risk.level]}</p>
+      <p className="mt-3">{RISK_EXPLANATION[risk.level]}</p>
+      <p className="t-small mt-4" aria-label={`Scale: ${risk.label}`}>
+        {ORDER.map((l, i) => (
+          <span key={l}>
+            {i > 0 && <span className="text-muted"> · </span>}
+            <span className={l === risk.level ? "font-semibold text-ink" : "text-muted"} aria-current={l === risk.level ? "true" : undefined}>
+              {RISK_SHORT[l]}
+            </span>
+          </span>
+        ))}
       </p>
-      <p className="text-sm">{RISK_EXPLANATION[risk.level]}</p>
       {risk.reasons.length > 0 && (
-        <ul className="list-inside list-disc text-xs text-neutral-600 dark:text-neutral-400">
+        <ul className="t-small mt-6 flex flex-col gap-1 text-muted">
           {risk.reasons.map((r, i) => (
             <li key={i}>{r}</li>
           ))}

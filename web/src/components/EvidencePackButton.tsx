@@ -8,11 +8,13 @@ export function EvidencePackButton({ result, demo }: { result: CheckResponse; de
   const [state, setState] = useState<"idle" | "copied" | "shown">("idle");
   const text = buildEvidencePack(result, { demo });
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap gap-3 print:hidden">
+    <div className="flex flex-col">
+      <h3 className="t-h2 print:hidden">Evidence pack</h3>
+      <p className="t-small mt-1 text-muted print:hidden">A plain-text summary to keep, send to your bank, or attach to a complaint.</p>
+      <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3 print:hidden">
         <button
           type="button"
-          className="rounded bg-neutral-900 px-3 py-1 text-xs text-white dark:bg-neutral-100 dark:text-neutral-900"
+          className="btn-primary"
           onClick={async () => {
             try {
               await navigator.clipboard.writeText(text);
@@ -24,12 +26,12 @@ export function EvidencePackButton({ result, demo }: { result: CheckResponse; de
         >
           {state === "copied" ? "Copied" : "Copy evidence pack"}
         </button>
-        <button type="button" className="text-xs underline" onClick={() => setState(state === "shown" ? "idle" : "shown")}>
+        <button type="button" className="btn-link" aria-expanded={state === "shown"} onClick={() => setState(state === "shown" ? "idle" : "shown")}>
           {state === "shown" ? "Hide" : "Preview"}
         </button>
         <button
           type="button"
-          className="text-xs underline"
+          className="btn-link"
           onClick={() => {
             setState("shown");
             // Let React render the preview before the print dialog opens.
@@ -40,7 +42,7 @@ export function EvidencePackButton({ result, demo }: { result: CheckResponse; de
         </button>
       </div>
       {state === "shown" && (
-        <pre className="max-h-80 overflow-auto whitespace-pre-wrap rounded border border-neutral-200 p-2 text-[11px] dark:border-neutral-800 print:max-h-none print:overflow-visible print:border-0 print:text-xs">{text}</pre>
+        <pre className="t-small mt-6 max-h-96 overflow-auto whitespace-pre-wrap font-sans print:mt-0 print:max-h-none print:overflow-visible">{text}</pre>
       )}
     </div>
   );

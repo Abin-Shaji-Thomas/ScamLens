@@ -199,3 +199,27 @@ Each step: pre-flight (git clean, npm test, typecheck, lint), build, post-flight
 | Eval rerun, README matches | PASS | before: 66 cases, acc 93.9, P 89.2, R 100, FP 4, FN 0. After: 74 cases, acc 98.6, P 97.4, R 100, FP 1 (v01 bank advisory <- urgency_deadline), FN 0. Eval now counts only non-warning hits, same as the risk card |
 | ReDoS | PASS | worst 4.8 ms, 0 cases >= 200 ms (context markers are simple linear regexes run per sentence) |
 | Post-flight | PASS | 278/278 tests (15 files), typecheck 0, lint 0, build 0 |
+
+## G4 - Minimalist UI redesign
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight green | PASS | 278/278 tests, typecheck 0, lint 0, tree clean (after G3) |
+| Palette as CSS variables, nothing else | PASS | `globals.css` `--paper/--ink/--muted/--hairline` + Tailwind theme tokens (`text-ink`, `text-muted`, `border-hairline`, `bg-paper`); dark mode removed; counts after: rounded 0 (only `border-radius: 0` in CSS), dark: 0, shadow 0, gradient 0, palette colour utilities 0 (were rounded 24, dark: 47, palette ~122) |
+| Typography | PASS | system font stack (Geist / next/font removed; built index.html has 0 "Geist"); `.t-title` 40/44 (32/36 under 640 px), `.t-h2` 20/28 600, body 16/26, `.t-small` 14/22; identifiers in sans with `.break-id` |
+| Spacing, single column | PASS (code) | `max-w-[40rem]`, `px-6`, sections `mt-12 sm:mt-16`, tiers `gap-12 sm:gap-16`; visual check UNKNOWN |
+| No boxes/borders/shadows/radius; hairlines only between tiers and above evidence pack/footer | PASS (code) | `TierSection` `border-t border-hairline`; footer hairline |
+| Buttons and focus | PASS (code) | `.btn-primary` ink square, `.btn-link` underlined text, hover = opacity/underline thickness; `:focus-visible` 2px ink outline, 2px offset (style test asserts the CSS) |
+| Underline textarea + "Upload a screenshot instead" link; same style for transcript | PASS | `.field`; `ScreenshotTrigger` opens the hidden file input; render test |
+| Risk level without colour | PASS | `RISK_SHORT` large word, `RISK_EXPLANATION` sentence, scale "Low signals · Elevated · High" with `aria-current` on the current level; render test |
+| Tiers "01/02/03", rows, quotes, demo label, notes | PASS | render tests (`ui.test.ts`) |
+| Graph grayscale | PASS (code); canvas output UNKNOWN | `nodeCanvasObjectMode="replace"`: focus filled #111111, others #ffffff with 1px #111111 stroke, links/arrows #767676, labels #111111 below; reduced motion: layout precomputed (`warmupTicks`), no animation, via `useSyncExternalStore` |
+| Report form inline; header/footer; 404 | PASS | `ReportForm` collapsed link -> inline form; `SiteHeader` (ScamLens / About), `SiteFooter` (About, Not legal advice); new `app/not-found.tsx`; live: `/nope` -> 404 with "Page not found" in `_not-found.html` |
+| Print | PASS (code); print output UNKNOWN | controls `print:hidden`, `@media print` black on white |
+| prefers-reduced-motion | PASS (code) | CSS disables animation/transition; graph static |
+| Style-enforcement test | PASS | `src/lib/style.test.ts` (shadow, rounded except rounded-none, gradient, dark:, palette colour utilities, arbitrary colours, hex allow-list, palette in CSS, system font only, scanner self-test) + WCAG contrast test (#767676 on white >= 4.5:1) |
+| Render tests per state | PASS | `ui.test.ts` +9: risk scale, notes, contested, warning details, collapsed report form, graph buttons, header/footer/404, check form field/button/link/aria-live, no palette classes in any rendered state. Loading, error, waking and transcript states need clicks: UNKNOWN (UI_CHECKLIST) |
+| Changed test (justified) | NOTE | `ui.test.ts` looked for "Tier 1 of 3"; G4 requires the headings "01 Verified" etc., so the assertion now checks those |
+| docs/UI_CHECKLIST.md rewritten | PASS | 375 px, visual rules, states, keyboard-only, screen reader, 200% zoom, print, motion, CSP console |
+| Live regression | PASS | `npm run start`: `/` 200, `/about` 200, `/nope` 404; check-headers `ALL PASS (48 checks)`; smoke-live `ALL PASS (36 expectations)` |
+| Post-flight | PASS | 298/298 tests (16 files), typecheck 0, lint 0, build 0 |

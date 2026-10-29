@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { CheckResponse, MAX_INPUT_CHARS } from "@/lib/api-schema";
 import { SAMPLE_WATERMARK, SAMPLES } from "@/lib/samples";
 import { RiskCard } from "./RiskCard";
-import { ScreenshotInput } from "./ScreenshotInput";
+import { ScreenshotInput, ScreenshotTrigger } from "./ScreenshotInput";
 
 export function CheckForm() {
   const [text, setText] = useState("");
@@ -43,24 +43,44 @@ export function CheckForm() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col">
       <form
-        className="flex flex-col gap-3 print:hidden"
+        className="flex flex-col print:hidden"
         onSubmit={(e) => {
           e.preventDefault();
           void submit();
         }}
       >
-        <label htmlFor="input" className="text-sm font-medium">
+        <label htmlFor="input" className="t-small text-muted">
           Paste a suspicious chat, wallet address, UPI ID or Telegram handle
         </label>
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-neutral-500">Try a sample:</span>
+        <textarea
+          id="input"
+          value={text}
+          onChange={(e) => {
+            setText(e.target.value);
+            setDemo(false);
+          }}
+          maxLength={MAX_INPUT_CHARS}
+          rows={6}
+          placeholder="Paste the message here"
+          className="field mt-2"
+        />
+        {demo && <p className="t-small mt-3 text-muted">{SAMPLE_WATERMARK}</p>}
+        <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4">
+          <button type="submit" disabled={loading || text.trim().length === 0} className="btn-primary">
+            {loading ? "Checking..." : "Check"}
+          </button>
+          <ScreenshotTrigger />
+        </div>
+        <p className="t-small mt-4 text-muted">Processed in memory. We do not store your chat.</p>
+        <div className="t-small mt-6 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <span className="text-muted">Try a sample:</span>
           {SAMPLES.map((s) => (
             <button
               key={s.id}
               type="button"
-              className="rounded border border-neutral-300 px-2 py-0.5 dark:border-neutral-700"
+              className="btn-link"
               onClick={() => {
                 setText(s.text);
                 setDemo(true);
@@ -71,36 +91,13 @@ export function CheckForm() {
             </button>
           ))}
         </div>
-        {demo && <p className="text-xs font-semibold uppercase text-fuchsia-700 dark:text-fuchsia-400">{SAMPLE_WATERMARK}</p>}
-        <textarea
-          id="input"
-          value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            setDemo(false);
-          }}
-          maxLength={MAX_INPUT_CHARS}
-          rows={8}
-          className="w-full rounded-md border border-neutral-300 bg-transparent p-3 font-mono text-sm dark:border-neutral-700"
-        />
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-xs text-neutral-500">Processed in memory. We do not store your chat.</p>
-          <button
-            type="submit"
-            disabled={loading || text.trim().length === 0}
-            className="rounded-md bg-neutral-900 px-5 py-2 text-sm font-medium text-white disabled:opacity-40 dark:bg-neutral-100 dark:text-neutral-900"
-          >
-            {loading ? "Checking..." : "Check"}
-          </button>
-        </div>
         {error && (
-          <p role="alert" className="text-sm text-red-700 dark:text-red-400">
+          <p role="alert" className="mt-6">
+            <span className="font-semibold">Error. </span>
             {error}
           </p>
         )}
-        {loading && (
-          <p className="text-xs text-neutral-500">Checking lists, on-chain history and reports. This can take up to 10 seconds.</p>
-        )}
+        {loading && <p className="mt-6 text-muted">Checking lists, on-chain history and reports. This can take up to 10 seconds.</p>}
       </form>
       <div className="print:hidden">
         <ScreenshotInput
@@ -115,7 +112,7 @@ export function CheckForm() {
       <p role="status" aria-live="polite" className="sr-only">
         {loading ? "Checking." : result ? `Result ready: ${result.risk.label}.` : ""}
       </p>
-      <div ref={resultBox}>
+      <div ref={resultBox} className="mt-16">
         <RiskCard result={result} demo={demo} />
       </div>
     </div>

@@ -1,38 +1,204 @@
 @import "tailwindcss";
 
+/* Minimal palette (round 2, G4). These four values are the only colours in the app; a test enforces it. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #ffffff;
+  --ink: #111111;
+  --muted: #767676; /* 4.54:1 on white, passes WCAG AA for body text */
+  --hairline: #eeeeee;
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-hairline: var(--hairline);
+  --font-sans: var(--font);
+  --font-mono: var(--font);
+  --radius-none: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Base element styles live in @layer base so Tailwind utilities (in @layer utilities) can override them. */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-radius: 0;
+  }
+
+  html {
+    background: var(--paper);
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 26px;
+    font-weight: 400;
+  }
+
+
+  a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+  a:hover {
+    text-decoration-thickness: 2px;
+  }
+
+
+  /* Visible keyboard focus everywhere (fields use their 2px underline instead). */
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+
+
+  /* Quoted phrases: underline and weight, never a background colour. */
+  mark.quote {
+    background: transparent;
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  details > summary {
+    cursor: pointer;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Type scale: hierarchy through weight (400/600) and explicit line heights only. */
+  .t-title {
+    font-size: 32px;
+    line-height: 36px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  @media (min-width: 640px) {
+    .t-title {
+      font-size: 40px;
+      line-height: 44px;
+    }
+  }
+  .t-h2 {
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 600;
+  }
+  .t-body {
+    font-size: 16px;
+    line-height: 26px;
+  }
+  .t-small {
+    font-size: 14px;
+    line-height: 22px;
+  }
+  .t-risk {
+    font-size: 32px;
+    line-height: 36px;
+    font-weight: 600;
+  }
+  @media (min-width: 640px) {
+    .t-risk {
+      font-size: 40px;
+      line-height: 44px;
+    }
+  }
+
+  /* Long identifiers (wallet addresses) wrap instead of overflowing, in the same sans font. */
+  .break-id {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+
+  /* Buttons: flat and square. Primary = ink on paper inverted; link = underlined text. */
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+    font-weight: 600;
+    padding: 10px 24px;
+    border: 0;
+    cursor: pointer;
+  }
+  .btn-primary:hover {
+    opacity: 0.85;
+  }
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn-link {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    cursor: pointer;
+    font: inherit;
+  }
+  .btn-link:hover {
+    text-decoration-thickness: 2px;
+  }
+  .btn-link:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Inputs: borderless, a single underline (1px, 2px on focus). */
+  .field {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--ink);
+    padding: 8px 0;
+    color: var(--ink);
+    font: inherit;
+    resize: vertical;
+  }
+  .field::placeholder {
+    color: var(--muted);
+    opacity: 1;
+  }
+  .field:focus {
+    outline: none;
+    border-bottom-width: 2px;
+    padding-bottom: 7px;
+  }
+  .field:focus-visible {
+    outline: none;
+  }
 }
 
-/* Print: the evidence pack and the result card print on white with readable text; controls are hidden via print:hidden. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print: a clean black-on-white evidence pack; controls are hidden with print:hidden. */
 @media print {
   :root {
-    --background: #ffffff;
-    --foreground: #000000;
+    --ink: #111111;
+    --paper: #ffffff;
   }
   body {
     font-size: 11pt;
+    line-height: 1.5;
   }
   a {
     text-decoration: underline;

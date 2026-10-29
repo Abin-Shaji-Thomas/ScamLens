@@ -31,17 +31,17 @@ const n = (x: number) => x.toLocaleString("en-IN");
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
-    <section id={id} aria-labelledby={`${id}-h`} className="mt-8">
-      <h2 id={`${id}-h`} className="text-lg font-semibold">
+    <section id={id} aria-labelledby={`${id}-h`} className="mt-12 sm:mt-16">
+      <h2 id={`${id}-h`} className="t-h2">
         {title}
       </h2>
-      <div className="mt-2 flex flex-col gap-2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">{children}</div>
+      <div className="mt-4 flex flex-col gap-4">{children}</div>
     </section>
   );
 }
 
 const A = ({ href, children }: { href: string; children: React.ReactNode }) => (
-  <a href={href} className="underline underline-offset-2" target="_blank" rel="noopener noreferrer">
+  <a href={href} target="_blank" rel="noopener noreferrer">
     {children}
   </a>
 );
@@ -51,16 +51,16 @@ export default function AboutPage() {
   const ss = scamSnifferList().meta;
   const limits = usageLimits({});
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-10">
-      <p className="text-sm">
-        <Link href="/" className="underline underline-offset-2">
+    <main className="mx-auto w-full max-w-[40rem] px-6 pt-12 sm:pt-16">
+      <p className="t-small">
+        <Link href="/" className="text-muted">
           Back to the check
         </Link>
       </p>
-      <h1 className="mt-4 text-2xl font-bold">About ScamLens</h1>
+      <h1 className="t-title mt-6">About ScamLens</h1>
 
       <Section id="emergency" title="If you have already paid or shared details">
-        <ol className="list-decimal pl-5">
+        <ol className="flex list-decimal flex-col gap-2 pl-5">
           <li>
             Call <strong>1930</strong> (National Cyber Crime Helpline) as soon as possible.
           </li>
@@ -84,7 +84,7 @@ export default function AboutPage() {
       </Section>
 
       <Section id="tiers" title="The three tiers">
-        <ul className="list-disc pl-5">
+        <ul className="flex list-disc flex-col gap-2 pl-5">
           {TIERS.map((t) => (
             <li key={t.id}>
               <strong>{t.title}:</strong> {t.description}
@@ -134,7 +134,7 @@ export default function AboutPage() {
       </Section>
 
       <Section id="sources" title="Data sources, dates and limits">
-        <ul className="list-disc pl-5">
+        <ul className="flex list-disc flex-col gap-2 pl-5">
           <li>
             <strong>{ofac.source}</strong> (US Treasury). US government work, public domain. Snapshot published{" "}
             {ofac.publish_date}, downloaded {fmtDate(ofac.fetched_at)}: {n(ofac.address_count)} crypto addresses. Only
@@ -173,7 +173,7 @@ export default function AboutPage() {
       </Section>
 
       <Section id="privacy" title="Privacy: what is stored">
-        <ul className="list-disc pl-5">
+        <ul className="flex list-disc flex-col gap-2 pl-5">
           <li>Checks: nothing. Your text is processed in memory and not stored or logged.</li>
           <li>
             Screenshots: shrunk in your browser, sent once to our AI provider to read the text, and not stored by ScamLens.
