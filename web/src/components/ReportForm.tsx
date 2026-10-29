@@ -17,17 +17,21 @@ export function ReportForm({ identifiers }: { identifiers: Identifier[] }) {
       className="flex flex-col gap-2 rounded-md border border-neutral-200 p-3 text-sm dark:border-neutral-800"
       onSubmit={async (e) => {
         e.preventDefault();
-        const res = await fetch("/api/report", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            identifiers: unique.filter((_, i) => picked.has(i)).map((id) => ({ type: id.type, value: id.raw })),
-            category,
-            consent,
-          }),
-        });
-        const body = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
-        setMsg(body.ok ? "Report saved. It becomes public only after a second independent report." : (body.error ?? `Failed (HTTP ${res.status})`));
+        try {
+          const res = await fetch("/api/report", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              identifiers: unique.filter((_, i) => picked.has(i)).map((id) => ({ type: id.type, value: id.raw })),
+              category,
+              consent,
+            }),
+          });
+          const body = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+          setMsg(body.ok ? "Report saved. It becomes public only after a second independent report." : (body.error ?? `Failed (HTTP ${res.status})`));
+        } catch {
+          setMsg("The report could not be sent. Check your connection and try again.");
+        }
       }}
     >
       <p className="font-medium">Report these identifiers</p>

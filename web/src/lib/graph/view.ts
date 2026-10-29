@@ -53,7 +53,7 @@ async function viewFrom(backend: GraphBackend, id: Identifier, hash: string, env
     for (const r of (await findLinks({ kind: "q3", minSize: 2 }, deps, backend)).filter((c) => c.wallet_hash === hash)) {
       paths.push({
         query: "Q3",
-        text: `${r.cluster_size} different Telegram handles (${r.handles.join(", ")}) were reported asking victims to pay this wallet, across ${r.reports} reports.`,
+        text: `${r.cluster_size} different Telegram handles (${r.handles.join(", ")}) were reported together with this wallet by ${r.reports} different reporters.`,
         evidence: [],
       });
     }

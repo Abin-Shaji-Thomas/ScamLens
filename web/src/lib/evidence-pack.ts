@@ -17,6 +17,7 @@ export function buildEvidencePack(r: CheckResponse, opts: { demo?: boolean } = {
   if (synthetic) L.push(`*** ${WATERMARK} ***`, "");
   L.push("SCAMLENS EVIDENCE SUMMARY", `Generated: ${r.checkedAt}`, `Overall: ${r.risk.label}`);
   for (const reason of r.risk.reasons) L.push(`  - ${reason}`);
+  for (const notice of r.notices) L.push(`  - Note: ${notice}`);
 
   L.push("", "IDENTIFIERS FOUND IN THE MESSAGE");
   if (!r.identifiers.length) L.push("  (none)");

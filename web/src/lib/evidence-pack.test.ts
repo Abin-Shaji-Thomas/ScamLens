@@ -10,6 +10,7 @@ const base: CheckResponse = {
   suspected: [{ rule_id: "digital_arrest", label: "\"Digital arrest\" or arrest-warrant threat", quote: "digital arrest", start: 3, end: 17, source: "rule" }],
   ai: { status: "unavailable", reason: "not configured", dropped: 0 },
   risk: assessRisk({ verifiedMatches: 0, reportedIdentifiers: 0, suspectedRules: 1, unavailableSources: 0 }),
+  notices: [],
   checkedAt: "2026-10-29T00:00:00.000Z",
 };
 

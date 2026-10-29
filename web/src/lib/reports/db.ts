@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 
 /** Tables the graph sync may read in full (never the reports table: it holds reporter fingerprints). */
 export const EXPORTABLE = {
-  graph_edges: "src_hash,src_type,src_display,dst_hash,dst_type,dst_display,relation,evidence,submission_id,synthetic,expires_at",
+  graph_edges: "src_hash,src_type,src_display,dst_hash,dst_type,dst_display,relation,evidence,submission_id,synthetic,expires_at,reporter_key",
   flagged_addresses: "address_hash,display,source,synthetic",
   exchange_addresses: "address_hash,label,synthetic",
 } as const;

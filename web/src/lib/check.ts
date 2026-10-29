@@ -1,5 +1,6 @@
 import { CheckResponse, type CheckRequest } from "./api-schema";
 import { extractIdentifiers, uniqueIdentifiers } from "./identifiers";
+import { MAX_IDENTIFIERS } from "./limits";
 import type { Db } from "./reports/db";
 import { reportedFor, reportsConfig } from "./reports/service";
 import { assessRisk } from "./risk";
@@ -11,15 +12,20 @@ import { defaultDeps, type CheckDeps } from "./verified/types";
 export { CheckRequest, CheckResponse, MAX_INPUT_CHARS } from "./api-schema";
 
 /** `db` overrides the Supabase client (tests and local runs); undefined = use env. */
-export type RunDeps = CheckDeps & { complete?: Completer; db?: Db | null };
+export type RunDeps = CheckDeps & { complete?: Completer; db?: Db | null; skipAi?: string };
 
 /** Runs every check on `text` in memory. Nothing here stores or logs the input. */
 export async function runCheck({ text }: CheckRequest, deps: RunDeps = defaultDeps()): Promise<CheckResponse> {
-  const identifiers = extractIdentifiers(text);
+  const notices: string[] = [];
+  const all = uniqueIdentifiers(extractIdentifiers(text));
+  const identifiers = all.slice(0, MAX_IDENTIFIERS);
+  if (all.length > MAX_IDENTIFIERS) notices.push(`Only the first ${MAX_IDENTIFIERS} identifiers were checked.`);
+  if (deps.skipAi) notices.push(deps.skipAi);
+
   const [verified, { signals, ai }, reported] = await Promise.all([
     runVerifiedChecks(identifiers, deps),
-    detectSignals(text, { env: deps.env, complete: deps.complete }),
-    reportedFor(uniqueIdentifiers(identifiers), reportsConfig(deps.env, deps.db)),
+    detectSignals(text, { env: deps.skipAi ? {} : deps.env, complete: deps.skipAi ? undefined : deps.complete }),
+    reportedFor(identifiers, reportsConfig(deps.env, deps.db)),
   ]);
   const risk = assessRisk({
     verifiedMatches: verified.filter((v) => v.status === "match").length,
@@ -38,6 +44,7 @@ export async function runCheck({ text }: CheckRequest, deps: RunDeps = defaultDe
     suspected: signals,
     ai,
     risk,
+    notices,
     checkedAt: deps.now().toISOString(),
   });
 }

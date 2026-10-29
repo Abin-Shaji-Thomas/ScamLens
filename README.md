@@ -124,6 +124,6 @@ npx tsx scripts/graph-demo.ts       # seed synthetic data into local Postgres (P
 - **No LLM pass in the live demo**: the AI signal pass needs an OpenAI-compatible key. Without it the card says "AI pass: unavailable" and uses the 18 fixed rules only, which is what the eval above measures.
 - **Snapshots age.** OFAC and ScamSniffer data are as fresh as the last `sync-lists` run (dates are shown).
 - **Rules are English-first.** Hindi/Hinglish phrasing and screenshots are not covered yet; the eval set is small, synthetic and written by the same author as the rules.
-- **Fingerprints are approximate** (hashed IP + user agent), so a determined person can submit from several devices; reports also expire after 90 days and can be contested.
+- **Fingerprints are approximate** (HMAC of the client IP only, so changing browsers does not create a new reporter). A person with two networks (Wi-Fi and mobile data) can still count as two reporters, and people sharing one IP count as one. Reports expire after 90 days and can be contested. Graph links additionally require two different reporters.
 - **Contest has no review queue yet**: a contested identifier is hidden from public badges until someone re-enables it in the database.
 - Nothing here is legal advice.

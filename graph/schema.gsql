@@ -15,7 +15,7 @@ CREATE VERTEX UPI (PRIMARY_ID hash STRING, kind STRING, display STRING, flagged_
 CREATE VERTEX TelegramHandle (PRIMARY_ID hash STRING, kind STRING, display STRING, flagged_source STRING, is_exchange BOOL) WITH primary_id_as_attribute="true"
 CREATE VERTEX PhoneNumber (PRIMARY_ID hash STRING, kind STRING, display STRING, flagged_source STRING, is_exchange BOOL) WITH primary_id_as_attribute="true"
 CREATE VERTEX Domain (PRIMARY_ID hash STRING, kind STRING, display STRING, flagged_source STRING, is_exchange BOOL) WITH primary_id_as_attribute="true"
-CREATE VERTEX Report (PRIMARY_ID submission_id STRING, evidence STRING, synthetic BOOL) WITH primary_id_as_attribute="true"
+CREATE VERTEX Report (PRIMARY_ID submission_id STRING, evidence STRING, synthetic BOOL, reporter_key STRING) WITH primary_id_as_attribute="true"
 
 CREATE UNDIRECTED EDGE MENTIONS (FROM Report, TO Wallet | FROM Report, TO UPI | FROM Report, TO TelegramHandle | FROM Report, TO PhoneNumber | FROM Report, TO Domain)
 CREATE DIRECTED EDGE PAID (FROM Wallet, TO Wallet, evidence STRING)

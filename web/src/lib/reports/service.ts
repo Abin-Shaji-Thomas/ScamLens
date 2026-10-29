@@ -3,7 +3,7 @@ import { positiveIntEnv } from "../env";
 import type { Identifier, IdentifierType } from "../extract/types";
 import { extractIdentifiers } from "../identifiers";
 import { dbFromEnv, type Db } from "./db";
-import { identifierHash, maskIdentifier, MIN_PEPPER_LENGTH } from "./privacy";
+import { identifierHash, maskIdentifier, MIN_PEPPER_LENGTH, reporterKey } from "./privacy";
 import type { ContestRequest, ReportedEntry, ReportedTier, ReportRequest } from "./schema";
 
 export interface ReportsConfig {
@@ -42,7 +42,13 @@ export async function submitReport(req: ReportRequest, fingerprint: string, cfg:
     p_max_per_day: cfg.maxPerDay,
   });
   return row.ok
-    ? { ok: true as const, stored: row.stored, submissionId, nodes: items.map((i) => ({ hash: i.hash, type: i.type, display: i.display })) }
+    ? {
+        ok: true as const,
+        stored: row.stored,
+        submissionId,
+        reporterKey: reporterKey(fingerprint),
+        nodes: items.map((i) => ({ hash: i.hash, type: i.type, display: i.display })),
+      }
     : { ok: false as const, reason: row.reason ?? "rejected" };
 }
 
@@ -88,7 +94,7 @@ export async function contestIdentifier(req: ContestRequest, cfg: ReportsConfig)
   return { ok: true as const, updated: row?.updated ?? 0 };
 }
 
-export function requestFingerprintParts(headers: Headers): { ip: string; ua: string } {
-  const ip = headers.get("x-forwarded-for")?.split(",")[0]?.trim() || headers.get("x-real-ip") || "unknown";
-  return { ip, ua: headers.get("user-agent") ?? "" };
+/** Client IP as set by Vercel's edge (x-forwarded-for / x-real-ip are overwritten there, not client-controlled). */
+export function requestIp(headers: Headers): string {
+  return headers.get("x-forwarded-for")?.split(",")[0]?.trim() || headers.get("x-real-ip") || "unknown";
 }

@@ -123,7 +123,8 @@ describe("loader payload from Postgres (synthetic seed)", () => {
     b.report("sub-1", reportEvidence("investment", new Date("2026-10-29T10:00:00Z")), false, [
       { hash: "a", type: "upi", display: "a***@x" },
       { hash: "b", type: "evm", display: "0x12***34" },
-    ]);
+    ], "rk1");
+    expect(b.p.vertices.Report["sub-1"].reporter_key.value).toBe("rk1");
     expect(b.counts()).toEqual({ vertices: 3, edges: 2 });
     expect(b.p.vertices.Report["sub-1"].evidence.value).toBe("Named together in one investment report on 2026-10-29");
   });

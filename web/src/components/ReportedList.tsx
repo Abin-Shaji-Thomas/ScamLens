@@ -23,13 +23,17 @@ function Contest({ id }: { id: Identifier }) {
       className="mt-1 flex flex-col gap-1"
       onSubmit={async (e) => {
         e.preventDefault();
-        const res = await fetch("/api/report/contest", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ identifier: { type: id.type, value: id.raw }, reason }),
-        });
-        const body = (await res.json().catch(() => ({}))) as { message?: string; error?: string };
-        setMsg(body.message ?? body.error ?? `Failed (HTTP ${res.status})`);
+        try {
+          const res = await fetch("/api/report/contest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ identifier: { type: id.type, value: id.raw }, reason }),
+          });
+          const body = (await res.json().catch(() => ({}))) as { message?: string; error?: string };
+          setMsg(body.message ?? body.error ?? `Failed (HTTP ${res.status})`);
+        } catch {
+          setMsg("The request could not be sent. Check your connection and try again.");
+        }
       }}
     >
       <textarea

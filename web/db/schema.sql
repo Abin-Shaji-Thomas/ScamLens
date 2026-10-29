@@ -29,6 +29,15 @@ create table if not exists graph_edges (
   created_at timestamptz not null default now(),
   expires_at timestamptz not null default now() + interval '90 days'
 );
+-- F1: pseudonymous reporter key per co-report edge (sha256 of the fingerprint, first 16 hex chars),
+-- so graph links can require two different reporters. Backfilled from reports for older rows.
+alter table graph_edges add column if not exists reporter_key text;
+update graph_edges e
+   set reporter_key = left(encode(sha256(convert_to('reporter:' || r.reporter_fingerprint_hash, 'UTF8')), 'hex'), 16)
+  from reports r
+ where e.reporter_key is null and e.relation = 'co_reported' and r.submission_id = e.submission_id;
+-- F1: one edge per (pair, relation, submission); payments without a submission are de-duplicated in add_payment_edge.
+create unique index if not exists graph_edges_unique_submission on graph_edges (src_hash, dst_hash, relation, submission_id);
 create index if not exists graph_edges_src on graph_edges (src_hash);
 create index if not exists graph_edges_dst on graph_edges (dst_hash);
 
@@ -43,7 +52,9 @@ create table if not exists exchange_addresses (
 create or replace function add_payment_edge(p_src text, p_src_display text, p_dst text, p_dst_display text, p_evidence text, p_synthetic boolean)
 returns table (id bigint) language sql as $$
   insert into graph_edges (src_hash, src_type, src_display, dst_hash, dst_type, dst_display, relation, evidence, synthetic)
-  values (p_src, 'evm', p_src_display, p_dst, 'evm', p_dst_display, 'payment', p_evidence, p_synthetic) returning id
+  select p_src, 'evm', p_src_display, p_dst, 'evm', p_dst_display, 'payment', p_evidence, p_synthetic
+  where not exists (select 1 from graph_edges g where g.src_hash = p_src and g.dst_hash = p_dst and g.relation = 'payment')
+  returning id
 $$;
 create or replace function add_flagged(p_hash text, p_display text, p_source text, p_synthetic boolean)
 returns table (address_hash text) language sql as $$
@@ -87,9 +98,11 @@ begin
   for a in select * from jsonb_array_elements(p_items) loop
     for b in select * from jsonb_array_elements(p_items) loop
       if (a->>'hash') < (b->>'hash') then
-        insert into graph_edges (src_hash, src_type, src_display, dst_hash, dst_type, dst_display, relation, evidence, submission_id, synthetic)
+        insert into graph_edges (src_hash, src_type, src_display, dst_hash, dst_type, dst_display, relation, evidence, submission_id, synthetic, reporter_key)
         values (a->>'hash', a->>'type', a->>'display', b->>'hash', b->>'type', b->>'display', 'co_reported',
-                'Named together in one ' || p_category || ' report on ' || to_char(now(), 'YYYY-MM-DD'), p_submission, p_synthetic);
+                'Named together in one ' || p_category || ' report on ' || to_char(now(), 'YYYY-MM-DD'), p_submission, p_synthetic,
+                left(encode(sha256(convert_to('reporter:' || p_fingerprint, 'UTF8')), 'hex'), 16))
+        on conflict do nothing;
       end if;
     end loop;
   end loop;
@@ -131,13 +144,14 @@ $$;
 
 -- Undirected co-report edges, both directions.
 create or replace view co_edges as
-  select src_hash a, src_type a_type, src_display a_display, dst_hash b, dst_type b_type, dst_display b_display, evidence, submission_id
+  select src_hash a, src_type a_type, src_display a_display, dst_hash b, dst_type b_type, dst_display b_display, evidence, submission_id, reporter_key
   from active_edges where relation = 'co_reported'
   union all
-  select dst_hash, dst_type, dst_display, src_hash, src_type, src_display, evidence, submission_id
+  select dst_hash, dst_type, dst_display, src_hash, src_type, src_display, evidence, submission_id, reporter_key
   from active_edges where relation = 'co_reported';
 
--- Q1: UPI -> wallet -> Telegram, where UPI and Telegram are linked only through a shared wallet.
+-- Q1: UPI -> wallet -> Telegram, where UPI and Telegram are linked only through a shared wallet,
+-- and the two halves of the link come from two DIFFERENT reporters (one person cannot build a link alone).
 create or replace function q1_upi_wallet_telegram(p_upi text, p_hub_max int)
 returns table (upi text, wallet text, wallet_hash text, telegram text, telegram_hash text, evidence_1 text, evidence_2 text)
 language sql stable as $$
@@ -147,6 +161,7 @@ language sql stable as $$
   where uw.a = p_upi and uw.a_type = 'upi'
     and uw.b_type in ('evm','tron','btc') and wt.b_type = 'telegram'
     and uw.submission_id is distinct from wt.submission_id
+    and uw.reporter_key is not null and wt.reporter_key is not null and uw.reporter_key <> wt.reporter_key
     and uw.b not in (select hash from hub_nodes(p_hub_max))
     and not exists (select 1 from co_edges d where d.a = uw.a and d.b = wt.b)
   order by 4
@@ -174,16 +189,18 @@ language sql stable as $$
 $$;
 
 -- Q3: different Telegram handles co-reported with the same wallet, with cluster size.
+-- `reports` is the number of DISTINCT reporters; a cluster needs at least 2 of them.
 create or replace function q3_telegram_clusters(p_min_size int, p_hub_max int)
 returns table (wallet text, wallet_hash text, cluster_size int, handles text[], reports int)
 language sql stable as $$
   select e.a_display, e.a, count(distinct e.b)::int, array_agg(distinct e.b_display order by e.b_display),
-         count(distinct e.submission_id)::int
+         count(distinct e.reporter_key)::int
   from co_edges e
-  where e.a_type in ('evm','tron','btc') and e.b_type = 'telegram'
+  where e.a_type in ('evm','tron','btc') and e.b_type = 'telegram' and e.reporter_key is not null
     and e.a not in (select address_hash from exchange_addresses)
   group by e.a, e.a_display
   having count(distinct e.b) >= p_min_size and count(distinct e.b) <= p_hub_max
+     and count(distinct e.reporter_key) >= 2
   order by 3 desc, 1
 $$;
 

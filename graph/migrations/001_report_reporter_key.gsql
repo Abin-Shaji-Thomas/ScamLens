@@ -1,0 +1,7 @@
+# F1 migration for graphs created before reporter_key existed: adds the pseudonymous reporter key
+# to Report vertices so Q1/Q3 can require two different reporters. Applied by scripts/tg-setup.ts.
+CREATE GLOBAL SCHEMA_CHANGE JOB scamlens_add_reporter_key {
+  ALTER VERTEX Report ADD ATTRIBUTE (reporter_key STRING);
+}
+RUN GLOBAL SCHEMA_CHANGE JOB scamlens_add_reporter_key
+DROP JOB scamlens_add_reporter_key

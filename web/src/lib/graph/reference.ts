@@ -2,12 +2,13 @@
 // cross-check that the database backend (Postgres CTE or TigerGraph) gives the same answers.
 import type { Scenario } from "./seed";
 
-type Edge = { a: string; b: string; submission: number };
+// In the seed scenario every report has its own reporter, so `reporter` identifies both.
+type Edge = { a: string; b: string; reporter: number };
 
 function coEdges(s: Scenario): Edge[] {
   const out: Edge[] = [];
   for (const r of s.reports) {
-    for (const x of r.items) for (const y of r.items) if (x.hash !== y.hash) out.push({ a: x.hash, b: y.hash, submission: r.reporter });
+    for (const x of r.items) for (const y of r.items) if (x.hash !== y.hash) out.push({ a: x.hash, b: y.hash, reporter: r.reporter });
   }
   return out;
 }
@@ -28,14 +29,14 @@ function hubs(s: Scenario, hubMax: number): Set<string> {
 const display = (s: Scenario, hash: string) => Object.values(s.nodes).find((n) => n.hash === hash)?.display ?? hash;
 const typeOf = (s: Scenario, hash: string) => Object.values(s.nodes).find((n) => n.hash === hash)?.type;
 
-/** Q1 -> sorted "wallet -> telegram" strings. */
+/** Q1 -> sorted "wallet -> telegram" strings; the two halves must come from different reporters. */
 export function refQ1(s: Scenario, upiHash: string, hubMax: number): string[] {
   const edges = coEdges(s);
   const h = hubs(s, hubMax);
   const out = new Set<string>();
   for (const uw of edges.filter((e) => e.a === upiHash && ["evm", "tron", "btc"].includes(typeOf(s, e.b) ?? ""))) {
     if (h.has(uw.b)) continue;
-    for (const wt of edges.filter((e) => e.a === uw.b && typeOf(s, e.b) === "telegram" && e.submission !== uw.submission)) {
+    for (const wt of edges.filter((e) => e.a === uw.b && typeOf(s, e.b) === "telegram" && e.reporter !== uw.reporter)) {
       if (edges.some((d) => d.a === upiHash && d.b === wt.b)) continue;
       out.add(`${display(s, uw.b)} -> ${display(s, wt.b)}`);
     }
@@ -58,16 +59,18 @@ export function refQ2(s: Scenario, walletHash: string, hubMax: number): string[]
   return out.sort();
 }
 
-/** Q3 -> sorted "wallet: n handles" strings. */
+/** Q3 -> sorted "wallet: n handles" strings; a cluster needs at least 2 distinct reporters. */
 export function refQ3(s: Scenario, minSize: number, hubMax: number): string[] {
   const handles = new Map<string, Set<string>>();
+  const reporters = new Map<string, Set<number>>();
   for (const e of coEdges(s)) {
     if (["evm", "tron", "btc"].includes(typeOf(s, e.a) ?? "") && typeOf(s, e.b) === "telegram" && !s.exchanges.has(e.a)) {
       handles.set(e.a, (handles.get(e.a) ?? new Set()).add(e.b));
+      reporters.set(e.a, (reporters.get(e.a) ?? new Set()).add(e.reporter));
     }
   }
   return [...handles]
-    .filter(([, set]) => set.size >= minSize && set.size <= hubMax)
+    .filter(([w, set]) => set.size >= minSize && set.size <= hubMax && (reporters.get(w)?.size ?? 0) >= 2)
     .map(([w, set]) => `${display(s, w)}: ${set.size} handles`)
     .sort();
 }

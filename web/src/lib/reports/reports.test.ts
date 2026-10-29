@@ -14,7 +14,7 @@ import { contestIdentifier, reportedFor, reportsConfig, submitReport, type Repor
 const PEPPER = "test-pepper-0123456789";
 const UPI = "victim.pay@okdemo";
 const req = (value = UPI): ReportRequest => ({ identifiers: [{ type: "upi", value }], category: "investment", consent: true });
-const fp = (n: number) => fingerprintHash(PEPPER, `10.0.0.${n}`, "test-agent");
+const fp = (n: number) => fingerprintHash(PEPPER, `10.0.0.${n}`);
 
 let cfg: ReportsConfig;
 let db: Db;
@@ -142,6 +142,19 @@ describe("graph on synthetic seed (Postgres fallback vs independent reference)",
   });
   it("graph view without a database is 'unavailable'", async () => {
     expect((await buildGraphView({ type: "upi", value: SEED_IDS.u1 }, {}, null)).status).toBe("unavailable");
+  });
+
+  it("one reporter filing two reports cannot create a Q1 link or a Q3 cluster on their own", async () => {
+    const solo = fp(77);
+    const W = "0x" + "ab".repeat(20);
+    await submitReport({ identifiers: [{ type: "upi", value: "solo.test@okdemo" }, { type: "evm", value: W }], category: "other", consent: true }, solo, cfg);
+    await submitReport({ identifiers: [{ type: "evm", value: W }, { type: "telegram", value: "@zz_solo_one" }], category: "other", consent: true }, solo, cfg);
+    await submitReport({ identifiers: [{ type: "evm", value: W }, { type: "telegram", value: "@zz_solo_two" }], category: "other", consent: true }, solo, cfg);
+    const upiHash = (await import("./privacy")).identifierHash(PEPPER, "upi", "solo.test@okdemo");
+    expect(await findLinks({ kind: "q1", upiHash }, deps())).toEqual([]);
+    const clusters = await findLinks({ kind: "q3", minSize: 2 }, deps());
+    expect(clusters.map((c) => c.handles.join())).not.toContain("@zz***ne,@zz***wo");
+    expect(clusters.every((c) => c.reports >= 2)).toBe(true);
   });
 
   it("seeded UPI u1 shows as Reported (3 reporters), marked synthetic", async () => {

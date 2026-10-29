@@ -8,7 +8,7 @@ type EdgeRow = {
   src_hash: string; src_type: IdentifierType; src_display: string;
   dst_hash: string; dst_type: IdentifierType; dst_display: string;
   relation: "co_reported" | "payment"; evidence: string; submission_id: string | null;
-  synthetic: boolean; expires_at: string | Date;
+  synthetic: boolean; expires_at: string | Date; reporter_key: string | null;
 };
 type FlagRow = { address_hash: string; source: string };
 type ExchangeRow = { address_hash: string };
@@ -40,8 +40,13 @@ export class PayloadBuilder {
     };
   }
 
-  report(submissionId: string, evidence: string, synthetic: boolean, members: GraphNode[]) {
-    ((this.p.vertices.Report ??= {})[submissionId] = { evidence: { value: evidence }, synthetic: { value: synthetic } });
+  /** `reporterKey` is the pseudonymous reporter (see reporterKey() in reports/privacy.ts); "" if unknown. */
+  report(submissionId: string, evidence: string, synthetic: boolean, members: GraphNode[], reporterKey: string) {
+    (this.p.vertices.Report ??= {})[submissionId] = {
+      evidence: { value: evidence },
+      synthetic: { value: synthetic },
+      reporter_key: { value: reporterKey },
+    };
     for (const m of members) {
       this.node(m);
       this.edge("Report", submissionId, "MENTIONS", VERTEX_TYPE[m.type], m.hash, {});
@@ -81,14 +86,14 @@ export async function buildFullPayload(db: Db, now = new Date()): Promise<Payloa
   const dst = (e: EdgeRow): GraphNode => ({ hash: e.dst_hash, type: e.dst_type, display: e.dst_display });
 
   // Postgres stores one co_reported row per identifier pair; TigerGraph stores one Report vertex per submission.
-  const bySubmission = new Map<string, { evidence: string; synthetic: boolean; members: Map<string, GraphNode> }>();
+  const bySubmission = new Map<string, { evidence: string; synthetic: boolean; reporter: string; members: Map<string, GraphNode> }>();
   for (const e of active.filter((x) => x.relation === "co_reported" && x.submission_id)) {
-    const s = bySubmission.get(e.submission_id!) ?? { evidence: e.evidence, synthetic: e.synthetic, members: new Map() };
+    const s = bySubmission.get(e.submission_id!) ?? { evidence: e.evidence, synthetic: e.synthetic, reporter: e.reporter_key ?? "", members: new Map() };
     s.members.set(e.src_hash, src(e));
     s.members.set(e.dst_hash, dst(e));
     bySubmission.set(e.submission_id!, s);
   }
-  for (const [id, s] of bySubmission) b.report(id, s.evidence, s.synthetic, [...s.members.values()]);
+  for (const [id, s] of bySubmission) b.report(id, s.evidence, s.synthetic, [...s.members.values()], s.reporter);
   for (const e of active.filter((x) => x.relation === "payment")) b.payment(src(e), dst(e), e.evidence);
 
   // Flags only apply to wallets that are in the graph; others have no links to show.

@@ -9,12 +9,12 @@
 
 CREATE OR REPLACE QUERY q1_upi_wallet_telegram(VERTEX<UPI> upi, INT hub_max) FOR GRAPH ScamLens SYNTAX v2 {
   # Q1: UPI -> wallet -> Telegram, where the UPI and the handle are linked ONLY through a shared wallet:
-  # the two links come from different reports and the handle was never reported together with the UPI.
+  # the two links come from DIFFERENT reporters and the handle was never reported together with the UPI.
   TYPEDEF TUPLE<STRING upi, STRING wallet, STRING wallet_hash, STRING telegram, STRING telegram_hash, STRING evidence_1, STRING evidence_2> Row;
   SetAccum<Row> @@rows;
   SetAccum<VERTEX> @@direct;
   MaxAccum<STRING> @@upi_display;
-  SetAccum<STRING> @upi_reports;
+  SetAccum<STRING> @upi_reporters;
   MaxAccum<STRING> @upi_evidence;
   SetAccum<VERTEX> @nbrs;
 
@@ -23,14 +23,14 @@ CREATE OR REPLACE QUERY q1_upi_wallet_telegram(VERTEX<UPI> upi, INT hub_max) FOR
   R1 = SELECT r FROM U:u -(MENTIONS)- Report:r;
   D = SELECT t FROM R1:r -(MENTIONS)- TelegramHandle:t ACCUM @@direct += t;
   W = SELECT w FROM R1:r -(MENTIONS)- Wallet:w
-      WHERE w.is_exchange == FALSE
-      ACCUM w.@upi_reports += r.submission_id, w.@upi_evidence += r.evidence;
+      WHERE w.is_exchange == FALSE AND r.reporter_key != ""
+      ACCUM w.@upi_reporters += r.reporter_key, w.@upi_evidence += r.evidence;
   C1 = SELECT w FROM W:w -(MENTIONS)- Report:r -(MENTIONS)- :n WHERE n != w ACCUM w.@nbrs += n;
   C2 = SELECT w FROM W:w -(PAID>|<PAID)- Wallet:n ACCUM w.@nbrs += n;
   W = SELECT w FROM W:w WHERE w.@nbrs.size() <= hub_max;
   T = SELECT t FROM W:w -(MENTIONS)- Report:r2 -(MENTIONS)- TelegramHandle:t
-      WHERE NOT @@direct.contains(t)
-        AND (w.@upi_reports.size() > 1 OR NOT w.@upi_reports.contains(r2.submission_id))
+      WHERE NOT @@direct.contains(t) AND r2.reporter_key != ""
+        AND (w.@upi_reporters.size() > 1 OR NOT w.@upi_reporters.contains(r2.reporter_key))
       ACCUM @@rows += Row(@@upi_display, w.display, w.hash, t.display, t.hash, w.@upi_evidence, r2.evidence);
   PRINT @@rows AS rows;
 }
@@ -59,19 +59,20 @@ CREATE OR REPLACE QUERY q2_payment_to_flagged(VERTEX<Wallet> wallet, INT hub_max
 
 CREATE OR REPLACE QUERY q3_telegram_clusters(INT min_size, INT hub_max) FOR GRAPH ScamLens SYNTAX v2 {
   # Q3: different Telegram handles reported with the same (non-exchange) wallet, with cluster size.
+  # `reports` counts DISTINCT reporters; a cluster needs at least 2 of them.
   TYPEDEF TUPLE<STRING wallet, STRING wallet_hash, INT cluster_size, INT reports> Row;
   SetAccum<Row> @@rows;
   MapAccum<STRING, SetAccum<STRING>> @@handles;
   SetAccum<VERTEX> @tg;
   SetAccum<STRING> @tg_display;
-  SetAccum<STRING> @reports;
+  SetAccum<STRING> @reporters;
 
   W = SELECT w FROM Wallet:w -(MENTIONS)- Report:r -(MENTIONS)- TelegramHandle:t
-      WHERE w.is_exchange == FALSE
-      ACCUM w.@tg += t, w.@tg_display += t.display, w.@reports += r.submission_id;
+      WHERE w.is_exchange == FALSE AND r.reporter_key != ""
+      ACCUM w.@tg += t, w.@tg_display += t.display, w.@reporters += r.reporter_key;
   W = SELECT w FROM W:w
-      WHERE w.@tg.size() >= min_size AND w.@tg.size() <= hub_max
-      POST-ACCUM @@rows += Row(w.display, w.hash, w.@tg.size(), w.@reports.size()),
+      WHERE w.@tg.size() >= min_size AND w.@tg.size() <= hub_max AND w.@reporters.size() >= 2
+      POST-ACCUM @@rows += Row(w.display, w.hash, w.@tg.size(), w.@reporters.size()),
                  @@handles += (w.hash -> w.@tg_display);
   PRINT @@rows AS rows, @@handles AS handles;
 }

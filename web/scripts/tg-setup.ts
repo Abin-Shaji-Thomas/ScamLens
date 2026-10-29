@@ -32,8 +32,13 @@ async function main() {
 
   if (only("--schema")) {
     const exists = await client.request(`/gsql/v1/schema/graphs/${tg.graph}`).then(() => true, () => false);
-    if (exists) console.log(`2. schema: graph ${tg.graph} already exists - leaving it unchanged`);
-    else console.log("2. schema:", JSON.stringify(await client.statements(gsql("schema.gsql"))).slice(0, 400));
+    if (exists) {
+      console.log(`2. schema: graph ${tg.graph} already exists - applying migrations`);
+      for (const m of ["001_report_reporter_key.gsql"]) {
+        const out = JSON.stringify(await client.statements(gsql(`migrations/${m}`)).catch((e: unknown) => String(e)));
+        console.log(`   ${m}: ${/already exists|is already|exists in/i.test(out) ? "already applied" : out.slice(0, 300)}`);
+      }
+    } else console.log("2. schema:", JSON.stringify(await client.statements(gsql("schema.gsql"))).slice(0, 400));
   }
 
   if (only("--queries")) {
