@@ -50,6 +50,17 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
                 nodeColor={(n) => COLORS[(n as GraphView["nodes"][number]).type] ?? "#737373"}
                 nodeVal={(n) => ((n as GraphView["nodes"][number]).focus ? 6 : 2)}
                 linkLabel={(l) => (l as GraphView["links"][number]).evidence}
+                linkColor={(l) => ((l as GraphView["links"][number]).relation === "payment" ? "#f59e0b" : "#a3a3a3")}
+                linkWidth={1.5}
+                nodeCanvasObjectMode={() => "after"}
+                nodeCanvasObject={(n, ctx, scale) => {
+                  const node = n as GraphView["nodes"][number] & { x?: number; y?: number };
+                  if (node.x === undefined || node.y === undefined) return;
+                  ctx.font = `${11 / scale}px sans-serif`;
+                  ctx.fillStyle = "#a3a3a3";
+                  ctx.textAlign = "center";
+                  ctx.fillText(node.label, node.x, node.y + 10 / scale);
+                }}
                 linkDirectionalArrowLength={(l) => ((l as GraphView["links"][number]).relation === "payment" ? 4 : 0)}
               />
             </div>
