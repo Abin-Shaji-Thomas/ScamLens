@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { positiveIntEnv } from "../env";
 import type { Identifier, IdentifierType } from "../extract/types";
 import { extractIdentifiers } from "../identifiers";
 import { dbFromEnv, type Db } from "./db";
@@ -15,7 +16,7 @@ export function reportsConfig(env: Record<string, string | undefined>, db: Db | 
   if (!db) return "reports database not configured";
   const pepper = env.REPORT_HASH_PEPPER ?? "";
   if (pepper.length < MIN_PEPPER_LENGTH) return "REPORT_HASH_PEPPER not configured";
-  return { db, pepper, maxPerDay: Number(env.REPORTS_MAX_PER_DAY ?? "5") };
+  return { db, pepper, maxPerDay: positiveIntEnv(env.REPORTS_MAX_PER_DAY, 5) };
 }
 
 /** Re-validate a client-supplied identifier with the extractor: it must be exactly one valid identifier of that type. */

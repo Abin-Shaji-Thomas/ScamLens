@@ -10,7 +10,7 @@ export const SAMPLES = [
     text:
       "This is Inspector Rao from Mumbai Police cyber cell. A courier package in your name with MDMA was seized. " +
       "You are under digital arrest. Stay on the video call and do not tell your family. " +
-      "Transfer your savings to our RBI verification account within 2 hours: zzdemo.verify@okdemo",
+      "Transfer your savings to our RBI verification account within 2 hours: zzdemo.refund@okdemo",
   },
   {
     id: "crypto-investment",

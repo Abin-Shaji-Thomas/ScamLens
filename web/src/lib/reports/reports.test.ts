@@ -74,6 +74,12 @@ describe("2-reporter rule", () => {
     const r = await submitReport({ identifiers: [{ type: "evm", value: "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAeD" }], category: "other", consent: true }, fp(1), cfg);
     expect(r).toEqual({ ok: false, reason: "invalid evm identifier" });
   });
+  it("an empty REPORTS_MAX_PER_DAY= line in .env falls back to the default, not 0", async () => {
+    const c = reportsConfig({ REPORT_HASH_PEPPER: PEPPER, REPORTS_MAX_PER_DAY: "" }, db);
+    if (typeof c === "string") throw new Error(c);
+    expect(c.maxPerDay).toBe(5);
+    expect((await submitReport(req(), fp(1), c)).ok).toBe(true);
+  });
   it("missing DB or pepper -> unavailable, not 'no reports'", async () => {
     expect(await reportedFor(extractIdentifiers(UPI), reportsConfig({}, null))).toMatchObject({ status: "unavailable" });
     expect(reportsConfig({ REPORT_HASH_PEPPER: "short" }, db)).toBe("REPORT_HASH_PEPPER not configured");

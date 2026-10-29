@@ -1,5 +1,6 @@
 import { formatEther } from "viem";
 import { z } from "zod";
+import { positiveIntEnv } from "../env";
 import type { Identifier } from "../extract/types";
 import { getJson, isoDate, Unavailable } from "./http";
 import { unavailable, type CheckDeps, type SourceResult } from "./types";
@@ -28,7 +29,7 @@ async function slot(rps: number) {
 }
 
 async function call(deps: CheckDeps, chain: Chain, params: string): Promise<unknown> {
-  await slot(Number(deps.env.ETHERSCAN_RPS ?? "5"));
+  await slot(positiveIntEnv(deps.env.ETHERSCAN_RPS, 5));
   return getJson(deps, `${API}?chainid=${chain.id}&${params}&apikey=${deps.env.ETHERSCAN_API_KEY}`);
 }
 

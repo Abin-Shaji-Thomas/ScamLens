@@ -1,3 +1,4 @@
+import { positiveIntEnv } from "../env";
 import type { Db } from "../reports/db";
 import { postgresBackend } from "./postgres";
 import { tigerGraphBackend } from "./tigergraph";
@@ -19,8 +20,7 @@ export function graphBackend({ env, db }: GraphDeps): GraphBackend | null {
 }
 
 export function hubMax(env: Record<string, string | undefined>): number {
-  const n = Number(env.GRAPH_HUB_MAX);
-  return Number.isInteger(n) && n > 0 ? n : DEFAULT_HUB_MAX;
+  return Math.floor(positiveIntEnv(env.GRAPH_HUB_MAX, DEFAULT_HUB_MAX));
 }
 
 /** Single entry point for link queries. Hub nodes (high-degree or exchange addresses) never link unrelated people. */

@@ -30,7 +30,7 @@ Open the live URL. Each sample is one click under **Try a sample** and is labell
 | Time | Do | What appears |
 |---|---|---|
 | 0:00-0:15 | Say: "ScamLens separates what is proven, what is reported and what is only suspected." | Empty risk card with the three tiers |
-| 0:15-0:40 | **Sample 1 - "Digital arrest" call** -> Check | **Elevated signals.** Suspected: *authority impersonation*, *digital arrest*, *urgency/deadline*, each with the quoted words. The UPI ID has no verified source ("UPI is user-reported only"). |
+| 0:15-0:40 | **Sample 1 - "Digital arrest" call** -> Check | **High signals** without any AI verdict: the UPI ID has no verified source ("UPI is user-reported only") but is **reported by 3 independent people** (synthetic seed, watermarked), and the text has *authority impersonation*, *digital arrest* and *urgency/deadline* signals with the quoted words. Click **Show links** to see the graph: this UPI is linked to two Telegram handles only through a shared wallet. |
 | 0:40-1:05 | **Sample 2 - Crypto "investment"** -> Check | **High signals.** Verified: the wallet is **on the OFAC SDN list** (published date + link to the Treasury entry) and **flagged by GoPlus**; ScamSniffer "not listed" with its list date and 7-day-delay note. Suspected: guaranteed returns, fake profit proof, small amount first, move to Telegram. |
 | 1:05-1:20 | **Sample 3 - Bank alert** -> Check | **Low signals - not a safety guarantee.** "Never share your OTP" does not fire the OTP rule (negation guard). |
 | 1:20-1:30 | Click **Copy evidence pack** | Plain-text summary with the three tiers separated and next steps: call **1930**, file at **cybercrime.gov.in**, contact your bank. Not legal advice. |
@@ -118,7 +118,7 @@ npx tsx scripts/graph-demo.ts       # seed synthetic data into local Postgres (P
 
 - **Not a complete scam database** and not a safety guarantee. "Low signals" means we found nothing, not that something is safe.
 - **UPI IDs, phone numbers and Telegram handles have no public verified source.** They can only appear as Reported (after 2 independent reporters) or through Suspected text patterns.
-- **Reports, contest and the link graph need Supabase.** Until `SUPABASE_*` and `REPORT_HASH_PEPPER` are configured on the deployment, the live site shows the Reported tier as "unavailable".
+- **The live Reported tier currently holds only synthetic seed data** (`synthetic=true`, shown with the "Illustrative" watermark). Real reports appear only once two independent people report the same identifier.
 - **TigerGraph client is untested against a live instance** (no Savanna account was available). `graph/*.gsql` and `src/lib/graph/tigergraph.ts` follow the TigerGraph 4.x docs; the Postgres fallback is what has been run and tested.
 - **Etherscan needs an API key** and the free tier may not cover every chain; such chains show "unavailable" with the API's reason.
 - **Snapshots age.** OFAC and ScamSniffer data are as fresh as the last `sync-lists` run (dates are shown).
