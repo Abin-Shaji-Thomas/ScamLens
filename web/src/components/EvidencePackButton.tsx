@@ -9,12 +9,12 @@ export function EvidencePackButton({ result, demo }: { result: CheckResponse; de
   const text = buildEvidencePack(result, { demo });
   return (
     <div className="flex flex-col">
-      <h3 className="t-h2 print:hidden">Evidence pack</h3>
-      <p className="t-small mt-1 text-swiss-text print:hidden">A plain-text summary to keep, send to your bank, or attach to a complaint.</p>
-      <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3 print:hidden">
+      <h2 className="t-h2 print:hidden">Evidence pack</h2>
+      <p className="mt-2 text-swiss-text print:hidden">A plain-text summary to keep, send to your bank, or attach to a complaint.</p>
+      <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 print:hidden">
         <button
           type="button"
-          className="btn-primary"
+          className="button"
           onClick={async () => {
             try {
               await navigator.clipboard.writeText(text);

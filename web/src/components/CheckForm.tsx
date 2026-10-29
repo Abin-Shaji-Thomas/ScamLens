@@ -66,11 +66,11 @@ export function CheckForm() {
                 maxLength={MAX_INPUT_CHARS}
                 rows={6}
                 placeholder="Paste the message here"
-                className="field mt-4"
+                className="textarea mt-4"
               />
               {demo && <p className="t-small mt-3 text-swiss-text">{SAMPLE_WATERMARK}</p>}
               <div className="mt-8 flex flex-wrap items-center gap-4">
-                <button type="submit" disabled={loading || text.trim().length === 0} className="btn-primary">
+                <button type="submit" disabled={loading || text.trim().length === 0} className="button">
                   {loading ? "Checking..." : "Check"}
                 </button>
                 <ScreenshotTrigger />

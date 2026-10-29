@@ -232,20 +232,50 @@
     word-break: break-word;
   }
 
-  .btn-primary {
+  /* Buttons: square, black, uppercase by CSS only (the label strings stay as written). */
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 1rem 2rem;
+    border: 1px solid var(--swiss-black);
+    border-radius: 0;
     background: var(--swiss-black);
     color: var(--swiss-white);
-    font-weight: 600;
-    padding: 10px 24px;
-    border: 0;
+    font: inherit;
+    font-size: 0.875rem;
+    line-height: 1.2;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     cursor: pointer;
+    transition: background-color 200ms ease, color 200ms ease;
   }
-  .btn-primary:disabled {
+  .button:hover {
+    background: var(--swiss-black-hover);
+  }
+  .button--outline {
+    background: transparent;
+    color: var(--swiss-black);
+  }
+  .button--outline:hover {
+    background: var(--swiss-black);
+    color: var(--swiss-white);
+  }
+  /* Disabled: grey border only; the label stays in readable secondary text. */
+  .button:disabled,
+  .button:disabled:hover {
     background: var(--swiss-white);
+    border-color: var(--swiss-grey);
     color: var(--swiss-text);
     cursor: not-allowed;
   }
+
+  /* Text-link buttons (samples, Preview, Contest, Cancel...): underlined, with a 44px tap height. */
   .btn-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     background: transparent;
     border: 0;
     padding: 0;
@@ -255,14 +285,36 @@
     text-decoration-thickness: 1px;
     cursor: pointer;
     font: inherit;
+    transition: color 200ms ease;
+  }
+  .btn-link:hover {
+    color: var(--swiss-clay);
   }
   .btn-link:disabled {
     color: var(--swiss-text);
     cursor: not-allowed;
   }
 
+  /* The main text box (and the screenshot transcript): no box, a 2px black top rule and a 1px light rule below. */
+  .textarea {
+    display: block;
+    width: 100%;
+    min-height: 12rem;
+    border: 0;
+    border-top: 2px solid var(--swiss-black);
+    border-bottom: 1px solid var(--swiss-rule);
+    padding: 1.25rem 0;
+    background: transparent;
+    color: var(--swiss-black);
+    font: inherit;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    resize: vertical;
+  }
+  /* Inline form inputs (report, contest): underline style, 1px black bottom border. */
   .field {
     width: 100%;
+    min-height: 44px;
     background: transparent;
     border: 0;
     border-bottom: 1px solid var(--swiss-black);
@@ -271,9 +323,16 @@
     font: inherit;
     resize: vertical;
   }
+  .textarea::placeholder,
   .field::placeholder {
     color: var(--swiss-text);
     opacity: 1;
+  }
+  .checkbox {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: none;
+    accent-color: var(--swiss-black);
   }
 }
 

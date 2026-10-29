@@ -48,16 +48,16 @@ export function ReportForm({ identifiers }: { identifiers: Identifier[] }) {
         }
       }}
     >
-      <h3 id={`${categoryId}-title`} className="t-h2">
+      <h3 id={`${categoryId}-title`} className="t-h2 border-t-2 border-swiss-black pt-6">
         Report these identifiers
       </h3>
-      <fieldset className="mt-4 flex flex-col gap-2">
-        <legend className="t-small text-swiss-text">Identifiers to include</legend>
+      <fieldset className="mt-6 flex flex-col">
+        <legend className="eyebrow">Identifiers to include</legend>
         {unique.map((id, i) => (
-          <label key={i} className="break-id flex items-start gap-3">
+          <label key={i} className="break-id flex min-h-11 items-center gap-3">
             <input
               type="checkbox"
-              className="mt-1.5 accent-swiss-black"
+              className="checkbox"
               checked={picked.has(i)}
               onChange={() => setPicked((s) => (s.has(i) ? new Set([...s].filter((x) => x !== i)) : new Set([...s, i])))}
             />
@@ -67,25 +67,25 @@ export function ReportForm({ identifiers }: { identifiers: Identifier[] }) {
           </label>
         ))}
       </fieldset>
-      <label htmlFor={categoryId} className="t-small mt-6 text-swiss-text">
+      <label htmlFor={categoryId} className="eyebrow mt-8">
         Scam type
       </label>
-      <select id={categoryId} value={category} onChange={(e) => setCategory(e.target.value as typeof category)} className="field mt-1 self-start">
+      <select id={categoryId} value={category} onChange={(e) => setCategory(e.target.value as typeof category)} className="field mt-2 self-start">
         {REPORT_CATEGORIES.map((c) => (
           <option key={c} value={c}>
             {c.replace("_", " ")}
           </option>
         ))}
       </select>
-      <label className="mt-6 flex items-start gap-3">
-        <input type="checkbox" className="mt-1.5 accent-swiss-black" checked={consent} onChange={(e) => setConsent(e.target.checked)} required />
+      <label className="mt-8 flex items-start gap-3">
+        <input type="checkbox" className="checkbox mt-1" checked={consent} onChange={(e) => setConsent(e.target.checked)} required />
         <span>
           I confirm these identifiers were used against me or someone I know. Only a hash and a masked form are stored, not my chat.
           Reports expire after 90 days.
         </span>
       </label>
-      <div className="mt-6 flex items-center gap-6">
-        <button type="submit" disabled={!consent || picked.size === 0} className="btn-primary">
+      <div className="mt-8 flex flex-wrap items-center gap-6">
+        <button type="submit" disabled={!consent || picked.size === 0} className="button">
           Submit report
         </button>
         <button type="button" className="btn-link" onClick={() => setOpen(false)}>

@@ -38,7 +38,7 @@ function Contest({ id }: { id: Identifier }) {
         }
       }}
     >
-      <label htmlFor={reasonId} className="t-small text-swiss-text">
+      <label htmlFor={reasonId} className="eyebrow">
         Why is this entry wrong? (10 to 500 characters)
       </label>
       <textarea
@@ -51,8 +51,8 @@ function Contest({ id }: { id: Identifier }) {
         rows={2}
         className="field mt-2"
       />
-      <div className="mt-4 flex items-center gap-6">
-        <button type="submit" className="btn-primary">
+      <div className="mt-6 flex flex-wrap items-center gap-6">
+        <button type="submit" className="button">
           Send
         </button>
         <button type="button" className="btn-link" onClick={() => setOpen(false)}>
@@ -82,7 +82,7 @@ export function ReportedList({ tier, identifiers }: { tier: ReportedTier; identi
             </p>
             {e.contested && (
               <p className="mt-2">
-                <span className="font-semibold">{CONTESTED_LABEL}.</span> <span className="text-swiss-text">{CONTESTED_NOTE}</span>
+                <span className="font-semibold text-swiss-clay">{CONTESTED_LABEL}.</span> <span className="text-swiss-text">{CONTESTED_NOTE}</span>
               </p>
             )}
             {own && !e.contested && <Contest id={own} />}

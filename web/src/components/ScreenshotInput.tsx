@@ -30,7 +30,7 @@ const FILE_INPUT_ID = "screenshot-file";
 /** The plain text link next to Check. It opens the file picker owned by ScreenshotInput. */
 export function ScreenshotTrigger() {
   return (
-    <button type="button" className="btn-link" onClick={() => document.getElementById(FILE_INPUT_ID)?.click()}>
+    <button type="button" className="button button--outline" onClick={() => document.getElementById(FILE_INPUT_ID)?.click()}>
       Upload a screenshot instead
     </button>
   );
@@ -102,11 +102,11 @@ export function ScreenshotInput({ onCheck, disabled }: { onCheck: (text: string)
             onChange={(e) => setTranscript(e.target.value)}
             maxLength={MAX_TEXT_CHARS}
             rows={6}
-            className="field mt-2"
+            className="textarea mt-4"
           />
           {truncated && <p className="t-small mt-3 text-swiss-text">Only the first {MAX_TEXT_CHARS.toLocaleString("en-IN")} characters were kept.</p>}
           <div className="mt-6">
-            <button type="button" disabled={disabled || transcript.trim().length === 0} onClick={() => onCheck(transcript)} className="btn-primary">
+            <button type="button" disabled={disabled || transcript.trim().length === 0} onClick={() => onCheck(transcript)} className="button">
               Check this text
             </button>
           </div>

@@ -17,7 +17,10 @@ import { DEMO_LABEL } from "./demo";
 import { WHAT_TO_DO_NOW } from "./next-steps";
 import { assessRisk, NO_REPORTS_MESSAGE, RISK_EXPLANATION } from "./risk";
 import { SAMPLES } from "./samples";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { localDb } from "../test-support/pglite";
+import { cssRules } from "../test-support/style";
 
 const offline: RunDeps = {
   fetch: (() => Promise.reject(new Error("offline"))) as typeof fetch,
@@ -128,10 +131,11 @@ describe("G4 minimalist states (server-rendered)", () => {
     expect(strip(render(createElement(NotFound)))).toContain("Page not found");
   });
 
-  it("the check form shows the underline field, primary button and the screenshot text link", () => {
+  it("the check form shows the ruled text box, the black Check button and the outline screenshot button", () => {
     const html = render(createElement(CheckForm));
-    expect(html).toMatch(/<textarea[^>]*class="field mt-4"/);
-    expect(html).toMatch(/<button type="submit"[^>]*class="btn-primary"/);
+    expect(html).toMatch(/<textarea[^>]*class="textarea mt-4"/);
+    expect(html).toMatch(/<button type="submit"[^>]*class="button"/);
+    expect(html).toMatch(/<button type="button" class="button button--outline"[^>]*>Upload a screenshot instead<\/button>/);
     expect(strip(html)).toContain("Upload a screenshot instead");
     expect(html).toMatch(/<label[^>]*for="input"/);
     expect(html).toMatch(/role="status" aria-live="polite"/);
@@ -200,5 +204,44 @@ describe("Swiss grid layout (server-rendered)", () => {
   it("header and footer sit on the same grid; footer has a 2px black top rule", () => {
     expect(render(createElement(SiteHeader))).toMatch(/<div class="grid grid--bar">/);
     expect(render(createElement(SiteFooter))).toMatch(/border-t-2 border-swiss-black/);
+  });
+});
+
+describe("Swiss controls (server-rendered)", () => {
+  const render = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el);
+
+  it("CSS: buttons, outline buttons, text links, text box and fields follow the spec", () => {
+    const css = readFileSync(join(import.meta.dirname, "..", "app", "globals.css"), "utf8");
+    const rule = (sel: string) => cssRules(css).find((r) => r.selector === sel)?.body ?? "";
+    expect(rule(".button")).toMatch(/min-height: 44px;[\s\S]*padding: 1rem 2rem;[\s\S]*border: 1px solid var\(--swiss-black\);[\s\S]*border-radius: 0;[\s\S]*background: var\(--swiss-black\);[\s\S]*color: var\(--swiss-white\);[\s\S]*font-size: 0.875rem;[\s\S]*letter-spacing: 0.1em;[\s\S]*text-transform: uppercase;/);
+    expect(rule(".button:hover")).toContain("background: var(--swiss-black-hover)");
+    expect(rule(".button--outline")).toMatch(/background: transparent;\s*color: var\(--swiss-black\);/);
+    expect(rule(".button--outline:hover")).toMatch(/background: var\(--swiss-black\);\s*color: var\(--swiss-white\);/);
+    expect(rule(".btn-link")).toContain("min-height: 44px");
+    expect(rule(".textarea")).toMatch(/min-height: 12rem;[\s\S]*border: 0;[\s\S]*border-top: 2px solid var\(--swiss-black\);[\s\S]*border-bottom: 1px solid var\(--swiss-rule\);[\s\S]*padding: 1.25rem 0;/);
+    expect(rule(".field")).toContain("border-bottom: 1px solid var(--swiss-black)");
+    // no control hides the focus outline any more
+    expect(css).not.toMatch(/:focus(-visible)?\s*\{[^}]*outline:\s*none/);
+  });
+
+  it("open report form: inline, underline select, visible labels, 44px checkbox rows, black submit button", async () => {
+    const r = await runCheck({ text: "pay zzdemo.agent@okdemo now" }, offline);
+    // Render the open state by rendering the form after a click is not possible here; assert via the component source instead.
+    const src = readFileSync(join(import.meta.dirname, "..", "components", "ReportForm.tsx"), "utf8");
+    expect(src).toMatch(/className="break-id flex min-h-11 items-center gap-3"/);
+    expect(src).toMatch(/<legend className="eyebrow">Identifiers to include<\/legend>/);
+    expect(src).toMatch(/className="field mt-2 self-start"/);
+    expect(src).toMatch(/<button type="submit"[^>]*className="button">\s*Submit report/);
+    expect(r.identifiers.length).toBeGreaterThan(0);
+  });
+
+  it("contested label is plain 600-weight clay text", () => {
+    const html = render(
+      createElement(ReportedList, {
+        tier: { status: "ok", entries: [{ type: "upi", display: "zz***d@okdemo", reporters: 2, categories: ["investment"], firstReported: "2026-10-01", lastReported: "2026-10-02", synthetic: true, contested: true }] },
+        identifiers: [],
+      }),
+    );
+    expect(html).toContain('<span class="font-semibold text-swiss-clay">Contested, under review.</span>');
   });
 });
