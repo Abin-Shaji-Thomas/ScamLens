@@ -275,3 +275,15 @@ Browser tooling for this round: headless Microsoft Edge driven over the Chrome D
 | Console | PASS | no messages on / and after sample 1 |
 | Tap targets | NOTE | smallest 29 px (sample links, Print link); buttons and links are restyled to >= 44 px in U3 |
 | Post-flight | PASS | `Tests 325 passed (325)`, typecheck 0, lint 0, build 0 |
+
+## U3 - Components and states
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Pre-flight | PASS | 325/325, typecheck 0, lint 0, tree clean (after U2) |
+| Buttons, outline button, text links, textarea, inline report/contest fields, focus | PASS | `.button` / `.button--outline` / `.btn-link` (44 px min height) / `.textarea` / `.field` / `.checkbox` in `globals.css`; no `outline: none` left; render + CSS tests (+3) |
+| Tiers, finding rows, notices, quotes, contested label, risk header | PASS | rows divided by 1px `--swiss-rule`, black 600 titles, small source line; notices plain secondary paragraphs; contested = 600 clay; `data-level="high"` word; tests (+4) |
+| Graph | PASS (code); canvas UNKNOWN until U4 | filled black focus node, 1.5px stroke, 1px grey links, 2.5px alert on evidence-path links, black labels; reduced-motion code unchanged; tests (+2) |
+| /about, 404 | PASS | two-column sections, alternate bands, sources as ruled rows; decorative `404` (aria-hidden) with existing text; tests (+2) |
+| States that need clicks (loading, error, waking, transcript, open report form) | UNKNOWN here | covered by CSS classes and checked in the browser in U4 |
+| Post-flight | PASS | `Tests 336 passed (336)`, typecheck 0, lint 0, build 0 |
