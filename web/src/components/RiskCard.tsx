@@ -1,5 +1,6 @@
 import type { CheckResponse } from "@/lib/api-schema";
 import { TIERS } from "@/lib/tiers";
+import { EvidencePackButton } from "./EvidencePackButton";
 import { GraphPanel } from "./GraphPanel";
 import { ReportedList } from "./ReportedList";
 import { ReportForm } from "./ReportForm";
@@ -22,7 +23,7 @@ function Identifiers({ ids }: { ids: CheckResponse["identifiers"] }) {
   );
 }
 
-export function RiskCard({ result }: { result: CheckResponse | null }) {
+export function RiskCard({ result, demo = false }: { result: CheckResponse | null; demo?: boolean }) {
   const [verified, reported, suspected] = TIERS;
   return (
     <div className="rounded-lg border border-neutral-200 p-5 dark:border-neutral-800">
@@ -55,7 +56,8 @@ export function RiskCard({ result }: { result: CheckResponse | null }) {
           ) : undefined}
         </TierSection>
         <TierSection tier={suspected}>{result ? <SuspectedList signals={result.suspected} ai={result.ai} /> : undefined}</TierSection>
-        {result && <ReportForm key={result.checkedAt} identifiers={result.identifiers} />}
+        {result && <EvidencePackButton result={result} demo={demo} />}
+        {result && !demo && <ReportForm key={result.checkedAt} identifiers={result.identifiers} />}
       </div>
     </div>
   );

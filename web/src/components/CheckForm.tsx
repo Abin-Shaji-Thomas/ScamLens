@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { CheckResponse, MAX_INPUT_CHARS } from "@/lib/api-schema";
+import { SAMPLE_WATERMARK, SAMPLES } from "@/lib/samples";
 import { RiskCard } from "./RiskCard";
 
 export function CheckForm() {
   const [text, setText] = useState("");
+  const [demo, setDemo] = useState(false);
   const [result, setResult] = useState<CheckResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,10 +43,31 @@ export function CheckForm() {
         <label htmlFor="input" className="text-sm font-medium">
           Paste a suspicious chat, screenshot text, wallet address, UPI ID or Telegram handle
         </label>
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-neutral-500">Try a sample:</span>
+          {SAMPLES.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              className="rounded border border-neutral-300 px-2 py-0.5 dark:border-neutral-700"
+              onClick={() => {
+                setText(s.text);
+                setDemo(true);
+                setResult(null);
+              }}
+            >
+              {s.title}
+            </button>
+          ))}
+        </div>
+        {demo && <p className="text-xs font-semibold uppercase text-fuchsia-700">{SAMPLE_WATERMARK}</p>}
         <textarea
           id="input"
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            setText(e.target.value);
+            setDemo(false);
+          }}
           maxLength={MAX_INPUT_CHARS}
           rows={8}
           className="w-full rounded-md border border-neutral-300 bg-transparent p-3 font-mono text-sm dark:border-neutral-700"
@@ -61,7 +84,7 @@ export function CheckForm() {
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
       </form>
-      <RiskCard result={result} />
+      <RiskCard result={result} demo={demo} />
     </div>
   );
 }
