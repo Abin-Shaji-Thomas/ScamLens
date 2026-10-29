@@ -233,3 +233,19 @@ Each step: pre-flight (git clean, npm test, typecheck, lint), build, post-flight
 | DEPLOY.md, SPEC.md | PASS | DEPLOY: migration 002 step, MODERATION pointer, "After deploying" (smoke-live + check-headers), CSP trade-off (G1); SPEC: "ROUND 2 DECISIONS" appended |
 | HUMAN_TASKS.md in the required order | PASS | 1 Supabase SQL (schema.sql + grants, because round 1 is still unpushed, then 002), 2 merge round2 into main and push, 3 warm/update TigerGraph, 4 smoke-live live, 5 check-headers live, 6 UI_CHECKLIST in a browser; optional items after |
 | Final run | PASS | `Tests 298 passed (298)` (16 files), typecheck 0, lint 0, build 0; `npm run eval`: precision 97.4%, recall 100.0%, FP 1, FN 0; identifiers 100/100 |
+
+# UI round: Minimalism & Swiss Style (branch ui-swiss, 2026-10-30)
+
+Browser tooling for this round: headless Microsoft Edge driven over the Chrome DevTools Protocol by a throwaway Node script (outside the repo, no new dependency). Measurements are taken in that browser with `getBoundingClientRect` / `getComputedStyle`.
+
+## U0 - Baseline and before-screenshots
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Identity | PASS | `Abin-Shaji-Thomas` / `abinshajiabin2006@gmail.com`; branch `ui-swiss` from `main` (= `origin/main` at c860f73) |
+| Pre-flight | PASS (one flaky run) | first `npm test`: `Tests 3 failed | 295 passed (298)`; the next three runs: `Tests 298 passed (298)` each. Failures did not reproduce (likely timing under load); typecheck 0, lint 0, build 0 |
+| Before screenshots | PASS | `docs/screens/before-{home,sample1,about}-{375,768,1440,1920}.png` (12 files) |
+| Measured content width (before) | PASS | 375: 327 px = 87.2%; 768: 592 px = 77.1%; 1440: 592 px = 41.1%; 1920: 592 px = 30.8% (same on /, sample 1 and /about) |
+| Smallest tap target (before) | NOTE | 22 px (sample links), 19 px ("Back to the check" on /about) |
+| Sample 1 risk (before) | PASS | "High" (meter did not exist yet) |
+| Console (before) | PASS | no messages on /, after sample 1, /about |
