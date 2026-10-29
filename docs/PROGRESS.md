@@ -326,3 +326,14 @@ Measured per window size (same on /, samples 1-3; /about and /nope have no form)
 | Health test | PASS | exact key list incl. `build`; at most 7 characters of the SHA; no secret prefix in the JSON; non-hex input -> `"local"`; schema rejects a non-hash build |
 | README, SPEC, DEPLOY, HUMAN_TASKS | PASS | README Design rewritten (palette, why grey/tan carry no text, Windows font note), health line, Known gaps; SPEC "UI ROUND DECISIONS"; DEPLOY section 6 compares `build` with `git rev-parse --short HEAD`; HUMAN_TASKS updated to the pushed state (old "merge round2" task replaced) |
 | Post-flight | PASS | `Tests 339 passed (339)`, typecheck 0, lint 0, build 0 |
+
+## U6 - Push and live verification
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Remote not ahead | PASS | `git fetch origin`; `main..origin/main` = 0 commits |
+| Fast-forward and plain push | PASS | `git merge --ff-only ui-swiss`; `git push origin main`: `c860f73..9af7c4f  main -> main`; `git log origin/main -1`: `9af7c4f Abin-Shaji-Thomas <abinshajiabin2006@gmail.com> docs(readme): ...` |
+| Live build = HEAD | PASS | 01:00:39 no `build` key (old deployment); 01:01:00 `"build":"9af7c4f"` = `git rev-parse --short HEAD` |
+| smoke-live | FAIL then PASS | first run (about 1 minute after the new deployment went live): `FAIL [crypto-investment] request completed (TimeoutError)`, `FAIL [bank-alert] request completed (TypeError)`, `2 FAIL (16 expectations)`. No API code changed in this round (`git diff c860f73..HEAD -- src/app/api src/lib/check.ts src/lib/verified src/lib/signals src/lib/reports` is empty); a direct check then answered 200 in 1.6 s; second run: `ALL PASS (36 expectations)`. Likely a cold start of the fresh deployment; not reverted |
+| check-headers live | PASS | `ALL PASS (48 checks)` |
+| Live screenshots and console | PASS | `docs/screens/live-{home-375,home-1920,sample1-375,sample1-1440,sample1-1920,about-1440}.png`; no console messages on /, sample 1, /about; no overflow; grid 91.7% at 1920; smallest tap target 44 px; sample 1 High, meter 3. Matches the local after-screenshots |
