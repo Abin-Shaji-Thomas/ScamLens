@@ -82,7 +82,7 @@ docs/SPEC.md            project spec
 
 API: `POST /api/check {text}`, `POST /api/report {identifiers, category, consent:true}`, `POST /api/report/contest {identifier, reason}`, `POST /api/graph {type, value}`, `GET /api/health`. Every request body is validated with zod.
 
-**Link graph.** Q1 UPI -> wallet -> Telegram linked only through a shared wallet; Q2 wallet -> up to 2 payment hops -> flagged address; Q3 different Telegram handles reported with the same wallet, with cluster size; Q4 neighbourhood for the graph view. A **hub filter** drops nodes with more than `GRAPH_HUB_MAX` (default 25) distinct counterparties and any exchange address, so unrelated people are not linked. On the synthetic seed the Postgres implementation returns exactly the same answers as an independent in-memory reference (`npx tsx scripts/graph-demo.ts`).
+**Link graph (TigerGraph).** Q1 UPI -> wallet -> Telegram linked only through a shared wallet; Q2 wallet -> up to 2 payment hops -> flagged address; Q3 different Telegram handles reported with the same wallet, with cluster size; Q4 neighbourhood for the graph view. A **hub filter** drops nodes with more than `GRAPH_HUB_MAX` (default 25) distinct counterparties and any exchange address, so unrelated people are not linked. TigerGraph runs the traversals when `TG_HOST`/`TG_SECRET` are set; Postgres recursive CTEs answer the same questions otherwise, and as an automatic fallback. `scripts/tg-setup.ts` proves both give identical answers. Full explanation: [graph/README.md](graph/README.md).
 
 ## Running locally
 
@@ -103,7 +103,8 @@ npx tsx scripts/graph-demo.ts       # seed synthetic data into local Postgres (P
 | `TRONGRID_API_KEY` | higher TronGrid rate limits | works keyless at low volume |
 | `OPENAI_API_KEY`, `OPENAI_MODEL` (`OPENAI_BASE_URL` optional) | LLM signal pass | rules only; card says "AI pass: unavailable" |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `REPORT_HASH_PEPPER` | reports, contest, graph | Reported tier shows "unavailable" |
-| `TG_HOST`, `TG_GRAPH`, `TG_SECRET` | TigerGraph backend | Postgres fallback is used |
+| `TG_HOST`, `TG_GRAPH`, `TG_SECRET` | TigerGraph backend (setup: `npx tsx scripts/tg-setup.ts`) | Postgres fallback is used |
+| `ETHERSCAN_PLAN=paid` (optional) | BNB Chain and Base lookups | free-plan chains only |
 
 **Supabase setup:** in the SQL editor run `web/db/schema.sql`, then `web/db/supabase-grants.sql` (locks everything to the service-role key). Set the three variables in `web/.env.local` and in Vercel. Optional demo data: `npx tsx scripts/graph-demo.ts --supabase` (all rows `synthetic=true`, shown with the watermark).
 
@@ -119,8 +120,8 @@ npx tsx scripts/graph-demo.ts       # seed synthetic data into local Postgres (P
 - **Not a complete scam database** and not a safety guarantee. "Low signals" means we found nothing, not that something is safe.
 - **UPI IDs, phone numbers and Telegram handles have no public verified source.** They can only appear as Reported (after 2 independent reporters) or through Suspected text patterns.
 - **The live Reported tier currently holds only synthetic seed data** (`synthetic=true`, shown with the "Illustrative" watermark). Real reports appear only once two independent people report the same identifier.
-- **TigerGraph client is untested against a live instance** (no Savanna account was available). `graph/*.gsql` and `src/lib/graph/tigergraph.ts` follow the TigerGraph 4.x docs; the Postgres fallback is what has been run and tested.
-- **Etherscan needs an API key** and the free tier may not cover every chain; such chains show "unavailable" with the API's reason.
+- **Etherscan free plan**: Ethereum, Polygon and Arbitrum are looked up; BNB Chain and Base need a paid Etherscan plan (`ETHERSCAN_PLAN=paid`) and show "unavailable" otherwise. To stay under the free plan's rate limit, on-chain history is fetched for the first EVM wallet in a message only (about 8 s, cached 10 minutes).
+- **No LLM pass in the live demo**: the AI signal pass needs an OpenAI-compatible key. Without it the card says "AI pass: unavailable" and uses the 18 fixed rules only, which is what the eval above measures.
 - **Snapshots age.** OFAC and ScamSniffer data are as fresh as the last `sync-lists` run (dates are shown).
 - **Rules are English-first.** Hindi/Hinglish phrasing and screenshots are not covered yet; the eval set is small, synthetic and written by the same author as the rules.
 - **Fingerprints are approximate** (hashed IP + user agent), so a determined person can submit from several devices; reports also expire after 90 days and can be contested.

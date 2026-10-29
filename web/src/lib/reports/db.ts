@@ -1,8 +1,17 @@
 import { createClient } from "@supabase/supabase-js";
 
+/** Tables the graph sync may read in full (never the reports table: it holds reporter fingerprints). */
+export const EXPORTABLE = {
+  graph_edges: "src_hash,src_type,src_display,dst_hash,dst_type,dst_display,relation,evidence,submission_id,synthetic,expires_at",
+  flagged_addresses: "address_hash,display,source,synthetic",
+  exchange_addresses: "address_hash,label,synthetic",
+} as const;
+export type ExportTable = keyof typeof EXPORTABLE;
+
 /** Calls a set-returning SQL function from db/schema.sql and returns its rows. */
 export interface Db {
   call<T>(fn: string, args: Record<string, unknown>): Promise<T[]>;
+  selectAll<T>(table: ExportTable): Promise<T[]>;
 }
 
 /** Anything with a node-postgres-style query(), e.g. PGlite. Used for local runs and tests. */
@@ -23,8 +32,13 @@ export function sqlDb(runner: SqlRunner): Db {
       });
       return (await runner.query<T>(sql, params)).rows;
     },
+    async selectAll<T>(table: ExportTable) {
+      return (await runner.query<T>(`select ${EXPORTABLE[table]} from ${table}`)).rows;
+    },
   };
 }
+
+const PAGE = 1000;
 
 export function supabaseDb(url: string, serviceRoleKey: string): Db {
   const client = createClient(url, serviceRoleKey, { auth: { persistSession: false } });
@@ -34,6 +48,15 @@ export function supabaseDb(url: string, serviceRoleKey: string): Db {
       // Do not surface PostgREST error details to users.
       if (error) throw new Error(`database call ${fn} failed`);
       return (data ?? []) as T[];
+    },
+    async selectAll<T>(table: ExportTable) {
+      const out: T[] = [];
+      for (let from = 0; ; from += PAGE) {
+        const { data, error } = await client.from(table).select(EXPORTABLE[table]).range(from, from + PAGE - 1);
+        if (error) throw new Error(`database read ${table} failed`);
+        out.push(...((data ?? []) as T[]));
+        if (!data || data.length < PAGE) return out;
+      }
     },
   };
 }

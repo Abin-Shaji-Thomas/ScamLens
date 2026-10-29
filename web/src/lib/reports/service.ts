@@ -32,15 +32,18 @@ export async function submitReport(req: ReportRequest, fingerprint: string, cfg:
     if (!id) return { ok: false as const, reason: `invalid ${ref.type} identifier` };
     items.push({ type: id.type, hash: identifierHash(cfg.pepper, id.type, id.value), display: maskIdentifier(id.type, id.value) });
   }
+  const submissionId = randomUUID();
   const [row] = await cfg.db.call<{ ok: boolean; reason: string | null; stored: number }>("submit_report", {
     p_items: items,
     p_fingerprint: fingerprint,
     p_category: req.category,
-    p_submission: randomUUID(),
+    p_submission: submissionId,
     p_synthetic: synthetic,
     p_max_per_day: cfg.maxPerDay,
   });
-  return row.ok ? { ok: true as const, stored: row.stored } : { ok: false as const, reason: row.reason ?? "rejected" };
+  return row.ok
+    ? { ok: true as const, stored: row.stored, submissionId, nodes: items.map((i) => ({ hash: i.hash, type: i.type, display: i.display })) }
+    : { ok: false as const, reason: row.reason ?? "rejected" };
 }
 
 type CountRow = {

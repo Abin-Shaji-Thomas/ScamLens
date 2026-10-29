@@ -121,7 +121,7 @@ describe("graph on synthetic seed (Postgres fallback vs independent reference)",
     expect(rows[0]).toMatchObject({ wallet: s.nodes.main.display, cluster_size: 3 });
   });
   it("Q4: neighbourhood edges exist and the seed is flagged synthetic", async () => {
-    const edges = await postgresBackend(db).run({ kind: "q4", hash: s.nodes.main.hash, depth: 1 }, 25);
+    const edges = await postgresBackend(db).run({ kind: "q4", hash: s.nodes.main.hash, depth: 1, idType: "evm" }, 25);
     // main's 4 co-report edges + the u1-t1 edge between two of its neighbours.
     expect(edges.length).toBe(5);
     const { rows } = await pg.query<{ n: number }>("select count(*)::int n from reports where not synthetic");

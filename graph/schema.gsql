@@ -1,19 +1,23 @@
-# ScamLens link graph for TigerGraph (Savanna / 4.x).
-# Vertex primary ids are the same peppered HMAC hashes the app stores in Postgres;
-# `display` is the masked form. No raw identifiers or chat text are loaded.
+# ScamLens link graph for TigerGraph 4.x / Savanna.
+# Applied by web/scripts/tg-setup.ts through POST /gsql/v1/statements.
 #
-# STATUS: written against TigerGraph 4.x GSQL docs; not yet run on a live instance.
+# Vertex primary ids are the same peppered HMAC-SHA256 hashes the app stores in Postgres,
+# and `display` is the masked form (e.g. "zz***d@okdemo"). No raw identifiers or chats are loaded.
+# Every identifier vertex has the same attributes so queries can treat them uniformly:
+#   kind            evm | tron | btc | upi | telegram | phone | email | domain
+#   flagged_source  non-empty when the address is on a flag list (OFAC, ScamSniffer, synthetic demo flag)
+#   is_exchange     exchange/hot-wallet addresses never link people (hub filter)
+# A Report vertex is one community report; MENTIONS joins it to each identifier it named, so two
+# identifiers are "co-reported" when they share a Report. PAID is an on-chain transfer between wallets.
 
-CREATE VERTEX Wallet (PRIMARY_ID hash STRING, display STRING, chain STRING, flagged_source STRING DEFAULT "", is_exchange BOOL DEFAULT FALSE) WITH primary_id_as_attribute="true"
-CREATE VERTEX UPI (PRIMARY_ID hash STRING, display STRING) WITH primary_id_as_attribute="true"
-CREATE VERTEX TelegramHandle (PRIMARY_ID hash STRING, display STRING) WITH primary_id_as_attribute="true"
-CREATE VERTEX Phone (PRIMARY_ID hash STRING, display STRING) WITH primary_id_as_attribute="true"
-CREATE VERTEX Domain (PRIMARY_ID hash STRING, display STRING) WITH primary_id_as_attribute="true"
-CREATE VERTEX Report (PRIMARY_ID submission_id STRING, category STRING, created_at DATETIME, synthetic BOOL) WITH primary_id_as_attribute="true"
+CREATE VERTEX Wallet (PRIMARY_ID hash STRING, kind STRING, display STRING, flagged_source STRING, is_exchange BOOL) WITH primary_id_as_attribute="true"
+CREATE VERTEX UPI (PRIMARY_ID hash STRING, kind STRING, display STRING, flagged_source STRING, is_exchange BOOL) WITH primary_id_as_attribute="true"
+CREATE VERTEX TelegramHandle (PRIMARY_ID hash STRING, kind STRING, display STRING, flagged_source STRING, is_exchange BOOL) WITH primary_id_as_attribute="true"
+CREATE VERTEX Phone (PRIMARY_ID hash STRING, kind STRING, display STRING, flagged_source STRING, is_exchange BOOL) WITH primary_id_as_attribute="true"
+CREATE VERTEX Domain (PRIMARY_ID hash STRING, kind STRING, display STRING, flagged_source STRING, is_exchange BOOL) WITH primary_id_as_attribute="true"
+CREATE VERTEX Report (PRIMARY_ID submission_id STRING, evidence STRING, synthetic BOOL) WITH primary_id_as_attribute="true"
 
-# A report names several identifiers; two identifiers are "co-reported" when they share a Report.
 CREATE UNDIRECTED EDGE MENTIONS (FROM Report, TO Wallet | FROM Report, TO UPI | FROM Report, TO TelegramHandle | FROM Report, TO Phone | FROM Report, TO Domain)
-# On-chain transfer between wallets.
 CREATE DIRECTED EDGE PAID (FROM Wallet, TO Wallet, evidence STRING)
 
 CREATE GRAPH ScamLens (Wallet, UPI, TelegramHandle, Phone, Domain, Report, MENTIONS, PAID)

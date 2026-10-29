@@ -1,7 +1,7 @@
 import { positiveIntEnv } from "../env";
 import type { Db } from "../reports/db";
 import { postgresBackend } from "./postgres";
-import { tigerGraphBackend } from "./tigergraph";
+import { tigerGraphBackend, type TgConfig } from "./tigergraph";
 import type { GraphBackend, LinkQuery, LinkResult } from "./types";
 
 export const DEFAULT_HUB_MAX = 25;
@@ -11,11 +11,21 @@ export interface GraphDeps {
   db: Db | null;
 }
 
-/** TigerGraph when TG_HOST/TG_GRAPH/TG_SECRET are set, else the Postgres recursive-CTE fallback. */
+const GRAPH_NAME = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
+
+/** TigerGraph connection settings from env, or null when not configured. */
+export function tgConfig(env: Record<string, string | undefined>): TgConfig | null {
+  const host = env.TG_HOST?.trim().replace(/\/+$/, "");
+  const graph = env.TG_GRAPH?.trim() || "ScamLens";
+  const secret = env.TG_SECRET?.trim();
+  if (!host || !secret || !GRAPH_NAME.test(graph)) return null;
+  return { host: /^https?:\/\//.test(host) ? host : `https://${host}`, graph, secret };
+}
+
+/** TigerGraph when TG_HOST/TG_SECRET are set, else the Postgres recursive-CTE fallback. */
 export function graphBackend({ env, db }: GraphDeps): GraphBackend | null {
-  if (env.TG_HOST && env.TG_GRAPH && env.TG_SECRET) {
-    return tigerGraphBackend({ host: env.TG_HOST.replace(/\/$/, ""), graph: env.TG_GRAPH, secret: env.TG_SECRET });
-  }
+  const tg = tgConfig(env);
+  if (tg) return tigerGraphBackend(tg);
   return db ? postgresBackend(db) : null;
 }
 

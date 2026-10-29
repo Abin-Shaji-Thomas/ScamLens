@@ -1,71 +1,112 @@
-# ScamLens queries. Output shape matches the Postgres fallback (web/db/schema.sql) so
-# web/src/lib/graph/tigergraph.ts can parse both identically: PRINT @@rows AS rows.
-# Hub filter: a wallet with more than hub_max distinct co-reported/paid neighbours, or is_exchange, never links.
-# STATUS: not yet installed on a live TigerGraph instance.
-USE GRAPH ScamLens
+# ScamLens queries (GSQL syntax v2). Created via POST /gsql/v1/queries and installed via
+# GET /gsql/v1/queries/install by web/scripts/tg-setup.ts. Each query PRINTs `rows` in the same
+# field layout as the Postgres fallback (web/db/schema.sql) so the app and the parity check can
+# compare both backends directly.
+#
+# Hub filter (all queries): a node with more than hub_max distinct counterparties (identifiers it is
+# co-reported with, plus wallets it paid or was paid by), or any exchange address, never links people.
+# Counterparties are counted at query time, so the filter never goes stale as reports arrive.
 
-CREATE QUERY q1_upi_wallet_telegram(STRING upi, INT hub_max) FOR GRAPH ScamLens {
+CREATE OR REPLACE QUERY q1_upi_wallet_telegram(VERTEX<UPI> upi, INT hub_max) FOR GRAPH ScamLens SYNTAX v2 {
+  # Q1: UPI -> wallet -> Telegram, where the UPI and the handle are linked ONLY through a shared wallet:
+  # the two links come from different reports and the handle was never reported together with the UPI.
   TYPEDEF TUPLE<STRING upi, STRING wallet, STRING wallet_hash, STRING telegram, STRING telegram_hash, STRING evidence_1, STRING evidence_2> Row;
-  ListAccum<Row> @@rows;
-  SetAccum<VERTEX> @direct;      # Telegram handles named in the same report as the UPI
-  SetAccum<VERTEX> @@directTg;
-  start = {UPI.*};
-  u = SELECT s FROM start:s WHERE s.hash == upi;
-  r1 = SELECT r FROM u:s -(MENTIONS)- Report:r;
-  d = SELECT t FROM r1:r -(MENTIONS)- TelegramHandle:t ACCUM @@directTg += t;
-  w = SELECT x FROM r1:r -(MENTIONS)- Wallet:x WHERE x.is_exchange == FALSE AND x.outdegree() <= hub_max;
-  FOREACH wv IN w DO
-    ws = {wv};
-    r2 = SELECT r FROM ws:x -(MENTIONS)- Report:r WHERE NOT (r IN r1);
-    t = SELECT tg FROM r2:r -(MENTIONS)- TelegramHandle:tg WHERE NOT (tg IN @@directTg)
-        ACCUM @@rows += Row(upi, wv.display, wv.hash, tg.display, tg.hash, "Named together in one report", "Named together in another report");
-  END;
+  SetAccum<Row> @@rows;
+  SetAccum<VERTEX> @@direct;
+  MaxAccum<STRING> @@upi_display;
+  SetAccum<STRING> @upi_reports;
+  MaxAccum<STRING> @upi_evidence;
+  SetAccum<VERTEX> @nbrs;
+
+  U = {upi};
+  U = SELECT u FROM U:u POST-ACCUM @@upi_display += u.display;
+  R1 = SELECT r FROM U:u -(MENTIONS)- Report:r;
+  D = SELECT t FROM R1:r -(MENTIONS)- TelegramHandle:t ACCUM @@direct += t;
+  W = SELECT w FROM R1:r -(MENTIONS)- Wallet:w
+      WHERE w.is_exchange == FALSE
+      ACCUM w.@upi_reports += r.submission_id, w.@upi_evidence += r.evidence;
+  C1 = SELECT w FROM W:w -(MENTIONS)- Report:r -(MENTIONS)- :n WHERE n != w ACCUM w.@nbrs += n;
+  C2 = SELECT w FROM W:w -(PAID>|<PAID)- Wallet:n ACCUM w.@nbrs += n;
+  W = SELECT w FROM W:w WHERE w.@nbrs.size() <= hub_max;
+  T = SELECT t FROM W:w -(MENTIONS)- Report:r2 -(MENTIONS)- TelegramHandle:t
+      WHERE NOT @@direct.contains(t)
+        AND (w.@upi_reports.size() > 1 OR NOT w.@upi_reports.contains(r2.submission_id))
+      ACCUM @@rows += Row(@@upi_display, w.display, w.hash, t.display, t.hash, w.@upi_evidence, r2.evidence);
   PRINT @@rows AS rows;
 }
 
-CREATE QUERY q2_payment_to_flagged(STRING wallet, INT hub_max) FOR GRAPH ScamLens {
-  TYPEDEF TUPLE<INT hops, ListAccum<STRING> path, ListAccum<STRING> path_display, STRING flagged_source, ListAccum<STRING> evidence> Row;
-  ListAccum<Row> @@rows;
-  start = {Wallet.*};
-  s = SELECT x FROM start:x WHERE x.hash == wallet;
-  hop1 = SELECT b FROM s:a -(PAID>:e)- Wallet:b
-         ACCUM IF b.flagged_source != "" THEN
-           @@rows += Row(1, [a.hash, b.hash], [a.display, b.display], b.flagged_source, [e.evidence]) END;
-  hop2 = SELECT c FROM hop1:b -(PAID>:e2)- Wallet:c, s:a
-         WHERE b.is_exchange == FALSE AND b.outdegree() <= hub_max AND c != a
-         ACCUM IF c.flagged_source != "" THEN
-           @@rows += Row(2, [a.hash, b.hash, c.hash], [a.display, b.display, c.display], c.flagged_source, [e2.evidence]) END;
+CREATE OR REPLACE QUERY q2_payment_to_flagged(VERTEX<Wallet> wallet, INT hub_max) FOR GRAPH ScamLens SYNTAX v2 {
+  # Q2: wallet -> up to 2 payment hops -> flagged address. The middle wallet may not be a hub.
+  # Tuples cannot hold lists in GSQL, so paths are flattened into p0..p2 / d0..d2 / e1..e2.
+  TYPEDEF TUPLE<INT hops, STRING p0, STRING p1, STRING p2, STRING d0, STRING d1, STRING d2, STRING flagged_source, STRING e1, STRING e2> Row;
+  SetAccum<Row> @@rows;
+  SetAccum<VERTEX> @nbrs;
+
+  S = {wallet};
+  H1 = SELECT b FROM S:a -(PAID>:e)- Wallet:b
+       WHERE b != a
+       ACCUM IF b.flagged_source != "" THEN
+               @@rows += Row(1, a.hash, b.hash, "", a.display, b.display, "", b.flagged_source, e.evidence, "")
+             END;
+  C1 = SELECT b FROM H1:b -(MENTIONS)- Report:r -(MENTIONS)- :n WHERE n != b ACCUM b.@nbrs += n;
+  C2 = SELECT b FROM H1:b -(PAID>|<PAID)- Wallet:n ACCUM b.@nbrs += n;
+  Mid = SELECT b FROM H1:b WHERE b.is_exchange == FALSE AND b.@nbrs.size() <= hub_max;
+  H2 = SELECT c FROM S:a -(PAID>:e1)- Mid:b -(PAID>:e2)- Wallet:c
+       WHERE c != a AND c != b AND c.flagged_source != ""
+       ACCUM @@rows += Row(2, a.hash, b.hash, c.hash, a.display, b.display, c.display, c.flagged_source, e1.evidence, e2.evidence);
   PRINT @@rows AS rows;
 }
 
-CREATE QUERY q3_telegram_clusters(INT min_size, INT hub_max) FOR GRAPH ScamLens {
-  TYPEDEF TUPLE<STRING wallet, STRING wallet_hash, INT cluster_size, ListAccum<STRING> handles, INT reports> Row;
-  ListAccum<Row> @@rows;
-  SetAccum<STRING> @handles;
+CREATE OR REPLACE QUERY q3_telegram_clusters(INT min_size, INT hub_max) FOR GRAPH ScamLens SYNTAX v2 {
+  # Q3: different Telegram handles reported with the same (non-exchange) wallet, with cluster size.
+  TYPEDEF TUPLE<STRING wallet, STRING wallet_hash, INT cluster_size, INT reports> Row;
+  SetAccum<Row> @@rows;
+  MapAccum<STRING, SetAccum<STRING>> @@handles;
+  SetAccum<VERTEX> @tg;
+  SetAccum<STRING> @tg_display;
   SetAccum<STRING> @reports;
-  start = {Wallet.*};
-  w = SELECT x FROM start:x -(MENTIONS)- Report:r -(MENTIONS)- TelegramHandle:t
-      WHERE x.is_exchange == FALSE
-      ACCUM x.@handles += t.display, x.@reports += r.submission_id
-      POST-ACCUM IF x.@handles.size() >= min_size AND x.@handles.size() <= hub_max THEN
-        @@rows += Row(x.display, x.hash, x.@handles.size(), x.@handles, x.@reports.size()) END;
-  PRINT @@rows AS rows;
+
+  W = SELECT w FROM Wallet:w -(MENTIONS)- Report:r -(MENTIONS)- TelegramHandle:t
+      WHERE w.is_exchange == FALSE
+      ACCUM w.@tg += t, w.@tg_display += t.display, w.@reports += r.submission_id;
+  W = SELECT w FROM W:w
+      WHERE w.@tg.size() >= min_size AND w.@tg.size() <= hub_max
+      POST-ACCUM @@rows += Row(w.display, w.hash, w.@tg.size(), w.@reports.size()),
+                 @@handles += (w.hash -> w.@tg_display);
+  PRINT @@rows AS rows, @@handles AS handles;
 }
 
-CREATE QUERY q4_neighbourhood(STRING hash, INT depth, INT hub_max) FOR GRAPH ScamLens {
-  # Returns identifier-to-identifier edges within `depth` hops (Report vertices collapsed into co_reported edges).
+CREATE OR REPLACE QUERY q4_neighbourhood(VERTEX v, INT depth, INT hub_max) FOR GRAPH ScamLens SYNTAX v2 {
+  # Q4: identifier-to-identifier edges within `depth` hops of v, for the graph view.
+  # Report vertices are collapsed into "co_reported" edges; expansion never continues through a hub.
   TYPEDEF TUPLE<STRING src, STRING src_type, STRING src_display, STRING dst, STRING dst_type, STRING dst_display, STRING relation, STRING evidence> Row;
-  ListAccum<Row> @@rows;
+  SetAccum<Row> @@rows;
+  SetAccum<VERTEX> @@reached;
   OrAccum @seen;
-  start = {ANY};
-  frontier = SELECT v FROM start:v WHERE v.hash == hash ACCUM v.@seen += TRUE;
-  WHILE frontier.size() > 0 LIMIT depth DO
-    frontier = SELECT n FROM frontier:v -(MENTIONS)- Report:r -(MENTIONS)- :n
-               WHERE n != v AND NOT n.@seen
-               ACCUM @@rows += Row(v.hash, v.type, v.display, n.hash, n.type, n.display, "co_reported", "Named together in one report")
-               POST-ACCUM n.@seen += TRUE;
+  OrAccum @is_start;
+  SetAccum<VERTEX> @nbrs;
+
+  F = {v};
+  F = SELECT s FROM F:s POST-ACCUM s.@seen += TRUE, s.@is_start += TRUE, @@reached += s;
+  WHILE F.size() > 0 LIMIT depth DO
+    C1 = SELECT x FROM F:x -(MENTIONS)- Report:r -(MENTIONS)- :n WHERE n != x ACCUM x.@nbrs += n;
+    C2 = SELECT x FROM F:x -(PAID>|<PAID)- Wallet:n ACCUM x.@nbrs += n;
+    Ex = SELECT x FROM F:x WHERE x.@is_start OR (x.is_exchange == FALSE AND x.@nbrs.size() <= hub_max);
+    N1 = SELECT n FROM Ex:x -(MENTIONS)- Report:r -(MENTIONS)- :n
+         WHERE n.@seen == FALSE
+         POST-ACCUM n.@seen += TRUE, @@reached += n;
+    N2 = SELECT n FROM Ex:x -(PAID>|<PAID)- Wallet:n
+         WHERE n.@seen == FALSE
+         POST-ACCUM n.@seen += TRUE, @@reached += n;
+    F = N1 UNION N2;
   END;
+
+  R = {@@reached};
+  P1 = SELECT a FROM R:a -(MENTIONS)- Report:r -(MENTIONS)- :b
+       WHERE b.@seen AND a.hash < b.hash
+       ACCUM @@rows += Row(a.hash, a.kind, a.display, b.hash, b.kind, b.display, "co_reported", r.evidence);
+  P2 = SELECT a FROM R:a -(PAID>:e)- Wallet:b
+       WHERE b.@seen
+       ACCUM @@rows += Row(a.hash, a.kind, a.display, b.hash, b.kind, b.display, "payment", e.evidence);
   PRINT @@rows AS rows;
 }
-
-INSTALL QUERY q1_upi_wallet_telegram, q2_payment_to_flagged, q3_telegram_clusters, q4_neighbourhood

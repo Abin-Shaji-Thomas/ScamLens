@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { IdentifierType } from "../extract/types";
 
 export const Q1Row = z.object({
   upi: z.string(),
@@ -42,7 +43,7 @@ export type LinkQuery =
   | { kind: "q1"; upiHash: string }
   | { kind: "q2"; walletHash: string }
   | { kind: "q3"; minSize: number }
-  | { kind: "q4"; hash: string; depth: number };
+  | { kind: "q4"; hash: string; depth: number; idType: IdentifierType };
 
 export type LinkResult<Q extends LinkQuery> = Q extends { kind: "q1" }
   ? Q1Row[]
@@ -51,6 +52,18 @@ export type LinkResult<Q extends LinkQuery> = Q extends { kind: "q1" }
     : Q extends { kind: "q3" }
       ? Q3Row[]
       : Q4Edge[];
+
+/** TigerGraph vertex type for each identifier kind (emails share the Domain vertex type, told apart by `kind`). */
+export const VERTEX_TYPE: Record<IdentifierType, string> = {
+  evm: "Wallet",
+  tron: "Wallet",
+  btc: "Wallet",
+  upi: "UPI",
+  telegram: "TelegramHandle",
+  phone: "Phone",
+  email: "Domain",
+  domain: "Domain",
+};
 
 export interface GraphBackend {
   name: "tigergraph" | "postgres";
