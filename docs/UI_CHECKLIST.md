@@ -1,61 +1,42 @@
-# UI checklist (manual, needs a real browser)
+# UI checklist (Minimalism & Swiss Style)
 
-The automated runs could not open a browser. Server-side render tests cover the markup of every state that does not need clicks (`web/src/lib/ui.test.ts`), and `web/src/lib/style.test.ts` enforces the palette. Layout, focus, print, zoom, motion and screen readers need a person. Use the live URL (and once `npm run start` locally). Chrome DevTools device mode at **375 x 667** unless stated.
+Design reference (UI round, 2026-10-30): white `#ffffff` and paper `#f5f1e8` backgrounds; black `#000000` text, secondary text `#4b5563`, accent clay `#7a4f32`, alert `#b00020` only for the word "High" (and its meter) and the graph's evidence-path link; 1px dividers `#e5e7eb`; grey `#808080` only for graph links, empty meter segments and disabled borders; tan `#b38b6d` only for the card hover rule on white. Grey and tan never carry text. 12-column grid up to 110rem, one column below 768 px. No shadows, gradients, rounded corners or dark mode.
 
-Design reference (round 2): white `#ffffff`, ink `#111111`, secondary text `#767676`, hairlines `#eeeeee`; system sans-serif; no boxes, shadows, rounded corners, colours or dark mode.
+Automated coverage: `web/src/lib/style.test.ts` (palette, bans, motion), `web/src/lib/contrast.test.ts` (WCAG ratios from the CSS variables, where grey/tan/alert may appear), `web/src/lib/ui.test.ts` (server-rendered markup of every state that renders without clicks).
 
-## 1. Layout at 375 px
-- [ ] `/`: no horizontal scroll (drag sideways; nothing moves). Side padding is at least 24 px on both sides.
-- [ ] Header: "ScamLens" (bold) on the left, "About" (gray) on the right.
-- [ ] Title wraps cleanly at 32 px; intro text in gray under it.
-- [ ] The text box is borderless with one black underline; placeholder is gray. "Check" is a black square button; "Upload a screenshot instead" is an underlined text link beside or under it.
-- [ ] Sample 2: the 42-character wallet under "Identifiers found" wraps inside the column, in the same sans font.
-- [ ] Verified rows: bold title ("Match · OFAC SDN list"), gray detail, gray "source · date · source" line with the link underlined. Long values wrap.
-- [ ] `/about` and a 404 page (e.g. `/nope`): same column, same type, no sideways scroll.
-- [ ] Footer: a hairline, then "About", "Not legal advice" and the 1930 line in gray.
+The **Verified** column records what the 2026-10-30 run checked in headless Microsoft Edge (DevTools protocol) against `npm run start`. Anything marked "person" still needs a human.
 
-## 2. Visual rules (spot check on desktop and 375 px)
-- [ ] No coloured text, backgrounds, borders, shadows or rounded corners anywhere, in any state (empty, result, graph, report form, contest form, evidence pack preview, notices, errors).
-- [ ] Sections are separated by large empty space; hairlines appear only between the three tiers and above the evidence pack/footer.
-- [ ] Risk header: a large bold word (Low signals / Elevated / High), one plain sentence, and the line "Low signals · Elevated · High" with the current level bold and black, the others gray.
-- [ ] Tier headings read "01 Verified", "02 Reported", "03 Suspected", each with a one-line gray explanation.
-- [ ] Quoted phrases in Suspected are bold and underlined (no yellow highlight).
-- [ ] "Illustrative demo data - not a real investigation" appears as small gray text on samples, seeded reports and the seeded graph.
-- [ ] Notices appear as gray paragraphs starting with "Note:" (paste `Claim your bonus at zz-demo-bonus-claim.example.com today`).
+| # | Check | How | Verified |
+|---|---|---|---|
+| 1 | No horizontal scroll at 375, 768, 1280, 1440, 1920 px on `/`, samples 1-3, `/about`, `/nope` | DevTools device mode; drag sideways | yes: `scrollWidth <= innerWidth` everywhere |
+| 2 | The page uses the width: content is ~90% of the window at 1280/1440/1920 (capped at 1760 px) | look at the margins on a wide screen | yes: grid box 100 / 100 / 91.7% |
+| 3 | Header: "ScamLens" (bold) left, "About" (grey-blue) right | look | yes (screenshots) |
+| 4 | Hero title is very large and light (weight 300) and spans about three quarters of the width | look | partly: on Windows the title renders in Arial at 400 (see note below) |
+| 5 | Form: label in small uppercase letters, text box with a 2px black line on top and a light line below, black "CHECK" and outline "UPLOAD A SCREENSHOT INSTEAD" buttons; right column with a black rule, "TRY A SAMPLE:", three sample links and the two privacy notes | look at >= 1024 px; below that they stack | yes |
+| 6 | Risk header: "RISK CARD", the level as a huge word ("High" in dark red, others black), one sentence, the row "Low signals · Elevated · High" with the current level bold and underlined, and a 3-part meter (1, 2 or 3 filled) | samples 1, 2, 3 | yes: sample 1 High/3, sample 2 High/3, sample 3 Low signals/1 |
+| 7 | Tiers: three columns at >= 1024 px, each with a 2px black top rule, small "01/02/03", heading, grey-blue explanation, rows divided by thin light lines | look | yes |
+| 8 | Card hover: the top rule turns tan on white (clay on the paper band) | hover a tier | person (hover colour) |
+| 9 | Quotes in Suspected are bold and underlined, never highlighted | sample 1 | yes |
+| 10 | Notices are grey-blue paragraphs starting with "Note" | paste `Claim your bonus at zz-demo-bonus-claim.example.com today` | yes (render test) |
+| 11 | "Illustrative demo data - not a real investigation" small grey-blue on samples, seeded reports and the seeded graph | samples | yes |
+| 12 | "What to do now" is a full-width beige band: heading left, numbered steps right with large light numerals | any result | yes |
+| 13 | Graph (sample 1, "Show links for upi ..."): checked identifier filled black, others hollow with a black outline, links thin grey, links named in a listed path thicker dark red, black labels below | look | yes (canvas pixels: white, black, #b00020) |
+| 14 | "The graph database is waking up..." appears as plain text after about 3 s when TigerGraph is cold | live site with a suspended workspace | person (TigerGraph was not cold locally) |
+| 15 | Report form: "Report these identifiers" expands in place; underline select, visible labels, 44 px checkbox rows, "SUBMIT REPORT" button; Cancel collapses it. Do not submit test reports on the live site. | a non-sample check with a UPI ID | yes (opened, not submitted) |
+| 16 | Contest: "Contest this entry" expands an underline field inline; "Contested, under review" is bold clay text | needs a Reported entry for your own identifier | person (label checked by render test) |
+| 17 | Loading ("CHECKING...", the grey-blue waiting line), error ("Error. ..." in black, no stack trace): DevTools > Network > Offline, press Check | person | person |
+| 18 | Screenshot flow (needs a vision key): transcript editor uses the ruled text box and a "CHECK THIS TEXT" button | person | person |
+| 19 | `/about`: small "BACK TO THE CHECK", huge light title, sections with the heading left and text right, alternating white and beige bands, data sources as rows with thin lines | look | yes |
+| 20 | `/nope`: oversized "404", "Page not found", "Go to the check" link | look | yes |
+| 21 | Footer: 2px black rule, "About", "Not legal advice", the 1930 line | look | yes |
+| 22 | Keyboard: Tab order ScamLens -> About -> text box -> (Check when enabled) -> Upload a screenshot -> samples 1-3 -> footer About; after a check focus lands on "Risk card", then Contest (if shown) -> graph -> Copy / Preview / Print -> Report -> footer | Tab key | yes: every stop shows `2px solid rgb(0, 0, 0)` with a 3px offset |
+| 23 | Tap targets at 375 px are at least 44 px (including links inside sentences) | DevTools | yes: smallest 44 px |
+| 24 | Body text at 375 px is 18 px, small text never below 14 px | DevTools | yes |
+| 25 | Reduced motion: no transitions | OS "Animation effects" off, or DevTools Rendering > prefers-reduced-motion | yes: all transition durations `0s`; graph code unchanged (layout settled, no drag) |
+| 26 | Print preview of a result: black on white only, no beige band, meter in black, title and risk word at normal size, form/header/footer hidden | "Print or save as PDF" | yes (print media emulated: only `rgb(0, 0, 0)` text, band white, risk word 32px black) |
+| 27 | Zoom 200% at 1280 px: no lost content, no sideways scroll | Ctrl + = | yes: 640 px viewport, no overflow, same text length (2630 chars) |
+| 28 | Console: no errors and no Content Security Policy violations on `/`, after a check, after "Show links", `/about` | DevTools Console | yes: no messages. `/nope` logs only the expected "404 (Not Found)" for the page itself |
+| 29 | Screen reader: "Result ready: <level>." announced; scale read as "Scale: <label>"; tier numerals 01-03 and the 404 numeral are not read | NVDA / VoiceOver | person |
+| 30 | The same checks on the live URL after deploy | browser | see docs/PROGRESS.md (U6) |
 
-## 3. States
-- [ ] Empty: "Risk card" (small gray) and "Paste something and press Check"; each tier shows its empty sentence.
-- [ ] Loading: the button reads "Checking..." and the gray line "Checking lists, on-chain history and reports..." appears.
-- [ ] Error: DevTools > Network > Offline, press Check. "Error. ..." appears in black text (no red), with no stack trace and no echo of your text.
-- [ ] Graph: on sample 2 press "Show links for evm ...". The card is fully shown before (the graph never blocks it). If TigerGraph is cold, the gray line "The graph database is waking up..." appears after about 3 s.
-- [ ] Graph drawing (sample 1, "Show links for upi ..."): the checked identifier is a filled black circle, others are white circles with a thin black outline, links are thin gray lines, labels are black under the circles. The text list of paths appears under the graph.
-- [ ] Warning context: paste `I read that guaranteed returns are a red flag, so I only do a monthly SIP.` Result is "Low signals"; Suspected shows a collapsed line "Mentioned in a warning or news-style text (1)" that opens on click.
-- [ ] Report form: "Report these identifiers" is a text link; clicking it expands the form in place (no pop-up); "Cancel" collapses it.
-- [ ] Contest (needs a Reported entry for your own identifier): "Contest this entry" expands an underline field inline; after sending, the message says the entry is labelled "Contested, under review".
-- [ ] Screenshot flow (needs a vision key; without one the gray/black "Error. Screenshot reading is not available right now..." message appears): the transcript editor uses the same underline field, with a "Check this text" button.
-
-## 4. Keyboard only (unplug the mouse)
-- [ ] Tab order: ScamLens -> About -> text box -> Check -> Upload a screenshot instead -> sample links -> (after a check) graph links -> Preview / Print / Copy -> Report these identifiers -> footer About.
-- [ ] Every focused control shows a 2 px black outline with a small gap (the text box instead shows a 2 px underline).
-- [ ] After a check, focus moves to "Risk card" (it gets the outline).
-- [ ] Enter on "Upload a screenshot instead" opens the file picker.
-- [ ] Space/Enter opens and closes the "Mentioned in a warning..." group.
-
-## 5. Screen reader (NVDA on Windows or VoiceOver on macOS/iOS)
-- [ ] After a check, "Result ready: <level label>." is announced.
-- [ ] Errors are announced (role=alert).
-- [ ] The risk scale is read as "Scale: <label>"; the graph is announced as an image whose links are listed as text below.
-- [ ] Every input has a spoken label (text box, file picker, transcript, report checkboxes, scam type, consent, contest reason).
-
-## 6. Zoom to 200%
-- [ ] Ctrl + = to 200% on a 1280 px wide window: single column, no overlapping text, no horizontal scroll, buttons still reachable.
-
-## 7. Print preview
-- [ ] Run sample 2, click "Print or save as PDF". The preview shows black text on white only: the risk header, tiers and the evidence pack text. The form, samples, screenshot link, graph canvas, report form, header and footer are hidden. Tiers do not split across pages where avoidable.
-- [ ] For a sample, the pack starts with "*** Illustrative demo data - not a real investigation ***".
-
-## 8. Motion
-- [ ] With the OS setting "reduce motion" on (Windows: Settings > Accessibility > Visual effects > Animation effects off), the graph appears already laid out, without the floating animation.
-
-## 9. Security policy
-- [ ] Open DevTools Console and confirm there are no Content Security Policy errors (on `/`, after a check, after "Show links", and on `/about`).
+Font note: the stack is `"Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif`. Windows maps "Helvetica" to Arial (`HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\FontSubstitutes`), so Windows browsers render Arial and never reach Segoe UI Light; Arial has no light face, so headings show at weight 400. On macOS and iOS, Helvetica Neue has a light face and weight 300 renders as designed.

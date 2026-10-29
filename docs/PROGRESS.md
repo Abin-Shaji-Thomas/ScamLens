@@ -287,3 +287,32 @@ Browser tooling for this round: headless Microsoft Edge driven over the Chrome D
 | /about, 404 | PASS | two-column sections, alternate bands, sources as ruled rows; decorative `404` (aria-hidden) with existing text; tests (+2) |
 | States that need clicks (loading, error, waking, transcript, open report form) | UNKNOWN here | covered by CSS classes and checked in the browser in U4 |
 | Post-flight | PASS | `Tests 336 passed (336)`, typecheck 0, lint 0, build 0 |
+
+## U4 - Browser verification (headless Microsoft Edge, `npm run start`)
+
+Measured per window size (same on /, samples 1-3; /about and /nope have no form):
+
+| Width | Overflow | Grid box / window | Content / window | h1 block | Text box | Smallest body font | Smallest tap target |
+|---|---|---|---|---|---|---|---|
+| 375 x 812 | false | 100% | 89.3% | 335 px (100%) | 335 px | 18 px body, 14 px small | 44 px |
+| 768 x 1024 | false | 100% | 92.0% | 707 px (100%) | 707 px | 18 / 14 | 44 px |
+| 1280 x 800 | false | 100% | 92.5% | 882 px (74.5% of content) | 781 px | 18 / 14 | 44 px |
+| 1440 x 900 | false | 100% | 93.3% | 1001 px (74.5%) | 886 px | 18 / 14 | 44 px |
+| 1920 x 1080 | false | 91.7% (1760 px cap) | 86.7% | 1240 px (74.5%) | 1099 px | 18 / 14 | 44 px |
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Space targets | PASS | grid box >= 88% at 1280/1440/1920 (100 / 100 / 91.7%); h1 74.5% of the container (>= 65%); form left+right span 100%; tier grid spans 100%, 3 columns at >= 1280, 1 column at 375/768; longest line 65.0ch (768) / 62.6ch (desktop) |
+| Behaviour unchanged | PASS | sample 1 High, meter 3; sample 2 High, meter 3; sample 3 Low signals, meter 1 (before: sample 1 High) |
+| Graph view | PASS | canvas drawn; pixels only white, black and #b00020 (plus antialiasing); after the fix only links named in a listed path are alert; backend line "postgres (TigerGraph unavailable)" |
+| Inline report form | PASS | opened (never submitted): select 1px black underline, 44 px, visible labels, 44 px checkbox rows, submit `class="button"` |
+| Console / CSP | PASS | no messages on /, samples 1-3, graph, report form, /about; /nope only `Failed to load resource: ... 404 (Not Found)` (the page's own 404 status) |
+| Focus | PASS | Tab order ScamLens -> About -> text box -> Upload -> samples 1-3 -> footer About (Check is disabled while empty); after a check focus on `risk-card-title`, then Contest -> Show links -> Copy -> Preview -> Print -> About; every stop `2px solid rgb(0, 0, 0)`, offset 3px |
+| Reduced motion | PASS | every transition-duration `0s` (normal: `color 0.2s`, `background-color, color 0.2s`, `border-color 0.2s`) |
+| Print | PASS | text colours only `rgb(0, 0, 0)`; band `rgb(255, 255, 255)`; risk word `32px rgb(0, 0, 0)`; form/header/footer hidden; 3 tiers visible |
+| Zoom 200% at 1280 | PASS | 640 px CSS viewport at scale 2: no overflow, text length 2630 = 2630 at 1440, 11 buttons reachable |
+| Contrast in the browser | PASS | body black on white 21.00; black on paper 18.63; secondary #4b5563 on white 7.56; link hover clay 7.02; High #b00020 on white 7.33; button label white on black 21.00 |
+| Font for weight 300 | NOTE | Arial (ArialMT) at 400; see U2 |
+| Deviations found and fixed | FIXED | (1) every graph link was alert because shared evidence wording matched unrelated links -> match by both end labels in one path; (2) graph rule printed as an empty line -> hidden in print; (3) /about emergency steps split into grid cells -> numerals positioned absolutely; (4) header/footer About 37 px wide and sentence links 16-20 px tall -> 44 px; (5) visible gap beside sentence links -> negative margin |
+| Screenshots | PASS | `docs/screens/after-{home-375,home-1920,sample1-375,sample1-768,sample1-1440,sample1-1920,about-375,about-1920,nope-1440,graph-1440,report-1440,print-1440}.png` (taken before the last 1px tap padding change, which is not visible) |
+| Post-flight | PASS | `Tests 338 passed (338)`, typecheck 0, lint 0, build 0 |
