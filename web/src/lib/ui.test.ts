@@ -132,7 +132,7 @@ describe("G4 minimalist states (server-rendered)", () => {
   });
 
   it("the check form shows the ruled text box, the black Check button and the outline screenshot button", () => {
-    const html = render(createElement(CheckForm));
+    const html = render(createElement(CheckForm, { screenshots: true }));
     expect(html).toMatch(/<textarea[^>]*class="textarea mt-4"/);
     expect(html).toMatch(/<button type="submit"[^>]*class="button"/);
     expect(html).toMatch(/<button type="button" class="button button--outline"[^>]*>Upload a screenshot instead<\/button>/);
@@ -341,5 +341,77 @@ describe("Swiss fixes found in the browser", () => {
   });
   it("links inside sentences get a 44px tap area without a visible gap", () => {
     expect(rule(".tap")).toMatch(/padding: max\(0px, calc\(\(44px - 1\.1em\) \/ 2\)\) 0\.25rem;\s*margin-inline: -0\.25rem;/);
+  });
+});
+
+describe("AI off (no key): rules only, screenshot reading hidden, no AI claims", () => {
+  const render = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el);
+  const AI_WORDS = /\bAI\b|provider|openai|model/i;
+
+  it("check form without a vision model: no upload control, no provider note, the paste-instead line instead", () => {
+    const html = render(createElement(CheckForm, { screenshots: false }));
+    expect(strip(html)).not.toContain("Upload a screenshot instead");
+    expect(html).not.toContain('type="file"');
+    expect(strip(html)).toContain("Screenshot reading is off. Paste the text instead.");
+    expect(strip(html)).not.toMatch(AI_WORDS);
+  });
+
+  it("check form with a vision model: the upload control and its privacy note are back", () => {
+    const html = strip(render(createElement(CheckForm, { screenshots: true })));
+    expect(html).toContain("Upload a screenshot instead");
+    expect(html).toContain("sent once to our AI provider");
+    expect(html).not.toContain("Screenshot reading is off");
+  });
+
+  it("home page decides from the same server check /api/health reports (vision)", async () => {
+    const saved = { k: process.env.OPENAI_API_KEY, m: process.env.OPENAI_MODEL };
+    try {
+      delete process.env.OPENAI_API_KEY;
+      delete process.env.OPENAI_MODEL;
+      expect(strip(render(createElement(Home)))).toContain("Screenshot reading is off");
+      process.env.OPENAI_API_KEY = "sk-test";
+      process.env.OPENAI_MODEL = "test-model";
+      expect(strip(render(createElement(Home)))).toContain("Upload a screenshot instead");
+    } finally {
+      if (saved.k === undefined) delete process.env.OPENAI_API_KEY; else process.env.OPENAI_API_KEY = saved.k;
+      if (saved.m === undefined) delete process.env.OPENAI_MODEL; else process.env.OPENAI_MODEL = saved.m;
+    }
+  });
+
+  it("a result with AI off says rules only, never mentions AI, and does not count AI as an unavailable source", async () => {
+    const r = await runCheck({ text: SAMPLES[0].text }, offline);
+    expect(r.ai.status).toBe("off");
+    const text = strip(render(createElement(RiskCard, { result: r, demo: true })));
+    expect(text).toContain("Suspected signals come from fixed pattern rules only.");
+    expect(text).not.toMatch(AI_WORDS);
+    // offline: only the reports DB is unavailable here (the sample has a UPI ID, no wallet)
+    expect(r.risk.reasons).toContain("1 source(s) unavailable - result is incomplete");
+  });
+
+  it("a configured AI pass that was skipped is 'unavailable' and is named as such", async () => {
+    const r = await runCheck({ text: "hello" }, { ...offline, skipAi: "The AI pass is paused for today (daily limit reached). Only the fixed rule checks ran." });
+    expect(r.ai.status).toBe("unavailable");
+    expect(strip(render(createElement(RiskCard, { result: r })))).toContain("AI pass: unavailable");
+  });
+
+  it("/about with AI off: one calm sentence, no screenshot provider; with a key the AI wording returns", async () => {
+    const { default: AboutPage } = await import("../app/about/page");
+    const saved = { k: process.env.OPENAI_API_KEY, m: process.env.OPENAI_MODEL };
+    try {
+      delete process.env.OPENAI_API_KEY;
+      delete process.env.OPENAI_MODEL;
+      const off = strip(render(createElement(AboutPage)));
+      expect(off).toContain("AI assistance is optional and currently off.");
+      expect(off).toContain("Screenshots: Screenshot reading is off. Paste the text instead.");
+      expect(off).not.toContain("AI provider");
+      process.env.OPENAI_API_KEY = "sk-test";
+      process.env.OPENAI_MODEL = "test-model";
+      const on = strip(render(createElement(AboutPage)));
+      expect(on).toContain("sent once to our AI provider");
+      expect(on).not.toContain("currently off");
+    } finally {
+      if (saved.k === undefined) delete process.env.OPENAI_API_KEY; else process.env.OPENAI_API_KEY = saved.k;
+      if (saved.m === undefined) delete process.env.OPENAI_MODEL; else process.env.OPENAI_MODEL = saved.m;
+    }
   });
 });

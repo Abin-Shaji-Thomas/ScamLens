@@ -29,7 +29,8 @@ export const Signal = z.object({
 export type Signal = z.infer<typeof Signal>;
 
 export const AiStatus = z.object({
-  status: z.enum(["ok", "unavailable"]),
+  /** "off": no AI key is configured (rules only, by design); "unavailable": configured but it failed or was skipped. */
+  status: z.enum(["ok", "off", "unavailable"]),
   model: z.string().optional(),
   reason: z.string().optional(),
   dropped: z.number().int().nonnegative().default(0), // AI items rejected by validation

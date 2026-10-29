@@ -23,7 +23,7 @@ What happens:
 2. **Verified.** UPI IDs have no public database, so nothing is verified for it. The card says "No verified matches. Sources that fail are shown as unavailable, never as safe."
 3. **Reported.** The seeded demo database holds reports for this UPI ID from 3 different networks, so the card shows "zz***d@okdemo was reported by 3 independent people" (masked) with the demo label.
 4. **Suspected.** Fixed rules quote the exact words: "Mumbai Police" (authority impersonation), "courier package in your name with MDMA was seized", "digital arrest", "Stay on the video call" (digital-arrest threat) and "within 2 hours" (urgency).
-5. **Risk.** A reported identifier plus at least one suspected signal gives **High**. The meter shows 3 of 3 segments, and the reasons list says "1 identifier(s) reported by 2+ independent people", "3 suspected pattern(s) in the text" and "1 source(s) unavailable - result is incomplete" (the optional AI helper is switched off, so it counts as unavailable).
+5. **Risk.** A reported identifier plus at least one suspected signal gives **High**. The meter shows 3 of 3 segments, and the reasons list says "1 identifier(s) reported by 2+ independent people" and "3 suspected pattern(s) in the text". (Until this round, the switched-off AI helper was also counted as "1 source(s) unavailable"; it is now reported as off, with the sentence "Suspected signals come from fixed pattern rules only.")
 6. **What to do now.** Pause, verify through an official channel, keep evidence, call 1930 or file at cybercrime.gov.in, contact the bank if money was sent.
 
 ### Glossary

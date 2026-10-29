@@ -25,7 +25,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/signals/signals.test.ts` | 21 |
 | `web/src/lib/style.test.ts` | 11 |
 | `web/src/lib/transcribe.test.ts` | 17 |
-| `web/src/lib/ui.test.ts` | 33 |
+| `web/src/lib/ui.test.ts` | 39 |
 | `web/src/lib/usage.test.ts` | 18 |
 | `web/src/lib/verified/verified.test.ts` | 30 |
 <!-- GENERATED:END tests -->
@@ -45,7 +45,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 
 ### Evaluation
 - Method: `eval/run.ts` runs the same rule pass and warning-context logic as the risk card on every case in `eval/chats.json` and counts a chat as "flagged" when at least one counted rule fires. A case's label (scam or normal) and its expected rules are written by hand. All cases are synthetic and many normal cases are deliberately tricky (bank advisories, exchange notices, a friend asking for a UPI payment).
-- AI mode: not run. The optional AI helper is switched off in this deployment, so only the rules are measured.
+- AI mode: not run, and no model calls were made in the final round. The optional AI helper is switched off by the owner's decision, so only the rules are measured. Its code paths are tested with mocked completers (`web/src/lib/signals/signals.test.ts`, `web/src/lib/transcribe.test.ts`); "AI off" states are tested in `web/src/lib/ui.test.ts`.
 
 Current results (generated from `eval/RESULTS.md`):
 

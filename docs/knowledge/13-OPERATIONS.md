@@ -56,6 +56,9 @@ Vercel -> Deployments -> choose the previous Ready deployment -> Promote to Prod
 ### Moderation
 Contests are reviewed in the Supabase SQL editor with the exact statements in `docs/MODERATION.md`.
 
+### AI and screenshot reading
+Off: no `OPENAI_API_KEY` / `OPENAI_MODEL`. `/api/health` reports `"llm": false, "vision": false`; the page shows "Screenshot reading is off. Paste the text instead." and the Suspected tier says "Suspected signals come from fixed pattern rules only.". To turn it on later (optional), set both variables in Vercel and redeploy; the page is built with the same check.
+
 ### Human tasks
 Everything that needs a dashboard or a person is listed, in order, in `docs/HUMAN_TASKS.md`.
 

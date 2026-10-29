@@ -88,9 +88,10 @@ describe("AI validation (AI proposes, code disposes)", () => {
 });
 
 describe("detectSignals", () => {
-  it("without an LLM key the AI pass is 'unavailable' and rule signals still work", async () => {
+  // Requirement change (final round): no key is "off" (rules only, by design), not "unavailable" (a failure).
+  it("without an LLM key the AI pass is 'off' and rule signals still work", async () => {
     const r = await detectSignals("Pay the withdrawal fee now", { env: {} });
-    expect(r.ai.status).toBe("unavailable");
+    expect(r.ai.status).toBe("off");
     expect(r.signals.map((s) => s.rule_id)).toEqual(["withdrawal_fee"]);
   });
   it("merges AI signals, dropping invalid ones and counting them", async () => {

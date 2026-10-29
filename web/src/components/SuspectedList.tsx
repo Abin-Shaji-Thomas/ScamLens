@@ -1,5 +1,5 @@
 import type { AiStatus, Signal } from "@/lib/signals/types";
-import { WARNING_CONTEXT_NOTE, WARNING_CONTEXT_TITLE } from "@/lib/tiers";
+import { RULES_ONLY_NOTE, WARNING_CONTEXT_NOTE, WARNING_CONTEXT_TITLE } from "@/lib/tiers";
 
 function Item({ s }: { s: Signal }) {
   return (
@@ -43,10 +43,11 @@ export function SuspectedList({ signals, ai }: { signals: Signal[]; ai: AiStatus
         </details>
       )}
       <p className="t-small text-swiss-text">
-        AI pass:{" "}
-        {ai.status === "ok"
-          ? `${ai.model}${ai.dropped ? `, ${ai.dropped} unverifiable suggestion(s) discarded` : ""}`
-          : `unavailable (${ai.reason})`}
+        {ai.status === "off"
+          ? RULES_ONLY_NOTE
+          : ai.status === "ok"
+            ? `AI pass: ${ai.model}${ai.dropped ? `, ${ai.dropped} unverifiable suggestion(s) discarded` : ""}`
+            : `AI pass: unavailable (${ai.reason})`}
       </p>
     </div>
   );

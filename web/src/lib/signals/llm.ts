@@ -40,7 +40,7 @@ function openAiCompleter(env: LlmDeps["env"], model: string, timeoutMs: number):
 export async function aiSignals(text: string, deps: LlmDeps): Promise<{ signals: Signal[]; ai: AiStatus }> {
   const model = deps.env.OPENAI_MODEL;
   if (!deps.complete && (!deps.env.OPENAI_API_KEY || !model)) {
-    return { signals: [], ai: { status: "unavailable", reason: "OPENAI_API_KEY / OPENAI_MODEL not configured", dropped: 0 } };
+    return { signals: [], ai: { status: "off", reason: "not configured", dropped: 0 } };
   }
   const complete = deps.complete ?? openAiCompleter(deps.env, model!, deps.timeoutMs ?? 8000);
   try {

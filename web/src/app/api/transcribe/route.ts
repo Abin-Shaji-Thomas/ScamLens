@@ -1,7 +1,7 @@
 import { readJsonBody } from "@/lib/body";
 import { MAX_IMAGE_BODY_CHARS } from "@/lib/limits";
 import { logEvent } from "@/lib/log";
-import { PASTE_INSTEAD, transcribeImage, TranscribeRequest, visionConfigured } from "@/lib/transcribe";
+import { PASTE_INSTEAD, SCREENSHOT_OFF, transcribeImage, TranscribeRequest, visionConfigured } from "@/lib/transcribe";
 import { AI_SKIPPED_GLOBAL, guardRequest, secondsUntilReset, usageStore } from "@/lib/usage";
 
 export const maxDuration = 30;
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   const t0 = Date.now();
   const body = await readJsonBody(request, TranscribeRequest, MAX_IMAGE_BODY_CHARS, "That image is too large. Please use a smaller screenshot.");
   if (!body.ok) return body.response;
-  if (!visionConfigured(process.env)) return fail(503, PASTE_INSTEAD);
+  if (!visionConfigured(process.env)) return fail(503, SCREENSHOT_OFF);
 
   const guard = await guardRequest("transcribe", request.headers, true, { store: usageStore(), env: process.env });
   if (!guard.ok) return guard.response;

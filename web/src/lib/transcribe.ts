@@ -45,6 +45,7 @@ export const TRANSCRIBE_SYSTEM = [
 export type VisionCompleter = (system: string, imageDataUrl: string) => Promise<string>;
 
 export const PASTE_INSTEAD = "Screenshot reading is not available right now. Please paste the text of the chat instead.";
+export { SCREENSHOT_OFF } from "./screenshot-copy";
 
 /** Removes control characters (keeps newlines and tabs), normalises line endings, caps the length. */
 export function cleanTranscript(raw: string): { text: string; truncated: boolean } {

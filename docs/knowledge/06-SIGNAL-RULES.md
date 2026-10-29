@@ -40,7 +40,7 @@ How a rule runs (`web/src/lib/signals/regex.ts`):
    - *ignores a code right after*: "Share OTP 4821 with the delivery agent" is the code's issuer, not a request.
    - *needs a second rule*: moving to Telegram or WhatsApp counts only when another rule also fired.
 3. **Warning context** (`web/src/lib/signals/context.ts`): hits in a sentence with a protective marker (beware, red flag, advisory, "never/do not" + advice, "police said", news:, Hinglish savdhan/satark...) or continuing such a sentence are marked `context: "warning"`: shown under "Mentioned in a warning or news-style text" and not counted.
-4. **Optional AI pass** (`web/src/lib/signals/llm.ts`, off): the model may only return `{rule_id, quote}`; `web/src/lib/signals/validate.ts` drops any unknown rule id or any quote that is not an exact substring of the input.
+4. **Optional AI pass** (`web/src/lib/signals/llm.ts`): the model may only return `{rule_id, quote}`; `web/src/lib/signals/validate.ts` drops any unknown rule id or any quote that is not an exact substring of the input. With no key the status is `off`: the card says "Suspected signals come from fixed pattern rules only." and it is not counted as an unavailable source. A configured pass that fails or is skipped is `unavailable` and is counted.
 
 Each counted rule adds one "suspected pattern" to the risk engine, however many times it matches. Suspected patterns alone can reach Elevated, never High.
 

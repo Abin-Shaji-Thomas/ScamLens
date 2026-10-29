@@ -14,7 +14,7 @@ ScamLens has no accounts, so it protects itself with hard size limits, daily per
 | Fake "independent" reports | Fingerprint = keyed hash of the IP only; one network counts once; daily report cap; SQL enforces the 2-reporter rule |
 | Erasing a true report by contesting it | Contested entries stay visible and labelled; only a person can uphold |
 | Linking innocent people through exchanges | Hub filter in every graph query |
-| Prompt injection in a chat or screenshot | The model may only return `{rule_id, quote}`; unknown ids and non-verbatim quotes are dropped; identifiers never come from the model; the transcription prompt says not to follow instructions in the image; the user confirms any transcript |
+| Prompt injection in a chat or screenshot (AI currently off, so no model sees any text) | The model may only return `{rule_id, quote}`; unknown ids and non-verbatim quotes are dropped; identifiers never come from the model; the transcription prompt says not to follow instructions in the image; the user confirms any transcript |
 | Script injection / third-party code | CSP with `script-src 'self' 'unsafe-inline'` (Next.js needs inline bootstrap scripts), no remote origins, no `unsafe-eval` in production |
 | Clickjacking, sniffing, referrer leaks | `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, a restrictive `Permissions-Policy` |
 | Leaking secrets | Secrets only in server code via `process.env`; `/api/health` returns booleans and short statuses (plus a 7-character build id) |

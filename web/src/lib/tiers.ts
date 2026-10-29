@@ -30,6 +30,9 @@ export const TIERS: readonly TierInfo[] = [
   },
 ];
 
+/** Shown under the Suspected tier when no AI key is configured (the deployment's normal state). */
+export const RULES_ONLY_NOTE = "Suspected signals come from fixed pattern rules only.";
+
 /** Shown next to a Reported entry that someone contested (G2). The entry stays visible. */
 export const CONTESTED_LABEL = "Contested, under review";
 export const CONTESTED_NOTE = "Someone disputes this entry. It is still shown, but it does not count toward a high risk level until a person reviews it.";

@@ -1,6 +1,8 @@
 # ScamLens
 
-**Evidence-linked scam check for India.** Paste a suspicious chat, wallet address, UPI ID or Telegram handle, or read the text from a screenshot and confirm it. ScamLens returns a risk card that keeps three kinds of evidence strictly apart, each with its source, and never gives a verdict about a person.
+**Evidence-linked scam check for India.** Paste a suspicious chat, wallet address, UPI ID or Telegram handle. ScamLens returns a risk card that keeps three kinds of evidence strictly apart, each with its source, and never gives a verdict about a person.
+
+**AI status:** the Suspected tier uses fixed pattern rules; AI assistance is optional and currently off (no key is configured, so screenshot reading is off too and the page asks you to paste the text).
 
 **Live:** https://scam-lens-two.vercel.app · Hacker House Goa 2026 (Crypto x AI track, team ArcReap) · [About, sources and privacy](https://scam-lens-two.vercel.app/about)
 
@@ -16,7 +18,7 @@ One paste box, one risk card, three tiers that are never mixed:
 |---|---|---|
 | **1. Verified** | Facts we check ourselves, each with source, date and a link to check it yourself | OFAC SDN list, ScamSniffer open address list, GoPlus address security, Etherscan V2 (Ethereum, Polygon, Arbitrum One on the free plan), TronGrid |
 | **2. Reported** | Community reports, shown only after **2 independent reporters** within 90 days and not contested | ScamLens' own database (HMAC hashes + masked identifiers only) |
-| **3. Suspected** | Warning patterns in *your* text, each with the exact highlighted quote and the rule that fired | 18 fixed rules, plus an optional LLM pass whose output is validated by code |
+| **3. Suspected** | Warning patterns in *your* text, each with the exact highlighted quote and the rule that fired | 18 fixed rules; an optional AI pass (built, tested with mocks, currently off) could only point at the same rules |
 
 Every card also shows a plain-language explanation of the risk level and a **What to do now** block (pause; verify through official channels; keep the chat and transaction IDs; call **1930** or file at **cybercrime.gov.in**; contact your bank immediately if you already paid).
 
@@ -156,7 +158,7 @@ Sample 2 uses a real address from the OFAC SDN list so the Verified tier can be 
 - **The live Reported tier holds only synthetic seed data** (labelled). Real reports show only after two independent reporters name the same identifier.
 - **No accounts.** Independence is a hashed network fingerprint: people on one network count as one reporter; one person on several networks (Wi-Fi, mobile data, VPN) can count as several. The same applies to daily limits and contests.
 - **Contest review is manual.** Contested entries stay visible and labelled until you uphold or dismiss them in the Supabase SQL editor ([docs/MODERATION.md](docs/MODERATION.md)); there is no admin screen. Until migration `002_contest_policy.sql` is run, new contests are refused. Contest reasons (10-500 characters) are stored for the moderator only. Removing an upheld report from TigerGraph needs a manual REST call that has not been tested.
-- **No LLM pass live.** Without an OpenAI-compatible key the card says "AI pass: unavailable" and screenshot reading asks users to paste text instead. The eval measures rules only.
+- **AI is off.** No OpenAI-compatible key is configured, so the card says "Suspected signals come from fixed pattern rules only.", the screenshot control is replaced by "Screenshot reading is off. Paste the text instead.", and `/api/transcribe` returns that sentence. Both switch back on automatically (on the next deploy) if `OPENAI_API_KEY` and `OPENAI_MODEL` are set. The eval measures rules only.
 - **Rules are English-first.** Hinglish support is a small starter set. 1 tricky normal message in the eval still triggers a warning (a bank advisory phrased without a protective marker). The warning-context rule can be gamed inside a single sentence ("Never trust other apps, ours pays guaranteed returns" marks that one hit as warning context); decoys in other sentences or messages do not work.
 - **Etherscan free plan:** Ethereum, Polygon and Arbitrum One only, first wallet per check only.
 - **Snapshots age.** OFAC and ScamSniffer are as fresh as the last `sync-lists` run (dates shown).

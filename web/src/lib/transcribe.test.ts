@@ -5,7 +5,7 @@ import { extractIdentifiers, uniqueIdentifiers } from "./identifiers";
 import { MAX_IMAGE_DATAURL_CHARS, MAX_TEXT_CHARS } from "./limits";
 import {
   cleanTranscript,
-  PASTE_INSTEAD,
+  PASTE_INSTEAD, SCREENSHOT_OFF,
   setVisionCompleterForTests,
   transcribeImage,
   TranscribeRequest,
@@ -130,10 +130,13 @@ describe("/api/transcribe route", () => {
     setVisionCompleterForTests(undefined);
   });
 
-  it("not configured: 503 with the paste-text message", async () => {
+  it("not configured: 503 with the friendly screenshot-off message (no provider named)", async () => {
     const res = await transcribeRoute(post({ imageDataUrl: url("image/png", PNG) }));
     expect(res.status).toBe(503);
-    expect((await res.json()).error).toBe(PASTE_INSTEAD);
+    const body = await res.json();
+    expect(body).toEqual({ ok: false, error: SCREENSHOT_OFF });
+    expect(JSON.stringify(body)).not.toMatch(/AI|provider|openai/i);
+    expect(PASTE_INSTEAD).not.toBe(SCREENSHOT_OFF);
   });
   it("rejects SVG with 400 and an oversize body with 413, never echoing the input", async () => {
     setVisionCompleterForTests(async () => "should not be called");

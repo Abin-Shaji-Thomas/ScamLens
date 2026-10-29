@@ -1,4 +1,5 @@
 import { CheckForm } from "@/components/CheckForm";
+import { visionConfigured } from "@/lib/transcribe";
 
 export default function Home() {
   return (
@@ -13,7 +14,8 @@ export default function Home() {
           </p>
         </div>
       </section>
-      <CheckForm />
+      {/* Evaluated on the server when the page is built; a new key in Vercel takes effect on the next deploy. */}
+      <CheckForm screenshots={visionConfigured(process.env)} />
     </main>
   );
 }

@@ -13,7 +13,8 @@ import { NO_REPORTS_MESSAGE } from "@/lib/risk";
 import { SAMPLE_WATERMARK } from "@/lib/samples";
 import { RULES } from "@/lib/signals/rules";
 import { CONTESTED_LABEL, TIERS } from "@/lib/tiers";
-import { usageLimits } from "@/lib/usage";
+import { SCREENSHOT_OFF, visionConfigured } from "@/lib/transcribe";
+import { llmConfigured, usageLimits } from "@/lib/usage";
 import { DEFAULT_ETHERSCAN_RPS, EVM_CHAINS } from "@/lib/verified/etherscan";
 import { DOMAIN_LIST_BUDGET_BYTES, ETHERSCAN_MAX_ADDRESSES, MAX_ADDRESSES, SCAMSNIFFER_DOMAINS_PROBED_BYTES } from "@/lib/verified/index";
 import { ofacList, scamSnifferList } from "@/lib/verified/lists";
@@ -53,6 +54,9 @@ export default function AboutPage() {
   const ofac = ofacList().meta;
   const ss = scamSnifferList().meta;
   const limits = usageLimits({});
+  // Same server-side checks that /api/health reports as "llm" and "vision".
+  const aiOn = llmConfigured(process.env);
+  const visionOn = visionConfigured(process.env);
   return (
     <main>
       <section aria-labelledby="about-title">
@@ -105,11 +109,19 @@ export default function AboutPage() {
           &quot;linked through a shared wallet&quot; or &quot;matched list X on date Y&quot;. A source that is down is shown
           as unavailable and is never counted as a clean result.
         </p>
-        <p>
-          Suspected signals come from {RULES.length} fixed rules. Every quote shown is cut from your own text; if an AI pass is
-          enabled it may only point at rules from that list, and any quote it gives that is not in your text is dropped.
-          Identifiers (wallets, UPI IDs, phone numbers, handles) are found only by our own extractor, never by the AI.
-        </p>
+        {aiOn ? (
+          <p>
+            Suspected signals come from {RULES.length} fixed rules. Every quote shown is cut from your own text; the AI pass may
+            only point at rules from that list, and any quote it gives that is not in your text is dropped. Identifiers
+            (wallets, UPI IDs, phone numbers, handles) are found only by our own extractor, never by the AI.
+          </p>
+        ) : (
+          <p>
+            Suspected signals come from {RULES.length} fixed pattern rules, and every quote shown is cut from your own text. AI
+            assistance is optional and currently off. Identifiers (wallets, UPI IDs, phone numbers, handles) are found only by
+            our own extractor.
+          </p>
+        )}
       </Section>
 
       <Section id="reports" title="How reports become visible" band>
@@ -184,10 +196,14 @@ export default function AboutPage() {
       <Section id="privacy" title="Privacy: what is stored">
         <ul className="flex list-disc flex-col gap-2 pl-5">
           <li>Checks: nothing. Your text is processed in memory and not stored or logged.</li>
-          <li>
-            Screenshots: shrunk in your browser, sent once to our AI provider to read the text, and not stored by ScamLens.
-            The text comes back to you to edit, and only the text you confirm is checked.
-          </li>
+          {visionOn ? (
+            <li>
+              Screenshots: shrunk in your browser, sent once to our AI provider to read the text, and not stored by ScamLens.
+              The text comes back to you to edit, and only the text you confirm is checked.
+            </li>
+          ) : (
+            <li>Screenshots: {SCREENSHOT_OFF}</li>
+          )}
           <li>
             Reports: for each identifier a keyed hash (HMAC) and a masked display (for example <code>+91 98******10</code>), the
             scam type you chose, the network fingerprint hash, and the date. There is no free-text note field. Reports
@@ -195,7 +211,7 @@ export default function AboutPage() {
           </li>
           <li>
             Usage limits: a hashed network key and a daily count, deleted after about {USAGE_COUNTER_RETENTION_DAYS} days.
-            Daily limits per network: {limits.check} checks, {limits.transcribe} screenshots, {limits.graph} link lookups.
+            Daily limits per network: {limits.check} checks{visionOn ? `, ${limits.transcribe} screenshots` : ""}, {limits.graph} link lookups.
           </li>
           <li>Server logs hold only an event name, a status and a duration.</li>
           <li>

@@ -23,11 +23,13 @@ export async function runCheck({ text }: CheckRequest, deps: RunDeps = defaultDe
   if (deps.skipAi) notices.push(deps.skipAi);
   if (identifiers.some((i) => i.type === "domain")) notices.push(DOMAIN_NOT_CHECKED_NOTICE);
 
-  const [verified, { signals, ai }, reported] = await Promise.all([
+  const [verified, { signals, ai: aiResult }, reported] = await Promise.all([
     runVerifiedChecks(identifiers, deps),
     detectSignals(text, { env: deps.skipAi ? {} : deps.env, complete: deps.skipAi ? undefined : deps.complete }),
     reportedFor(identifiers, reportsConfig(deps.env, deps.db)),
   ]);
+  // A configured AI pass that was skipped (daily cap, limiter down) is unavailable; no key at all is "off" (rules only).
+  const ai = deps.skipAi ? { status: "unavailable" as const, reason: "skipped today", dropped: 0 } : aiResult;
   const risk = assessRisk({
     verifiedMatches: verified.filter((v) => v.status === "match").length,
     reportedIdentifiers: reported.entries.filter((e) => !e.contested).length,

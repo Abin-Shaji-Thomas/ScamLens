@@ -3,10 +3,15 @@
 import { useEffect, useState } from "react";
 import { CheckResponse, MAX_INPUT_CHARS } from "@/lib/api-schema";
 import { SAMPLE_WATERMARK, SAMPLES } from "@/lib/samples";
+import { SCREENSHOT_OFF } from "@/lib/screenshot-copy";
 import { RiskCard } from "./RiskCard";
 import { ScreenshotInput, ScreenshotNote, ScreenshotTrigger } from "./ScreenshotInput";
 
-export function CheckForm() {
+/**
+ * `screenshots` comes from the server (visionConfigured, the same check /api/health reports as "vision"), so the
+ * upload control and its privacy note appear only when a vision model is configured.
+ */
+export function CheckForm({ screenshots = false }: { screenshots?: boolean }) {
   const [text, setText] = useState("");
   const [demo, setDemo] = useState(false);
   const [result, setResult] = useState<CheckResponse | null>(null);
@@ -73,7 +78,7 @@ export function CheckForm() {
                 <button type="submit" disabled={loading || text.trim().length === 0} className="button">
                   {loading ? "Checking..." : "Check"}
                 </button>
-                <ScreenshotTrigger />
+                {screenshots && <ScreenshotTrigger />}
               </div>
               {error && (
                 <p role="alert" className="mt-6">
@@ -83,14 +88,16 @@ export function CheckForm() {
               )}
               {loading && <p className="mt-6 text-swiss-text">Checking lists, on-chain history and reports. This can take up to 10 seconds.</p>}
             </form>
-            <ScreenshotInput
-              disabled={loading}
-              onCheck={(t) => {
-                setText(t);
-                setDemo(false);
-                void submit(t);
-              }}
-            />
+            {screenshots && (
+              <ScreenshotInput
+                disabled={loading}
+                onCheck={(t) => {
+                  setText(t);
+                  setDemo(false);
+                  void submit(t);
+                }}
+              />
+            )}
           </div>
           <aside className="col-span-full mt-12 flex flex-col border-t-2 border-swiss-black pt-6 lg:col-span-3 lg:col-start-10 lg:mt-0">
             <p className="eyebrow">Try a sample:</p>
@@ -113,7 +120,7 @@ export function CheckForm() {
             </ul>
             <div className="mt-8 flex flex-col gap-3 border-t border-swiss-rule pt-6">
               <p className="t-small text-swiss-text">Processed in memory. We do not store your chat.</p>
-              <ScreenshotNote />
+              {screenshots ? <ScreenshotNote /> : <p className="t-small text-swiss-text">{SCREENSHOT_OFF}</p>}
             </div>
           </aside>
         </div>
