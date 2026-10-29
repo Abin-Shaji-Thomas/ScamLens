@@ -10,8 +10,8 @@ const STATUS: Record<SourceResult["status"], string> = {
 
 function Row({ r }: { r: SourceResult }) {
   return (
-    <li className="flex flex-col">
-      <p className="font-semibold">
+    <li className="flex flex-col py-4">
+      <p className="font-semibold text-swiss-black">
         {STATUS[r.status]} · {r.sourceName}
       </p>
       <p className="mt-1 text-swiss-text">{r.summary}</p>
@@ -44,13 +44,13 @@ export function VerifiedList({ results }: { results: SourceResult[] }) {
     groups.set(key, [...(groups.get(key) ?? []), r]);
   }
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-8">
       {[...groups.entries()].map(([key, rs]) => (
         <div key={key}>
           <p className="t-small break-id text-swiss-text">
-            {rs[0].identifier.type.toUpperCase()} {rs[0].identifier.value}
+            <span className="uppercase tracking-[0.1em]">{rs[0].identifier.type}</span> {rs[0].identifier.value}
           </p>
-          <ul className="mt-4 flex flex-col gap-6">
+          <ul className="mt-2 flex flex-col divide-y divide-swiss-rule border-t border-swiss-rule">
             {rs.map((r, i) => (
               <Row key={i} r={r} />
             ))}

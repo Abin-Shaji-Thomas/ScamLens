@@ -3,9 +3,9 @@ import { WARNING_CONTEXT_NOTE, WARNING_CONTEXT_TITLE } from "@/lib/tiers";
 
 function Item({ s }: { s: Signal }) {
   return (
-    <li className="flex flex-col">
-      <p className="font-semibold">{s.label}</p>
-      <p className="mt-1 break-id">
+    <li className="flex flex-col py-4">
+      <p className="font-semibold text-swiss-black">{s.label}</p>
+      <p className="mt-1 break-id text-swiss-black">
         &ldquo;<mark className="quote">{s.quote}</mark>&rdquo;
       </p>
       <p className="t-small mt-1 text-swiss-text">
@@ -23,7 +23,7 @@ export function SuspectedList({ signals, ai }: { signals: Signal[]; ai: AiStatus
       {counted.length === 0 ? (
         <p className="text-swiss-text">No pattern signals found in the text.</p>
       ) : (
-        <ul className="flex flex-col gap-6">
+        <ul className="flex flex-col divide-y divide-swiss-rule border-t border-swiss-rule">
           {counted.map((s, i) => (
             <Item key={i} s={s} />
           ))}
@@ -31,11 +31,11 @@ export function SuspectedList({ signals, ai }: { signals: Signal[]; ai: AiStatus
       )}
       {warning.length > 0 && (
         <details>
-          <summary className="text-swiss-text">
+          <summary className="py-2 text-swiss-text">
             {WARNING_CONTEXT_TITLE} ({warning.length})
           </summary>
           <p className="t-small mt-2 text-swiss-text">{WARNING_CONTEXT_NOTE}</p>
-          <ul className="mt-4 flex flex-col gap-6">
+          <ul className="mt-4 flex flex-col divide-y divide-swiss-rule border-t border-swiss-rule">
             {warning.map((s, i) => (
               <Item key={i} s={s} />
             ))}

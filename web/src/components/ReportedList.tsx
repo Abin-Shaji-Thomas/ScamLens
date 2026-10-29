@@ -68,13 +68,13 @@ export function ReportedList({ tier, identifiers }: { tier: ReportedTier; identi
     return <p className="text-swiss-text">Note: Reports database unavailable ({tier.reason}). This is not a clean result.</p>;
   }
   return (
-    <ul className="flex flex-col gap-6">
+    <ul className="flex flex-col divide-y divide-swiss-rule border-t border-swiss-rule">
       {tier.entries.map((e, i) => {
         const own = identifiers.find((id) => id.type === e.type && maskIdentifier(id.type, id.value) === e.display);
         return (
-          <li key={i} className="flex flex-col">
+          <li key={i} className="flex flex-col py-4">
             {e.synthetic && <p className="t-small text-swiss-text">{WATERMARK}</p>}
-            <p className="break-id font-semibold">
+            <p className="break-id font-semibold text-swiss-black">
               {e.display} was reported by {e.reporters} independent people
             </p>
             <p className="mt-1 text-swiss-text">

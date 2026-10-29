@@ -88,7 +88,7 @@ describe("G4 minimalist states (server-rendered)", () => {
 
   it("notices are plain paragraphs starting with 'Note'", async () => {
     const r = await runCheck({ text: "Claim your bonus at zz-demo-bonus-claim.example.com today" }, offline);
-    expect(render(createElement(RiskCard, { result: r }))).toMatch(/<p class="t-small mt-4 text-swiss-text">Note: /);
+    expect(render(createElement(RiskCard, { result: r }))).toMatch(/<p class="mt-4 text-swiss-text">Note: /);
   });
 
   it("contested entry: visible with the label", () => {
@@ -243,5 +243,44 @@ describe("Swiss controls (server-rendered)", () => {
       }),
     );
     expect(html).toContain('<span class="font-semibold text-swiss-clay">Contested, under review.</span>');
+  });
+});
+
+describe("Swiss tiers and risk header (server-rendered)", () => {
+  const render = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el);
+
+  it("finding rows: 1px rules between rows, 600-weight black title, secondary detail, small source line with a link", async () => {
+    const r = await runCheck({ text: SAMPLES[1].text }, offline); // sanctioned wallet: the local OFAC list matches offline
+    expect(r.verified.some((v) => v.status === "match")).toBe(true);
+    const html = render(createElement(RiskCard, { result: r, demo: true }));
+    expect(html).toMatch(/<ul class="mt-2 flex flex-col divide-y divide-swiss-rule border-t border-swiss-rule"><li class="flex flex-col py-4"><p class="font-semibold text-swiss-black">Match · /);
+    expect(html).toMatch(/<p class="t-small mt-2 text-swiss-text">[^<]*· checked [^<]*<a href="[^"]+" target="_blank" rel="noreferrer">source<\/a>/);
+    expect(html).toMatch(/<span class="uppercase tracking-\[0.1em\]">evm<\/span> 0x/); // uppercase by CSS, string unchanged
+  });
+
+  it("High: the word carries data-level=high (alert colour by CSS) and the scale still names the level in words", async () => {
+    const r = await runCheck({ text: SAMPLES[1].text }, offline);
+    expect(r.risk.level).toBe("high");
+    const html = render(createElement(RiskCard, { result: r, demo: true }));
+    expect(html).toContain('<p class="t-risk risk-word" data-level="high">High</p>');
+    expect(html).toMatch(/aria-current="true">High</);
+    expect(html.match(/data-filled="true"/g)).toHaveLength(3);
+  });
+
+  it("suspected quotes are underlined 600-weight marks in black, rows divided by 1px rules", async () => {
+    const r = await runCheck({ text: SAMPLES[0].text }, offline);
+    const html = render(createElement(RiskCard, { result: r }));
+    expect(html).toMatch(/<li class="flex flex-col py-4"><p class="font-semibold text-swiss-black">[^<]+<\/p><p class="mt-1 break-id text-swiss-black">“<mark class="quote">/);
+    const css = readFileSync(join(import.meta.dirname, "..", "app", "globals.css"), "utf8");
+    expect(cssRules(css).find((x) => x.selector === "mark.quote")?.body).toMatch(/background: transparent;[\s\S]*color: var\(--swiss-black\);[\s\S]*font-weight: 600;[\s\S]*text-decoration: underline;/);
+  });
+
+  it("empty and unavailable states keep their sentences (no-reports never claimed when the DB is down)", async () => {
+    const empty = strip(render(createElement(RiskCard, { result: null })));
+    for (const t of ["Paste something and press Check", "No verified matches.", "No known reports. This does not mean safe.", "No pattern signals yet."]) expect(empty).toContain(t);
+    const r = await runCheck({ text: "pay zzdemo.agent@okdemo now" }, offline);
+    const text = strip(render(createElement(RiskCard, { result: r })));
+    expect(text).toContain("Note: Reports database unavailable");
+    expect(text).toContain("This is not a clean result.");
   });
 });

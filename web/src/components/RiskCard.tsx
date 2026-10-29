@@ -17,7 +17,7 @@ function Identifiers({ ids }: { ids: CheckResponse["identifiers"] }) {
     <ul className="flex flex-col gap-2">
       {ids.map((i, k) => (
         <li key={k} className="break-id">
-          <span className="font-semibold">{i.value}</span>
+          <span className="font-semibold text-swiss-black">{i.value}</span>
           <span className="t-small text-swiss-text">
             {" "}
             · {i.type} · {i.check === "checksum" ? "checksum valid" : "format valid"}
@@ -44,7 +44,7 @@ export function RiskCard({ result, demo = false }: { result: CheckResponse | nul
                 {demo && <p className="t-small mb-4 text-swiss-text">{DEMO_LABEL}</p>}
                 <RiskBadge risk={result.risk} />
                 {result.notices.map((n, i) => (
-                  <p key={i} className="t-small mt-4 text-swiss-text">
+                  <p key={i} className="mt-4 text-swiss-text">
                     Note: {n}
                   </p>
                 ))}
