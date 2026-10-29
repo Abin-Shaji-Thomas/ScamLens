@@ -1,5 +1,7 @@
 import type { CheckResponse } from "@/lib/api-schema";
 import { TIERS } from "@/lib/tiers";
+import { RiskBadge } from "./RiskBadge";
+import { SuspectedList } from "./SuspectedList";
 import { TierSection } from "./TierSection";
 import { VerifiedList } from "./VerifiedList";
 
@@ -26,10 +28,13 @@ export function RiskCard({ result }: { result: CheckResponse | null }) {
         {!result && <span className="text-sm text-neutral-500">Paste something and press Check</span>}
       </div>
       {result && (
-        <div className="mt-3">
-          <h3 className="text-sm font-medium">Identifiers found</h3>
-          <div className="mt-1">
-            <Identifiers ids={result.identifiers} />
+        <div className="mt-3 flex flex-col gap-3">
+          <RiskBadge risk={result.risk} />
+          <div>
+            <h3 className="text-sm font-medium">Identifiers found</h3>
+            <div className="mt-1">
+              <Identifiers ids={result.identifiers} />
+            </div>
           </div>
         </div>
       )}
@@ -37,8 +42,10 @@ export function RiskCard({ result }: { result: CheckResponse | null }) {
         <TierSection tier={verified}>
           {result && result.verified.length > 0 ? <VerifiedList results={result.verified} /> : undefined}
         </TierSection>
-        <TierSection tier={reported} />
-        <TierSection tier={suspected} />
+        <TierSection tier={reported}>
+          {result?.risk.reportedMessage ? <p className="text-sm italic text-neutral-500">{result.risk.reportedMessage}</p> : undefined}
+        </TierSection>
+        <TierSection tier={suspected}>{result ? <SuspectedList signals={result.suspected} ai={result.ai} /> : undefined}</TierSection>
       </div>
     </div>
   );
