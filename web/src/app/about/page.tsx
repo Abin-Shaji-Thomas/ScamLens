@@ -29,13 +29,16 @@ const list = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(", ")} a
 const fmtDate = (iso: string) => iso.slice(0, 10);
 const n = (x: number) => x.toLocaleString("en-IN");
 
-function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
+/** Two columns at >= 1024px: heading in columns 1-4, text in 5-11 (reading width capped at 65ch). */
+function Section({ id, title, band = false, children }: { id: string; title: string; band?: boolean; children: React.ReactNode }) {
   return (
-    <section id={id} aria-labelledby={`${id}-h`} className="mt-12 sm:mt-16">
-      <h2 id={`${id}-h`} className="t-h2">
-        {title}
-      </h2>
-      <div className="mt-4 flex flex-col gap-4">{children}</div>
+    <section id={id} aria-labelledby={`${id}-h`} className={band ? "band" : undefined}>
+      <div className="grid">
+        <h2 id={`${id}-h`} className="t-h2 col-span-full lg:col-span-4">
+          {title}
+        </h2>
+        <div className="col-span-full mt-6 flex flex-col gap-4 lg:col-span-7 lg:col-start-5 lg:mt-0">{children}</div>
+      </div>
     </section>
   );
 }
@@ -51,16 +54,22 @@ export default function AboutPage() {
   const ss = scamSnifferList().meta;
   const limits = usageLimits({});
   return (
-    <main className="mx-auto w-full max-w-[40rem] px-6 pt-12 sm:pt-16">
-      <p className="t-small">
-        <Link href="/" className="text-swiss-text">
-          Back to the check
-        </Link>
-      </p>
-      <h1 className="t-title mt-6">About ScamLens</h1>
+    <main>
+      <section aria-labelledby="about-title">
+        <div className="grid">
+          <p className="eyebrow col-span-full">
+            <Link href="/" className="inline-flex min-h-11 items-center text-swiss-text">
+              Back to the check
+            </Link>
+          </p>
+          <h1 id="about-title" className="t-title col-span-full mt-4 lg:col-span-9">
+            About ScamLens
+          </h1>
+        </div>
+      </section>
 
       <Section id="emergency" title="If you have already paid or shared details">
-        <ol className="flex list-decimal flex-col gap-2 pl-5">
+        <ol className="steps flex flex-col gap-4">
           <li>
             Call <strong>1930</strong> (National Cyber Crime Helpline) as soon as possible.
           </li>
@@ -72,7 +81,7 @@ export default function AboutPage() {
         </ol>
       </Section>
 
-      <Section id="what" title="What ScamLens is, and is not">
+      <Section id="what" title="What ScamLens is, and is not" band>
         <p>
           ScamLens looks at a message, wallet address, UPI ID or handle you paste and shows the evidence it can find, sorted
           into three separate groups. It never gives a verdict about a person and it is not legal or financial advice.
@@ -103,7 +112,7 @@ export default function AboutPage() {
         </p>
       </Section>
 
-      <Section id="reports" title="How reports become visible">
+      <Section id="reports" title="How reports become visible" band>
         <p>
           There are no accounts. Each report is tied to a <em>network fingerprint</em>: a keyed hash (HMAC) of the IP
           address the report came from. We never store the IP itself.
@@ -133,32 +142,32 @@ export default function AboutPage() {
         </p>
       </Section>
 
-      <Section id="sources" title="Data sources, dates and limits">
-        <ul className="flex list-disc flex-col gap-2 pl-5">
-          <li>
+      <Section id="sources" title="Data sources, dates and limits" band>
+        <ul className="flex flex-col divide-y divide-swiss-rule border-y border-swiss-rule">
+          <li className="py-4">
             <strong>{ofac.source}</strong> (US Treasury). US government work, public domain. Snapshot published{" "}
             {ofac.publish_date}, downloaded {fmtDate(ofac.fetched_at)}: {n(ofac.address_count)} crypto addresses. Only
             addresses OFAC lists are covered. <A href="https://sanctionssearch.ofac.treas.gov/">Search OFAC yourself</A>.
           </li>
-          <li>
+          <li className="py-4">
             <strong>ScamSniffer scam-database</strong>, address list ({n(ss.address_count)} addresses, upstream commit{" "}
             {ss.upstream_commit.slice(0, 7)} of {fmtDate(ss.upstream_committed_at)}). Licence: {ss.license}. {ss.delay_note}{" "}
             Data by ScamSniffer: <A href={ss.repo_url}>{ss.repo_url.replace("https://", "")}</A>.
           </li>
-          <li>
+          <li className="py-4">
             <strong>GoPlus address security API</strong>, queried live for Ethereum and TRON addresses. Flags are what GoPlus
             reports from its own sources; subject to GoPlus&apos;s terms. <A href="https://gopluslabs.io/">gopluslabs.io</A>.
           </li>
-          <li>
+          <li className="py-4">
             <strong>Etherscan V2 API</strong> (free plan): on-chain facts (type, balance, first and last transaction) for{" "}
             {list(freeChains)}. {list(paidChains)} need a paid plan and are shown as unavailable. To stay within{" "}
             {DEFAULT_ETHERSCAN_RPS} requests per second, only the first {ETHERSCAN_MAX_ADDRESSES} wallet in a message gets
             these lookups. Facts are not judgements.
           </li>
-          <li>
+          <li className="py-4">
             <strong>TronGrid</strong> (TRON mainnet): account facts for TRON addresses, with a link to Tronscan.
           </li>
-          <li>
+          <li className="py-4">
             UPI IDs, phone numbers, Telegram handles, email addresses and website domains have no verified source here: they
             can only appear in the Reported tier. ScamSniffer also publishes a domain list, but it measured{" "}
             {(SCAMSNIFFER_DOMAINS_PROBED_BYTES / 1_000_000).toFixed(1)} MB on 2026-10-29, over our{" "}
@@ -197,7 +206,7 @@ export default function AboutPage() {
         </ul>
       </Section>
 
-      <Section id="demo" title="Demo data">
+      <Section id="demo" title="Demo data" band>
         <p>
           The sample messages and the seeded link graph are invented and always marked &quot;{SAMPLE_WATERMARK}&quot; or
           &quot;Illustrative demo data&quot;. One sample uses a wallet that really is on the OFAC list, so the Verified tier

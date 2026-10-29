@@ -307,3 +307,26 @@ describe("Swiss graph panel", () => {
     expect(html).not.toContain("<canvas");
   });
 });
+
+describe("Swiss /about and 404 (server-rendered)", () => {
+  it("/about: light h1, two-column sections (heading 1-4, text 5-11), alternate paper bands, sources as ruled rows", async () => {
+    const { default: AboutPage } = await import("../app/about/page");
+    const html = renderToStaticMarkup(createElement(AboutPage));
+    expect(html).toMatch(/<h1 id="about-title" class="t-title col-span-full mt-4 lg:col-span-9">About ScamLens<\/h1>/);
+    const sections = [...html.matchAll(/<section id="(\w+)" aria-labelledby="\w+-h"( class="band")?>/g)].map((m) => [m[1], Boolean(m[2])]);
+    expect(sections.map(([id]) => id)).toEqual(["emergency", "what", "tiers", "reports", "contest", "sources", "privacy", "demo"]);
+    sections.forEach(([, band], i) => expect(band).toBe(i % 2 === 1)); // white, paper, white, paper...
+    expect(html.match(/<h2 id="\w+-h" class="t-h2 col-span-full lg:col-span-4">/g)).toHaveLength(8);
+    expect(html.match(/class="col-span-full mt-6 flex flex-col gap-4 lg:col-span-7 lg:col-start-5 lg:mt-0"/g)).toHaveLength(8);
+    expect(html).toMatch(/<ul class="flex flex-col divide-y divide-swiss-rule border-y border-swiss-rule"><li class="py-4">/);
+  });
+
+  it("404: an oversized decorative 404 (aria-hidden), the existing heading and the link back", () => {
+    const html = renderToStaticMarkup(createElement(NotFound));
+    expect(html).toContain('<p class="t-404 col-span-full" aria-hidden="true">404</p>');
+    expect(strip(html)).toContain("Page not found");
+    expect(html).toMatch(/<a [^>]*href="\/"[^>]*>Go to the check<\/a>/);
+    const css = readFileSync(join(import.meta.dirname, "..", "app", "globals.css"), "utf8");
+    expect(cssRules(css).find((r) => r.selector === ".t-404")?.body).toMatch(/font-size: clamp\(6rem, 20vw, 16rem\);[\s\S]*font-weight: 300;/);
+  });
+});

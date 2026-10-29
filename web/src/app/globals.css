@@ -120,6 +120,12 @@
     font-weight: 300;
     letter-spacing: -0.01em;
   }
+  .t-404 {
+    font-size: clamp(6rem, 20vw, 16rem);
+    line-height: 0.9;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+  }
   .lead {
     color: var(--swiss-text);
     max-width: 40rem;
@@ -362,7 +368,8 @@
     color: #000000;
   }
   .t-title,
-  .t-risk {
+  .t-risk,
+  .t-404 {
     font-size: 24pt;
     line-height: 1.1;
     font-weight: 400;
