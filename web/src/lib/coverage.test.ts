@@ -83,3 +83,28 @@ describe("coverage ledger ('What was checked')", () => {
     expect(renderToStaticMarkup(createElement(RiskCard, { result: r }))).toContain('aria-labelledby="coverage-title"');
   });
 });
+
+describe("coverage ledger: Link graph row (G4b)", () => {
+  const row = (c: ReturnType<typeof buildCoverage>) => c.rows.find((r) => r.id === "graph");
+  it("statuses: not looked up, checked (backend and ms), unavailable, not applicable", async () => {
+    const upi = await runCheck({ text: "pay zzdemo.agent@okdemo now" }, offline);
+    expect(row(buildCoverage(upi, { graph: null }))).toMatchObject({ name: "Link graph", status: "not looked up (press Show links)" });
+    expect(row(buildCoverage(upi, { graph: { status: "ok", backend: "tigergraph", elapsedMs: 412 } }))).toMatchObject({ status: "checked", when: "tigergraph, 412 ms" });
+    expect(row(buildCoverage(upi, { graph: { status: "ok", backend: "postgres (TigerGraph unavailable)", elapsedMs: 20 } }))?.when).toBe("postgres (TigerGraph unavailable), 20 ms");
+    expect(row(buildCoverage(upi, { graph: { status: "unavailable", backend: "tigergraph" } }))).toMatchObject({ status: "unavailable" });
+    const phone = await runCheck({ text: "+91 98765 43210" }, offline);
+    expect(row(buildCoverage(phone, { graph: null }))).toMatchObject({ status: "not applicable" });
+  });
+  it("the signed receipt's coverage is unchanged: without the graph argument there is no Link graph row", async () => {
+    const r = await runCheck({ text: SAMPLES[0].text }, offline);
+    expect(row(buildCoverage(r))).toBeUndefined();
+    expect(buildCoverage(r).rows.map((x) => x.id)).toEqual(["ofac", "scamsniffer", "goplus", "etherscan", "trongrid", "reports", "rules"]);
+  });
+  it("the ledger on the card shows the row as not looked up, and never says clean or safe", async () => {
+    const r = await runCheck({ text: SAMPLES[0].text }, offline);
+    const out = html(r).replace(/<[^>]+>/g, " ");
+    expect(out).toContain("Link graph");
+    expect(out).toContain("not looked up (press Show links)");
+    expect(out).not.toMatch(/\bclean\b|\bsafe\b/i);
+  });
+});

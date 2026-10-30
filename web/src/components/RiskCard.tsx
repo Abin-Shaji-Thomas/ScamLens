@@ -1,4 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import type { CheckResponse } from "@/lib/api-schema";
+import type { GraphCoverage } from "@/lib/coverage";
 import { DEMO_LABEL } from "@/lib/demo";
 import { TIERS } from "@/lib/tiers";
 import { CoverageLedger } from "./CoverageLedger";
@@ -31,6 +35,9 @@ function Identifiers({ ids }: { ids: CheckResponse["identifiers"] }) {
 
 /** `text` is the text that was checked; it stays in the browser (used only for the "I already paid" draft). */
 export function RiskCard({ result, demo = false, text = "" }: { result: CheckResponse | null; demo?: boolean; text?: string }) {
+  // The last link-graph lookup for THIS result (keyed by checkedAt, so a new check starts at "not looked up").
+  const [lookup, setLookup] = useState<{ at: string; g: GraphCoverage } | null>(null);
+  const graph = result && lookup?.at === result.checkedAt ? lookup.g : null;
   const [verified, reported, suspected] = TIERS;
   return (
     <>
@@ -65,7 +72,7 @@ export function RiskCard({ result, demo = false, text = "" }: { result: CheckRes
           )}
         </div>
       </section>
-      {result && <CoverageLedger result={result} />}
+      {result && <CoverageLedger result={result} graph={graph} />}
       <section aria-label="Evidence tiers">
         <div className="grid gap-y-16">
           <TierSection tier={verified}>
@@ -82,7 +89,7 @@ export function RiskCard({ result, demo = false, text = "" }: { result: CheckRes
           <TierSection tier={suspected}>{result ? <SuspectedList signals={result.suspected} ai={result.ai} /> : undefined}</TierSection>
           {result && (
             <div className="col-span-full">
-              <GraphPanel identifiers={result.identifiers} />
+              <GraphPanel identifiers={result.identifiers} onLookup={(g) => setLookup({ at: result.checkedAt, g })} />
             </div>
           )}
         </div>

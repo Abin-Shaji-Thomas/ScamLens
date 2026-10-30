@@ -6,10 +6,16 @@ import type { IdentifierType } from "./extract/types";
 import { RULES } from "./signals/rules";
 import type { SourceId, SourceResult } from "./verified/types";
 
-export type CoverageStatus = "checked" | "not applicable" | "unavailable" | "skipped (limit)" | "off";
+export type CoverageStatus = "checked" | "not applicable" | "unavailable" | "skipped (limit)" | "off" | "not looked up (press Show links)";
+
+/** What the page knows about the link graph for this result: null = no graph lookup has happened yet. */
+export type GraphCoverage = { status: "ok" | "unavailable"; backend?: string; elapsedMs?: number } | null;
+
+/** Identifier types the link graph can be asked about from the result card (GraphPanel). */
+export const GRAPH_LOOKUP_TYPES: readonly IdentifierType[] = ["upi", "evm"];
 
 export interface CoverageRow {
-  id: SourceId | "reports" | "rules" | "ai";
+  id: SourceId | "reports" | "rules" | "ai" | "graph";
   name: string;
   covers: string;
   status: CoverageStatus;
@@ -70,7 +76,16 @@ function sourceRow(s: (typeof SOURCES)[number], r: CheckResponse): CoverageRow {
   return { ...base, status: "unavailable", when: `tried ${minute(rows[0].checkedAt)}`, detail: [why, skipNote].filter(Boolean).join("; ") };
 }
 
-export function buildCoverage(r: CheckResponse): Coverage {
+/** The "Link graph" row; only added when the page passes the graph state (the signed receipt never does). */
+function graphRow(r: CheckResponse, graph: GraphCoverage): CoverageRow {
+  const base = { id: "graph" as const, name: "Link graph", covers: "Links between identifiers in community reports and on-chain transfers" };
+  if (!r.identifiers.some((i) => GRAPH_LOOKUP_TYPES.includes(i.type))) return { ...base, status: "not applicable" };
+  if (!graph) return { ...base, status: "not looked up (press Show links)" };
+  if (graph.status === "unavailable") return { ...base, status: "unavailable", detail: graph.backend };
+  return { ...base, status: "checked", when: `${graph.backend ?? "graph"}${graph.elapsedMs !== undefined ? `, ${graph.elapsedMs} ms` : ""}` };
+}
+
+export function buildCoverage(r: CheckResponse, opts?: { graph: GraphCoverage }): Coverage {
   const rows: CoverageRow[] = SOURCES.map((s) => sourceRow(s, r));
   rows.push({
     id: "reports",
@@ -82,6 +97,7 @@ export function buildCoverage(r: CheckResponse): Coverage {
         ? { status: "checked" as const, when: `checked ${minute(r.checkedAt)}` }
         : { status: "unavailable" as const, detail: r.reported.reason }),
   });
+  if (opts) rows.push(graphRow(r, opts.graph));
   rows.push({ id: "rules", name: "Pattern rules", covers: `${RULES.length} fixed rules on your text`, status: "checked", when: `checked ${minute(r.checkedAt)}` });
   if (r.ai.status !== "off") {
     rows.push({

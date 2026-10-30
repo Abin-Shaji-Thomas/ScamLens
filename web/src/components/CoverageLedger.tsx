@@ -1,9 +1,9 @@
 import type { CheckResponse } from "@/lib/api-schema";
-import { buildCoverage } from "@/lib/coverage";
+import { buildCoverage, type GraphCoverage } from "@/lib/coverage";
 
 /** "What was checked": every source with its status and date, built from this result only. Never says "clean". */
-export function CoverageLedger({ result }: { result: CheckResponse }) {
-  const { rows, notChecked } = buildCoverage(result);
+export function CoverageLedger({ result, graph = null }: { result: CheckResponse; graph?: GraphCoverage }) {
+  const { rows, notChecked } = buildCoverage(result, { graph });
   return (
     <section aria-labelledby="coverage-title">
       <div className="grid">

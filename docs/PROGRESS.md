@@ -523,3 +523,11 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | `elapsedMs` in /api/graph | PASS | optional integer in the `GraphView` zod schema, set for direct and fallback answers, absent when unavailable |
 | Note | PASS | `graphBackendLabel`: "tigergraph (N ms)"; fallback keeps "postgres (TigerGraph unavailable)" |
 | Tests | PASS | tigergraph.test.ts +2 (direct answer with timing and label, non-integer rejected; unavailable without timing and the route's response validates) and the fallback test checks its label |
+
+## G4b - Link graph row in the coverage ledger
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Optional graph argument | PASS | `buildCoverage(result, { graph })`; GraphPanel reports each lookup via `onLookup`; RiskCard keeps it per `checkedAt` |
+| Statuses | PASS | coverage.test.ts +3: not looked up, checked ("tigergraph, 412 ms"), fallback label with ms, unavailable, not applicable (phone only); never clean/safe |
+| Receipt unchanged | PASS | `buildCoverage(r)` without the argument has no graph row (row ids asserted); receipts.test.ts still passes |

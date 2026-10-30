@@ -6,6 +6,7 @@ import type { Identifier } from "@/lib/extract/types";
 import type { GraphView } from "@/lib/graph/view";
 import { DEMO_LABEL } from "@/lib/demo";
 import { MAX_GRAPH_LOOKUPS } from "@/lib/limits";
+import type { GraphCoverage } from "@/lib/coverage";
 
 // The canvas (FitGraph) is browser-only; it holds the graph ref so the drawing can be zoomed to fit.
 const FitGraph = dynamic(() => import("./FitGraph"), { ssr: false });
@@ -26,7 +27,8 @@ export function graphBackendLabel(v: Pick<GraphView, "backend" | "elapsedMs">): 
   return v.elapsedMs !== undefined && !/unavailable/.test(name) ? `${name} (${v.elapsedMs} ms)` : name;
 }
 
-export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
+/** `onLookup` tells the result card what the last lookup returned (for the coverage ledger's Link graph row). */
+export function GraphPanel({ identifiers, onLookup }: { identifiers: Identifier[]; onLookup?: (g: NonNullable<GraphCoverage>) => void }) {
   const linkable = identifiers.filter((i) => i.type === "upi" || i.type === "evm").slice(0, MAX_GRAPH_LOOKUPS);
   const [view, setView] = useState<GraphView | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
@@ -71,10 +73,15 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
       if (!res.ok || !body || !Array.isArray(body.nodes)) {
         setView(null);
         setError(body?.error ?? `The link graph could not be loaded (HTTP ${res.status}).`);
-      } else setView(body);
+        onLookup?.({ status: "unavailable" });
+      } else {
+        setView(body);
+        onLookup?.({ status: body.status, backend: body.backend, elapsedMs: body.elapsedMs });
+      }
     } catch {
       setView(null);
       setError("The link graph could not be loaded. Check your connection and try again.");
+      onLookup?.({ status: "unavailable" });
     } finally {
       clearTimeout(timer);
       setLoading(null);
