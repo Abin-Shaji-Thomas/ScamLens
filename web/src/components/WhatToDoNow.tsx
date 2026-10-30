@@ -1,7 +1,8 @@
 import { WHAT_TO_DO_NOW } from "@/lib/next-steps";
+import { PaidPlan } from "./PaidPlan";
 
-/** A paper band: heading on the left (columns 1-4), numbered steps on the right (5-12). */
-export function WhatToDoNow() {
+/** A paper band: heading on the left (columns 1-4), numbered steps on the right (5-12), then "I already paid". */
+export function WhatToDoNow({ text = "" }: { text?: string }) {
   return (
     <section aria-labelledby="what-to-do" className="band">
       <div className="grid">
@@ -13,6 +14,9 @@ export function WhatToDoNow() {
             <li key={i}>{s}</li>
           ))}
         </ol>
+        <div className="col-span-full mt-10 lg:col-span-8 lg:col-start-5">
+          <PaidPlan text={text} />
+        </div>
       </div>
     </section>
   );

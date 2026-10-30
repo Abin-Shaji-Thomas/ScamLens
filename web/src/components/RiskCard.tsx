@@ -29,7 +29,8 @@ function Identifiers({ ids }: { ids: CheckResponse["identifiers"] }) {
   );
 }
 
-export function RiskCard({ result, demo = false }: { result: CheckResponse | null; demo?: boolean }) {
+/** `text` is the text that was checked; it stays in the browser (used only for the "I already paid" draft). */
+export function RiskCard({ result, demo = false, text = "" }: { result: CheckResponse | null; demo?: boolean; text?: string }) {
   const [verified, reported, suspected] = TIERS;
   return (
     <>
@@ -86,7 +87,7 @@ export function RiskCard({ result, demo = false }: { result: CheckResponse | nul
           )}
         </div>
       </section>
-      {result && <WhatToDoNow />}
+      {result && <WhatToDoNow text={text} />}
       {result && (
         <section aria-label="Evidence pack and reporting">
           <div className="grid gap-y-12">

@@ -15,6 +15,7 @@ export function CheckForm({ screenshots = false }: { screenshots?: boolean }) {
   const [text, setText] = useState("");
   const [demo, setDemo] = useState(false);
   const [result, setResult] = useState<CheckResponse | null>(null);
+  const [checkedText, setCheckedText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,6 +39,7 @@ export function CheckForm({ screenshots = false }: { screenshots?: boolean }) {
         throw new Error(err?.issues?.[0] ?? err?.error ?? `Check failed (HTTP ${res.status})`);
       }
       setResult(CheckResponse.parse(await res.json()));
+      setCheckedText(input); // kept in the browser for the "I already paid" draft
     } catch (e) {
       setResult(null);
       setError(e instanceof Error ? e.message : "Check failed");
@@ -128,7 +130,7 @@ export function CheckForm({ screenshots = false }: { screenshots?: boolean }) {
       <p role="status" aria-live="polite" className="sr-only">
         {loading ? "Checking." : result ? `Result ready: ${result.risk.label}.` : ""}
       </p>
-      <RiskCard result={result} demo={demo} />
+      <RiskCard result={result} demo={demo} text={checkedText} />
     </>
   );
 }

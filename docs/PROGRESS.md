@@ -403,3 +403,12 @@ Measured per window size (same on /, samples 1-3; /about and /nope have no form)
 | Not-checked lines | PASS | UPI ("UPI IDs have no public database here; only community reports are used."), TRON wallet sources not looked up, domains not checked, Etherscan chains not enabled on this plan |
 | Never "clean"/"safe"; no AI row while off | PASS | test |
 | Browser at 375 / 1440 | UNKNOWN until J6 | |
+
+## J5b - "I already paid" mode
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Control and ordered plan | PASS | "I already paid" outline button inside the What to do now band (collapsed by default); 7 steps in the required order, "No step can promise to get your money back. Not legal advice." (`complaint-draft.test.ts`) |
+| Fields and draft in the browser | PASS | amount, date and time, payment method, transaction ID as React state; `buildComplaintDraft` uses the shared extractor with `raw` identifiers (`+91 98765 43210` kept as typed); chat text not copied; draft says it is a draft, not legal advice |
+| No request while editing or copying | PASS (without DOM) | `fetch` stubbed with `vi.stubGlobal`; render, field updates and `copyComplaintDraft` -> `fetchSpy` not called; source scan: no fetch/XMLHttpRequest/sendBeacon/WebSocket/`/api/` in the component or module. Click-through: UNKNOWN until the J6 browser run |
+| Flaky test seen | NOTE | first full run: `SQL increment_usage: atomic count, denied calls are not counted` timed out at 5000 ms (PGlite under load, unrelated file); rerun alone `Tests 18 passed (18)`, full rerun `Tests 381 passed (381)` |
