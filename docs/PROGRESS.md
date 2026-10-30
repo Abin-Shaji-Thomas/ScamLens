@@ -670,3 +670,12 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | No auto-verify | PASS | source test: tryExample only fills the box; one `void run()` (the Verify button) |
 | Failures | PASS | no receipt, 429, 500, bad shape, network: one plain sentence each (tests) |
 
+## H2f - One-time New line
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Wording | PASS | the brief's sentence when a receipt exists; without "signed receipt" when none (it would otherwise name something absent) |
+| Once per session | PASS | sessionStorage flag `scamlens:new-line-seen`; second claim false (tests) |
+| try/catch | PASS | throwing, blocked and missing storage: no throw, line allowed, still once per page (ref) |
+| Placement | PASS | under the badge, before What was checked; print:hidden (render test) |
+

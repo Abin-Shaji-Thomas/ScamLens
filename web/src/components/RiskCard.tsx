@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { CheckResponse } from "@/lib/api-schema";
 import type { GraphCoverage } from "@/lib/coverage";
 import { DEMO_LABEL } from "@/lib/demo";
+import { newLineText } from "@/lib/new-line";
 import { TIERS } from "@/lib/tiers";
 import { CoverageLedger } from "./CoverageLedger";
 import { EvidencePackButton } from "./EvidencePackButton";
@@ -35,7 +36,18 @@ function Identifiers({ ids }: { ids: CheckResponse["identifiers"] }) {
 }
 
 /** `text` is the text that was checked; it stays in the browser (used only for the "I already paid" draft). */
-export function RiskCard({ result, demo = false, text = "" }: { result: CheckResponse | null; demo?: boolean; text?: string }) {
+export function RiskCard({
+  result,
+  demo = false,
+  text = "",
+  showNew = false,
+}: {
+  result: CheckResponse | null;
+  demo?: boolean;
+  text?: string;
+  /** The one-time "New: ..." line (CheckForm decides; first result in a browser session). */
+  showNew?: boolean;
+}) {
   // The last link-graph lookup for THIS result (keyed by checkedAt, so a new check starts at "not looked up").
   const [lookup, setLookup] = useState<{ at: string; g: GraphCoverage } | null>(null);
   const graph = result && lookup && lookup.at === result.checkedAt ? lookup.g : null;
@@ -53,6 +65,11 @@ export function RiskCard({ result, demo = false, text = "" }: { result: CheckRes
               <div className="mt-6 flex flex-col">
                 {demo && <p className="t-small mb-4 text-swiss-text">{DEMO_LABEL}</p>}
                 <RiskBadge risk={result.risk} />
+                {showNew && (
+                  <p className="t-small mt-4 text-swiss-text print:hidden" data-new-line>
+                    {newLineText(Boolean(result.receipt))}
+                  </p>
+                )}
                 {result.notices.map((n, i) => (
                   <p key={i} className="mt-4 text-swiss-text">
                     Note: {n}

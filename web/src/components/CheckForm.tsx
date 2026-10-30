@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CheckResponse, MAX_INPUT_CHARS } from "@/lib/api-schema";
+import { claimNewLine } from "@/lib/new-line";
 import type { PatternExample } from "@/lib/pattern-example";
 import { SAMPLE_WATERMARK, SAMPLES } from "@/lib/samples";
 import { SCREENSHOT_OFF } from "@/lib/screenshot-copy";
@@ -22,6 +23,9 @@ export function CheckForm({ screenshots = false, example = null }: { screenshots
   const [checkedText, setCheckedText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // checkedAt of the one result that shows the "New: ..." line (first result in this browser session).
+  const [newFor, setNewFor] = useState<string | null>(null);
+  const newClaimed = useRef(false);
 
   // Move focus to the result so keyboard and screen-reader users land on it.
   useEffect(() => {
@@ -42,7 +46,12 @@ export function CheckForm({ screenshots = false, example = null }: { screenshots
         const err = (await res.json().catch(() => null)) as { error?: string; issues?: string[] } | null;
         throw new Error(err?.issues?.[0] ?? err?.error ?? `Check failed (HTTP ${res.status})`);
       }
-      setResult(CheckResponse.parse(await res.json()));
+      const next = CheckResponse.parse(await res.json());
+      if (!newClaimed.current) {
+        newClaimed.current = true;
+        if (claimNewLine()) setNewFor(next.checkedAt);
+      }
+      setResult(next);
       setCheckedText(input); // kept in the browser for the "I already paid" draft
     } catch (e) {
       setResult(null);
@@ -144,7 +153,7 @@ export function CheckForm({ screenshots = false, example = null }: { screenshots
       <p role="status" aria-live="polite" className="sr-only">
         {loading ? "Checking." : result ? `Result ready: ${result.risk.label}.` : ""}
       </p>
-      <RiskCard result={result} demo={demo} text={checkedText} />
+      <RiskCard result={result} demo={demo} text={checkedText} showNew={result !== null && result.checkedAt === newFor} />
       {result && <BeyondTheCheck />}
     </>
   );
