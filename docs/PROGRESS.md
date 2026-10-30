@@ -242,7 +242,7 @@ Browser tooling for this round: headless Microsoft Edge driven over the Chrome D
 
 | Criterion | Result | Evidence |
 |---|---|---|
-| Identity | PASS | `Abin-Shaji-Thomas` / `abinshajiabin2006@gmail.com`; branch `ui-swiss` from `main` (= `origin/main` at c860f73) |
+| Identity | PASS | `Abin-Shaji-Thomas` / `<owner email>`; branch `ui-swiss` from `main` (= `origin/main` at c860f73) |
 | Pre-flight | PASS (one flaky run) | first `npm test`: `Tests 3 failed | 295 passed (298)`; the next three runs: `Tests 298 passed (298)` each. Failures did not reproduce (likely timing under load); typecheck 0, lint 0, build 0 |
 | Before screenshots | PASS | `docs/screens/before-{home,sample1,about}-{375,768,1440,1920}.png` (12 files) |
 | Measured content width (before) | PASS | 375: 327 px = 87.2%; 768: 592 px = 77.1%; 1440: 592 px = 41.1%; 1920: 592 px = 30.8% (same on /, sample 1 and /about) |
@@ -332,7 +332,7 @@ Measured per window size (same on /, samples 1-3; /about and /nope have no form)
 | Criterion | Result | Evidence |
 |---|---|---|
 | Remote not ahead | PASS | `git fetch origin`; `main..origin/main` = 0 commits |
-| Fast-forward and plain push | PASS | `git merge --ff-only ui-swiss`; `git push origin main`: `c860f73..9af7c4f  main -> main`; `git log origin/main -1`: `9af7c4f Abin-Shaji-Thomas <abinshajiabin2006@gmail.com> docs(readme): ...` |
+| Fast-forward and plain push | PASS | `git merge --ff-only ui-swiss`; `git push origin main`: `c860f73..9af7c4f  main -> main`; `git log origin/main -1`: `9af7c4f Abin-Shaji-Thomas <<owner email>> docs(readme): ...` |
 | Live build = HEAD | PASS | 01:00:39 no `build` key (old deployment); 01:01:00 `"build":"9af7c4f"` = `git rev-parse --short HEAD` |
 | smoke-live | FAIL then PASS | first run (about 1 minute after the new deployment went live): `FAIL [crypto-investment] request completed (TimeoutError)`, `FAIL [bank-alert] request completed (TypeError)`, `2 FAIL (16 expectations)`. No API code changed in this round (`git diff c860f73..HEAD -- src/app/api src/lib/check.ts src/lib/verified src/lib/signals src/lib/reports` is empty); a direct check then answered 200 in 1.6 s; second run: `ALL PASS (36 expectations)`. Likely a cold start of the fresh deployment; not reverted |
 | check-headers live | PASS | `ALL PASS (48 checks)` |
@@ -344,7 +344,7 @@ Measured per window size (same on /, samples 1-3; /about and /nope have no form)
 
 | Criterion | Result | Evidence |
 |---|---|---|
-| Identity | PASS | `Abin-Shaji-Thomas` / `abinshajiabin2006@gmail.com` |
+| Identity | PASS | `Abin-Shaji-Thomas` / `<owner email>` |
 | Swiss UI round on main | PASS | `b41bd7d style(layout)`, `b55007e style(ui)`, `22293cb feat(health)` in `git log`; main = origin/main |
 | Baseline | PASS | `Tests 339 passed (339)` (17 files), typecheck 0, lint 0, build 0 |
 | Live current | PASS | live `"build":"9e95b19"` = `git rev-parse --short HEAD` |
@@ -461,7 +461,7 @@ Full matrix and scenario table: `docs/knowledge/18-RELEASE-READINESS.md`.
 | Criterion | Result | Evidence |
 |---|---|---|
 | Remote not ahead | PASS | `origin-only commits: 0` |
-| Fast-forward and plain push | PASS | `9e95b19..f201b16  main -> main`; `git log origin/main -1`: `f201b16 Abin-Shaji-Thomas <abinshajiabin2006@gmail.com> docs(launch): ...` |
+| Fast-forward and plain push | PASS | `9e95b19..f201b16  main -> main`; `git log origin/main -1`: `f201b16 Abin-Shaji-Thomas <<owner email>> docs(launch): ...` |
 | Live build = HEAD | PASS | 08:15:24 `9e95b19`, 08:16:07 `"build":"f201b16"`; `"receipts":true` |
 | smoke-live | PASS | `ALL PASS (39 expectations)`; receipts verify for all three samples (codes icPmIKap2eEM, P4bfYH1_s6tN, 8DPUAodT-Dbr) |
 | check-headers | PASS | `ALL PASS (48 checks)` |
@@ -475,7 +475,7 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 
 | Criterion | Result | Evidence |
 |---|---|---|
-| Identity, branch | PASS | `Abin-Shaji-Thomas` / `abinshajiabin2006@gmail.com`; `tg-finish` from main 89ad467; main ahead 0, behind 0 |
+| Identity, branch | PASS | `Abin-Shaji-Thomas` / `<owner email>`; `tg-finish` from main 89ad467; main ahead 0, behind 0 |
 | Live health | PASS | `{"ok":true,...,"graph":"tigergraph","usageStore":"supabase","llm":false,"vision":false,"etherscan":true,"build":"89ad467","receipts":true}` = HEAD |
 | Baseline suites | FLAKY | first run `Tests 6 failed | 400 passed (406)` (six PGlite tests at 5.7-6.7 s > 5000 ms default); rerun `Tests 406 passed (406)`; typecheck 0, lint 0, build 0, docs:check PASS. Fixed next (G5.3 moved forward) |
 | WORKING_RULES | PASS | narrow TigerGraph permission added; dashboards stay human-only |
@@ -607,7 +607,7 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 
 | Criterion | Result | Evidence |
 |---|---|---|
-| Identity, branch, remote | PASS | `Abin-Shaji-Thomas` / `abinshajiabin2006@gmail.com`; HEAD = origin/main = ccfffa6; branch `finish` |
+| Identity, branch, remote | PASS | `Abin-Shaji-Thomas` / `<owner email>`; HEAD = origin/main = ccfffa6; branch `finish` |
 | Gate | PASS | `Tests 435 passed (435)`, typecheck 0, lint 0, build 0, docs:check PASS |
 | Live health | PASS | `"build":"ccfffa6"` = HEAD, `"graph":"tigergraph"`, `"receipts":true` |
 | Old servers | DONE | a server on port 3000 (the owner's older localhost) was stopped; local production build on 3400 |
@@ -765,3 +765,29 @@ Screenshots: `docs/screens/finish-example-375.png`, `docs/screens/finish-result-
 | look parity vs reference | PASS | 39 typography values x 5 widths identical; h1 wraps identical |
 | screenshots | PASS | 6 live-*.png replace the 10 earlier ones |
 
+
+# Final round (branch `final`, 2026-10-30)
+
+## P0 - Baseline and state discovery
+
+| Check | Result | Evidence |
+|---|---|---|
+| Identity | PASS | `Abin-Shaji-Thomas` / owner email (configured; not written into files) |
+| Branch | PASS | `final` from main = origin/main = fb7874e |
+| Gate | PASS | 480 tests, typecheck 0, lint 0, build 0, docs:check PASS |
+| Live health | PASS | `"build":"fb7874e"` = HEAD; receipts true, graph tigergraph, llm false |
+
+| Item | State |
+|---|---|
+| Header links Patterns / Verify a receipt / About (44 px, aria-current) | already done (519d17b) |
+| Home "Beyond the check" band | already done (1103255) |
+| "Share proof" step | already done (4a68571) |
+| "Try this example" on /patterns, `?example=` validated server-side | already done (65ee1da) |
+| /verify "How to get a receipt" and "Try an example" | already done (60fa30f) |
+| One-time "New:" line | already done (46c0819) |
+| Domain row (GoPlus phishing sites) | already done (c2036ca) |
+| /api/usage-stats | done (c33f432); P7 asks for a 10-minute cache and only `{checks, days}`: to change |
+| docs/knowledge/STALE_PHRASES.json | done as plain phrases (02d8955); P8 asks for regexes: to extend |
+| web/src/lib/contact.ts, footer contact | missing |
+| web/src/app/icon.svg | exists |
+| Personal email in files | found 6 times in this file (history rows); replaced with `<owner email>`. Older commits still contain it (pushed history is not rewritten) |
