@@ -4,6 +4,7 @@
 //   POST /restpp/graph/{graph}            -> upsert vertices/edges
 //   POST /gsql/v1/statements (text/plain) -> run GSQL (schema)   ; POST /gsql/v1/queries, GET /gsql/v1/queries/install
 import { z } from "zod";
+import { maskDetail } from "./migrations";
 import { Q1Row, Q2Row, Q3Row, Q4Edge, VERTEX_TYPE, type GraphBackend, type LinkQuery, type LinkResult } from "./types";
 
 export interface TgConfig {
@@ -80,8 +81,10 @@ export function tigerGraphClient(cfg: TgConfig) {
     }
     const env = Envelope.safeParse(body);
     if (!res.ok || (env.success && env.data.error)) {
-      const msg = env.success ? env.data.message : undefined;
-      throw new TigerGraphError(`TigerGraph ${path.split("?")[0]} failed (HTTP ${res.status})${msg ? `: ${msg.slice(0, 200)}` : ""}`);
+      // The response body carries the useful detail (for example a GSQL compile error); secrets are masked.
+      const msg = (env.success ? env.data.message : undefined) || text;
+      const detail = maskDetail(msg ?? "", [cfg.secret, (auth?.header ?? "").replace(/^\S+\s+/, "")]);
+      throw new TigerGraphError(`TigerGraph ${path.split("?")[0]} failed (HTTP ${res.status})${detail ? `: ${detail}` : ""}`);
     }
     return body;
   }

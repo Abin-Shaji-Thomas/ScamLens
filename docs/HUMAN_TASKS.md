@@ -16,12 +16,10 @@ Steps (Supabase -> SQL Editor -> New query, one file per run, in this order; all
 `curl.exe -s https://scam-lens-two.vercel.app/api/health` must show `"build"` equal to `git rev-parse --short HEAD` (first 7 characters). If not, open Vercel -> Deployments and check the latest deployment. Rollback: Vercel -> Deployments -> choose the previous Ready deployment -> **Promote to Production**.
 Optional in the same visit (Vercel -> Settings): Function Region = Mumbai (`bom1`); remove `SUPABASE_ANON_KEY` (unused); optional AI variables are listed in `docs/DEPLOY.md` section 2.
 
-## 3. Resume TigerGraph and run the setup script
-Why: on 2026-10-30 the workspace did not wake: `/restpp/echo` returned HTTP 500 "Failed to start workspace. Auto start is not enabled for this workspace." for 5 minutes, so `tg-setup.ts` (round 1's two-reporter queries) has still not been compiled live. Fallback until done: the graph answers from Postgres and says `postgres (TigerGraph unavailable)` (confirmed through the app the same day).
-Steps:
-1. TigerGraph Savanna -> Workspaces -> the ScamLens workspace -> **Resume** (and, if offered, turn on **Auto start** so it wakes on the first request).
-2. `cd web` then `npx tsx scripts/tg-setup.ts`. It must end with `parity TigerGraph vs Postgres: N/N queries SAME`. If GSQL fails to compile, copy the exact error into an issue; the Postgres fallback keeps working.
-3. In the app, run sample 1 and press "Show links for upi ..." until the note under the graph says `Graph backend: tigergraph`.
+## 3. Keep TigerGraph awake before demos (setup DONE 2026-10-30)
+Done: the owner applied global migration 001 by hand; `tg-setup.ts` then reported `19/19 queries SAME` and the app says `Graph backend: tigergraph`.
+Still needed before judging: Savanna has no auto-start, so an idle workspace suspends. Open TigerGraph Savanna -> Workspaces -> ScamLens -> **Resume** shortly before a demo, then run sample 1 and press "Show links" until the note says `Graph backend: tigergraph`. Fallback while suspended: Postgres, labelled `postgres (TigerGraph unavailable)`.
+If `tg-setup.ts` ever stops with "HUMAN STEP REQUIRED", paste the GSQL it prints into the Savanna GSQL editor and re-run it.
 
 ## 4. Smoke-test the live URL
 `cd web` then `npx tsx scripts/smoke-live.ts https://scam-lens-two.vercel.app`. Expect `ALL PASS (36 expectations)` (passed against `npm run start` locally on 2026-10-29 with the live Supabase, TigerGraph and Etherscan keys).

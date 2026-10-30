@@ -56,6 +56,14 @@ Postgres (Supabase) is the source of truth, and TigerGraph holds the same links 
 4. In `web/.env.local` set `TG_HOST=...`, `TG_SECRET=...` and `TG_GRAPH=ScamLens`. Add the same three in Vercel → Settings → Environment Variables and redeploy.
 5. `cd web && npx tsx scripts/tg-setup.ts` creates the schema, installs Q1-Q4 (a few minutes), loads the data and runs the parity check.
 
+## The one global migration
+
+One-time global migration: graphs created before round 1 lack `Report.reporter_key`. Adding it is a GLOBAL schema change, which the graph-scoped token (`TG_SECRET`) is not allowed to make. `tg-setup.ts` therefore reads the schema first (`GET /gsql/v1/schema/graphs/<graph>`): if the attribute exists it prints `migration 001 already applied` and goes on; if it is missing it stops with exit code 2 and "HUMAN STEP REQUIRED", printing `graph/migrations/001_report_reporter_key.gsql` to paste into the Savanna GSQL editor (`USE GLOBAL`, then a global schema change job that adds `reporter_key STRING DEFAULT ""`), after which you re-run `tg-setup.ts`. The owner applied it on 2026-10-30.
+
+## Verified on a live Savanna workspace (2026-10-30)
+
+After the owner applied migration 001 by hand, `npx tsx scripts/tg-setup.ts` printed `migration 001 already applied (Report.reporter_key exists)` (no "Access Denied"), created and installed Q1-Q4, accepted 22 vertices / 21 edges and ended with `parity TigerGraph vs Postgres: 19/19 queries SAME` (Q1: 2 cases; Q2: `[]` for all 7 wallets; Q3: 1 cluster of 3 handles). The app's graph note says `Graph backend: tigergraph`.
+
 ## Verified on a live Savanna workspace (2026-10-29)
 
 `npx tsx scripts/tg-setup.ts` against the project's Savanna workspace: schema created, all four queries compiled and installed, 22 vertices / 21 edges accepted from Supabase, and **19/19 queries SAME** as Postgres (every UPI for Q1, every wallet for Q2 and Q4, plus Q3). Re-run with `GRAPH_HUB_MAX=3`, so that the shared wallet becomes a hub: Q1 returns nothing on both backends, again 19/19 SAME.

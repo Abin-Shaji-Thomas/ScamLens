@@ -7,6 +7,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { findLinks, hubMax, tgConfig } from "../src/lib/graph";
 import { postgresBackend } from "../src/lib/graph/postgres";
+import { decideMigration, MIGRATIONS } from "../src/lib/graph/migrations";
 import { buildFullPayload } from "../src/lib/graph/tg-sync";
 import { QUERY_NAMES, tigerGraphBackend, tigerGraphClient } from "../src/lib/graph/tigergraph";
 import type { IdentifierType } from "../src/lib/extract/types";
@@ -33,10 +34,17 @@ async function main() {
   if (only("--schema")) {
     const exists = await client.request(`/gsql/v1/schema/graphs/${tg.graph}`).then(() => true, () => false);
     if (exists) {
-      console.log(`2. schema: graph ${tg.graph} already exists - applying migrations`);
-      for (const m of ["001_report_reporter_key.gsql"]) {
-        const out = JSON.stringify(await client.statements(gsql(`migrations/${m}`)).catch((e: unknown) => String(e)));
-        console.log(`   ${m}: ${/already exists|is already|exists in/i.test(out) ? "already applied" : out.slice(0, 300)}`);
+      // Migrations are global schema changes, which the graph-scoped token may not make. Read the schema and
+      // either skip (already applied) or stop with the exact GSQL for the owner to run in the Savanna editor.
+      console.log(`2. schema: graph ${tg.graph} already exists - checking migrations`);
+      const schema = await client.request(`/gsql/v1/schema/graphs/${tg.graph}`);
+      for (const m of MIGRATIONS) {
+        const d = decideMigration(m, schema, readFileSync(join(GRAPH_DIR, "migrations", m.file), "utf8"));
+        if (d.action === "skip") console.log(`   ${d.message}`);
+        else {
+          console.log(`\n${d.message}`);
+          process.exit(d.exitCode);
+        }
       }
     } else console.log("2. schema:", JSON.stringify(await client.statements(gsql("schema.gsql"))).slice(0, 400));
   }
@@ -48,7 +56,19 @@ async function main() {
       console.log(`3. create ${name}:`, JSON.stringify(await client.createQuery(b)).slice(0, 300));
     }
     console.log("   installing (can take a few minutes)...");
-    console.log("   install:", JSON.stringify(await client.installQueries(Object.values(QUERY_NAMES))).slice(0, 400));
+    // The install call holds one HTTP request open for minutes; Savanna can drop it ("fetch failed") while the
+    // install keeps running on the server. Installing is safe to repeat, so retry network drops a few times.
+    for (let attempt = 1; ; attempt++) {
+      try {
+        console.log("   install:", JSON.stringify(await client.installQueries(Object.values(QUERY_NAMES))).slice(0, 400));
+        break;
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if (attempt >= 4 || !/fetch failed|aborted|timeout|socket|ECONNRESET/i.test(msg)) throw e;
+        console.log(`   install connection dropped (${msg.slice(0, 80)}); retrying in 30 s (attempt ${attempt + 1} of 4)`);
+        await new Promise((r) => setTimeout(r, 30_000));
+      }
+    }
   }
 
   if (only("--load")) {

@@ -1,7 +1,11 @@
-# F1 migration for graphs created before reporter_key existed: adds the pseudonymous reporter key
-# to Report vertices so Q1/Q3 can require two different reporters. Applied by scripts/tg-setup.ts.
+# Migration 001 (round 1, F1): adds the pseudonymous reporter key to Report vertices so Q1 and Q3 can require
+# two different reporters. Graphs created from schema.gsql after F1 already have it.
+# This is a GLOBAL schema change: the graph-scoped token used by scripts/tg-setup.ts is not allowed to run it.
+# tg-setup checks the schema and, if Report.reporter_key is missing, stops and prints this file. Run it once, as the
+# workspace owner, in TigerGraph Savanna -> GSQL editor, then re-run tg-setup. It is what the owner ran on 2026-10-30.
+# Running it again on a graph that already has the attribute fails harmlessly with an "already exists" error.
+USE GLOBAL
 CREATE GLOBAL SCHEMA_CHANGE JOB scamlens_add_reporter_key {
-  ALTER VERTEX Report ADD ATTRIBUTE (reporter_key STRING);
+  ALTER VERTEX Report ADD ATTRIBUTE (reporter_key STRING DEFAULT "");
 }
 RUN GLOBAL SCHEMA_CHANGE JOB scamlens_add_reporter_key
-DROP JOB scamlens_add_reporter_key

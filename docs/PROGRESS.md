@@ -487,3 +487,12 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | Cause found | PASS | test hooks are already reset in afterEach (usage.test.ts, transcribe.test.ts); measured `localDb()`: `sequential localDb() ms: 1321, 981, 1257 | 6 in parallel: 7943 ms` -> start-up cost under parallel workers exceeds the 5000 ms default |
 | Fix without weakening | PASS | `vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 })` in the 8 PGlite suites, with a comment; no assertion changed |
 | Stability | PASS | four runs in a row: `Tests 406 passed (406)` x 4 |
+
+## G1 - tg-setup honest about the migration
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Migration file = what the owner ran | PASS | `graph/migrations/001_report_reporter_key.gsql` now has `USE GLOBAL`, `ADD ATTRIBUTE (reporter_key STRING DEFAULT "")`, RUN; the old `DROP JOB` line removed |
+| Schema check before any migration | PASS | `decideMigration` in `web/src/lib/graph/migrations.ts`: present -> skip; missing -> exit 2, "HUMAN STEP REQUIRED" with the file's GSQL; no global call (test asserts tg-setup no longer sends migrations) |
+| Error detail, masked | PASS | client errors carry the response body (800 chars max), secret and bearer token masked (tests with a mocked fetch) |
+| Live tg-setup | PASS | first run: queries created, install `FAILED: fetch failed` (dropped long request; `--check` then showed `19/19 queries SAME`, so the install had completed); added install retries; full re-run: `migration 001 already applied (Report.reporter_key exists)`, `Query installed successfully: q1...q4`, `22 vertices, 21 edges`, `parity TigerGraph vs Postgres: 19/19 queries SAME`, exit 0; "Access Denied" count 0 |

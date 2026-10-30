@@ -9,6 +9,7 @@ What changed, by day, in plain language. The "Notes" list is written by hand wit
 ### Notes
 
 #### 2026-10-30 (TigerGraph finish round, branch tg-finish)
+- tg-setup honest about migrations: it reads the schema, skips migration 001 when `Report.reporter_key` exists, and otherwise stops with "HUMAN STEP REQUIRED" and the GSQL (no more "Access Denied" from a global change with the graph token); the migration file now matches what the owner ran; TigerGraph errors include the masked response detail; install retries a dropped connection. Live: `19/19 queries SAME`.
 - Flaky PGlite tests fixed: the cause was Postgres-in-WebAssembly start-up under parallel load (about 8 s for six at once); the 8 PGlite suites now have explicit 30 s timeouts.
 
 #### 2026-10-30 (final quality round, branch final-quality)

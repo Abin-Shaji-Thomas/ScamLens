@@ -80,11 +80,13 @@ Check a running server: `npx tsx scripts/check-headers.ts <base-url>` prints PAS
 Commands already in the repo, run after the Supabase SQL:
 
 ```powershell
-npx tsx scripts/tg-setup.ts          # schema migration, install Q1-Q4, load data from Supabase, parity check
+npx tsx scripts/tg-setup.ts          # check migrations, install Q1-Q4, load data from Supabase, parity check
 npx tsx scripts/tg-setup.ts --load   # reload data only (e.g. if a live upsert failed)
 ```
 
 `tg-setup.ts` must end with `parity TigerGraph vs Postgres: N/N queries SAME`. Leave the starter `Transaction_Fraud` graph in the workspace alone.
+
+One-time global migration: graphs created before round 1 lack `Report.reporter_key`. Adding it is a GLOBAL schema change, which the graph-scoped token (`TG_SECRET`) is not allowed to make. `tg-setup.ts` therefore reads the schema first (`GET /gsql/v1/schema/graphs/<graph>`): if the attribute exists it prints `migration 001 already applied` and goes on; if it is missing it stops with exit code 2 and "HUMAN STEP REQUIRED", printing `graph/migrations/001_report_reporter_key.gsql` to paste into the Savanna GSQL editor (`USE GLOBAL`, then a global schema change job that adds `reporter_key STRING DEFAULT ""`), after which you re-run `tg-setup.ts`. The owner applied it on 2026-10-30. The install step holds one request open for minutes; if Savanna drops it (`fetch failed`), the script retries up to 3 times, because installing is safe to repeat. Savanna has no auto-start: a suspended workspace answers HTTP 500 "Failed to start workspace" until you resume it, and the app answers from Postgres meanwhile.
 
 ## 5. Before a demo
 
