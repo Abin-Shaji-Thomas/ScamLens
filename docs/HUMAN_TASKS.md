@@ -3,7 +3,7 @@
 Things the automated runs cannot do (no dashboard access, no logins). The app keeps working without them; each item says what happens until it is done. State as of the finish round (2026-10-30): the Supabase SQL is run, TigerGraph setup is done (`19/19 queries SAME`), and AI stays off by the owner's decision. Numbers marked in this file are checked against the code by `npm run docs:check`.
 
 ## 0. Run migration 004 (once, new in the final round)
-In the Supabase SQL editor run all of `web/db/migrations/004_cases_and_feedback.sql` (idempotent), then `select count(*) from cases;`. Until then the "add it to the map" panel says "Contributing is not available right now." and nothing else changes.
+In the Supabase SQL editor run all of `web/db/migrations/004_cases_and_feedback.sql` (idempotent), then `select count(*) from cases;`. Until then the "add it to the map" panel says "Contributing is not available right now." and nothing else changes. Then run `cd web && npx tsx scripts/seed-india-cases.ts --apply` again so the 56 demo cases also get their `cases` rows (counts by channel, loss band and month).
 
 ## 1. Before a demo: wake TigerGraph
 Savanna has no auto-start, so an idle workspace suspends. Shortly before a demo or judging: TigerGraph Savanna -> Workspaces -> ScamLens -> **Resume**. Then on the live site run sample 1 and press "Show links for upi ..." until the note says `Graph backend: tigergraph (N ms)`, and open /about: the "Link graph" section should end with "... counted by TigerGraph."

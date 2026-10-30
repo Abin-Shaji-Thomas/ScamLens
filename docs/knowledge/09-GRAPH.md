@@ -6,6 +6,8 @@ One scam often reuses the same money trail across many victims: a UPI ID in one 
 
 ## Details
 
+**Demo data (final round P4).** Besides the original 9-report scenario (`web/src/lib/graph/seed.ts`), the live graph holds the Indian synthetic dataset: 56 cases in 10 campaigns (`eval/india-cases.json`, `web/src/lib/graph/india-dataset.ts`, `web/scripts/seed-india-cases.ts`, `docs/DATASET.md`). It was designed to exercise every query: Q1 with halves from different reporters, Q2 with 1- and 2-hop paths and one path only through an exchange-style address, Q3 clusters of 4 and 2 handles, a wallet shared by two campaigns, an admin handle shared by two campaigns, and two contested shop/tutor UPI IDs. `tg-setup.ts` now also prints dataset checks (Q1 and Q2 non-empty for >= 2 cases, Q3 >= 2 clusters, no path through an exchange) and exits 1 if one fails. Live on 2026-10-30: `parity TigerGraph vs Postgres: 63/63 queries SAME`, all dataset checks PASS.
+
 Data model (`graph/schema.gsql`):
 
 ```
@@ -56,6 +58,7 @@ One-time global migration: graphs created before round 1 lack `Report.reporter_k
 - `web/src/lib/graph/postgres.ts`: Postgres backend.
 - `web/src/lib/graph/index.ts`: backend choice and fallback.
 - `web/src/lib/graph/view.ts`: builds the view for one identifier, including each path's `edges`.
+- `web/src/lib/graph/india-dataset.ts` and `web/scripts/seed-india-cases.ts`: the Indian synthetic dataset (seed, idempotent re-run, `--remove`).
 - `web/src/lib/graph/edges.ts`: `edgeKey` and `onEvidencePath` (browser-safe, no server imports).
 - `web/src/components/FitGraph.tsx` and `web/src/lib/graph/drawing.ts`: drawing, fit and canvas size.
 - `web/src/lib/graph/tg-sync.ts`: live and full sync payloads.

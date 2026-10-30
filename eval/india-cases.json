@@ -1,0 +1,1138 @@
+{
+ "description": "Illustrative demo data. 56 synthetic cases in 10 campaigns modelled on publicly reported Indian scam types (sources in docs/DATASET.md). Every identifier is synthetic: demo UPI handles (zzdemo.*@okdemo), demo Telegram handles (@zzdemo_*), reserved domains (example.com/net/org), wallets from eval/synthetic-wallets.json (random discarded keys). Reporter IPs are documentation addresses (198.51.100.0/24) turned into fingerprints through the real HMAC path. Seeded by web/scripts/seed-india-cases.ts.",
+ "version": 1,
+ "campaigns": {
+  "1": "Digital arrest (fake CBI or police)",
+  "2": "Telegram like-and-earn tasks",
+  "3": "Romance, then a crypto investment group",
+  "4": "Fake KYC / bank block",
+  "5": "Electricity disconnection",
+  "6": "Lottery or prize",
+  "7": "P2P USDT 'bank freeze' buyer",
+  "8": "Loan-app harassment",
+  "9": "Fake work-from-home job",
+  "10": "Remote-access 'customer care'"
+ },
+ "payments": [
+  [
+   "0xf48CB85c5D89D817D36B58fb98c62289F00c3169",
+   "0x111aa79072de4574A2d386017AA2E69C30b42f6B"
+  ],
+  [
+   "0x111aa79072de4574A2d386017AA2E69C30b42f6B",
+   "0x47B581F4F81a1627a418434b770b282aE7368787"
+  ],
+  [
+   "0x2f426F95c7dF51a50b38737EFAe3eb57BF352149",
+   "0x47B581F4F81a1627a418434b770b282aE7368787"
+  ],
+  [
+   "0x04eC871A572719370939652d1e743EB36eED97C1",
+   "0x47203FB2F1bfDba4bFc77413AbdB694BE2ab4D88"
+  ],
+  [
+   "0x47203FB2F1bfDba4bFc77413AbdB694BE2ab4D88",
+   "0x47B581F4F81a1627a418434b770b282aE7368787"
+  ]
+ ],
+ "flagged": [
+  "0x47B581F4F81a1627a418434b770b282aE7368787"
+ ],
+ "exchanges": [
+  "0x47203FB2F1bfDba4bFc77413AbdB694BE2ab4D88"
+ ],
+ "contested": [
+  "zzdemo.kirana.shop@okdemo",
+  "zzdemo.tuition.fees@okdemo"
+ ],
+ "cases": [
+  {
+   "id": "in-01-01",
+   "campaign": 1,
+   "category": "digital_arrest",
+   "reporterIp": "198.51.100.1",
+   "month": "2026-07",
+   "channel": "call",
+   "lossBand": "gt_1l",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.cbi.verify@okdemo"
+    },
+    {
+     "type": "telegram",
+     "value": "@zzdemo_cbi_officer"
+    }
+   ],
+   "text": "This is an officer from the cyber crime branch. A parcel in your name was seized with drugs and you are under digital arrest. Stay on the video call, tell no one, and transfer your savings to the RBI verification account within 2 hours."
+  },
+  {
+   "id": "in-01-02",
+   "campaign": 1,
+   "category": "digital_arrest",
+   "reporterIp": "198.51.100.2",
+   "month": "2026-08",
+   "channel": "call",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.cbi.verify@okdemo"
+    }
+   ],
+   "text": "This is an officer from the cyber crime branch. A parcel in your name was seized with drugs and you are under digital arrest. Stay on the video call, tell no one, and transfer your savings to the RBI verification account within 2 hours."
+  },
+  {
+   "id": "in-01-03",
+   "campaign": 1,
+   "category": "digital_arrest",
+   "reporterIp": "198.51.100.3",
+   "month": "2026-09",
+   "channel": "whatsapp",
+   "lossBand": "none",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.cbi.verify@okdemo"
+    },
+    {
+     "type": "telegram",
+     "value": "@zzdemo_cbi_officer"
+    }
+   ],
+   "text": "This is an officer from the cyber crime branch. A parcel in your name was seized with drugs and you are under digital arrest. Stay on the video call, tell no one, and transfer your savings to the RBI verification account within 2 hours."
+  },
+  {
+   "id": "in-01-04",
+   "campaign": 1,
+   "category": "digital_arrest",
+   "reporterIp": "198.51.100.4",
+   "month": "2026-10",
+   "channel": "call",
+   "lossBand": "gt_1l",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.cbi.verify@okdemo"
+    }
+   ],
+   "text": "This is an officer from the cyber crime branch. A parcel in your name was seized with drugs and you are under digital arrest. Stay on the video call, tell no one, and transfer your savings to the RBI verification account within 2 hours."
+  },
+  {
+   "id": "in-01-05",
+   "campaign": 1,
+   "category": "digital_arrest",
+   "reporterIp": "198.51.100.5",
+   "month": "2026-05",
+   "channel": "call",
+   "lossBand": "unknown",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.cbi.verify@okdemo"
+    },
+    {
+     "type": "telegram",
+     "value": "@zzdemo_cbi_officer"
+    }
+   ],
+   "text": "This is an officer from the cyber crime branch. A parcel in your name was seized with drugs and you are under digital arrest. Stay on the video call, tell no one, and transfer your savings to the RBI verification account within 2 hours."
+  },
+  {
+   "id": "in-01-06",
+   "campaign": 1,
+   "category": "digital_arrest",
+   "reporterIp": "198.51.100.6",
+   "month": "2026-06",
+   "channel": "whatsapp",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.rbi.safe@okdemo"
+    }
+   ],
+   "text": "This is an officer from the cyber crime branch. A parcel in your name was seized with drugs and you are under digital arrest. Stay on the video call, tell no one, and transfer your savings to the RBI verification account within 2 hours."
+  },
+  {
+   "id": "in-01-07",
+   "campaign": 1,
+   "category": "digital_arrest",
+   "reporterIp": "198.51.100.7",
+   "month": "2026-07",
+   "channel": "call",
+   "lossBand": "gt_1l",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.rbi.safe@okdemo"
+    }
+   ],
+   "text": "This is an officer from the cyber crime branch. A parcel in your name was seized with drugs and you are under digital arrest. Stay on the video call, tell no one, and transfer your savings to the RBI verification account within 2 hours."
+  },
+  {
+   "id": "in-01-08",
+   "campaign": 1,
+   "category": "digital_arrest",
+   "reporterIp": "198.51.100.8",
+   "month": "2026-08",
+   "channel": "call",
+   "lossBand": "none",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.rbi.safe@okdemo"
+    }
+   ],
+   "text": "This is an officer from the cyber crime branch. A parcel in your name was seized with drugs and you are under digital arrest. Stay on the video call, tell no one, and transfer your savings to the RBI verification account within 2 hours."
+  },
+  {
+   "id": "in-01-09",
+   "campaign": 1,
+   "category": "digital_arrest",
+   "reporterIp": "198.51.100.9",
+   "month": "2026-09",
+   "channel": "whatsapp",
+   "lossBand": "gt_1l",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.rbi.safe@okdemo"
+    },
+    {
+     "type": "telegram",
+     "value": "@zzdemo_cbi_officer"
+    }
+   ],
+   "text": "This is an officer from the cyber crime branch. A parcel in your name was seized with drugs and you are under digital arrest. Stay on the video call, tell no one, and transfer your savings to the RBI verification account within 2 hours."
+  },
+  {
+   "id": "in-02-01",
+   "campaign": 2,
+   "category": "task_job",
+   "reporterIp": "198.51.100.10",
+   "month": "2026-08",
+   "channel": "telegram",
+   "lossBand": "lt_10k",
+   "identifiers": [
+    {
+     "type": "telegram",
+     "value": "@zzdemo_hr_admin"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.taskpay@okdemo"
+    }
+   ],
+   "text": "Part time job: earn 3,000 a day just by liking videos. Complete simple tasks, then join our VIP task group on Telegram. First pay a 999 joining fee to start the prepaid tasks."
+  },
+  {
+   "id": "in-02-02",
+   "campaign": 2,
+   "category": "task_job",
+   "reporterIp": "198.51.100.11",
+   "month": "2026-09",
+   "channel": "telegram",
+   "lossBand": "lt_10k",
+   "identifiers": [
+    {
+     "type": "telegram",
+     "value": "@zzdemo_hr_admin"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.taskpay@okdemo"
+    }
+   ],
+   "text": "Part time job: earn 3,000 a day just by liking videos. Complete simple tasks, then join our VIP task group on Telegram. First pay a 999 joining fee to start the prepaid tasks."
+  },
+  {
+   "id": "in-02-03",
+   "campaign": 2,
+   "category": "task_job",
+   "reporterIp": "198.51.100.12",
+   "month": "2026-10",
+   "channel": "telegram",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "telegram",
+     "value": "@zzdemo_hr_admin"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.taskpay@okdemo"
+    },
+    {
+     "type": "evm",
+     "value": "0x47203FB2F1bfDba4bFc77413AbdB694BE2ab4D88"
+    }
+   ],
+   "text": "Part time job: earn 3,000 a day just by liking videos. Complete simple tasks, then join our VIP task group on Telegram. First pay a 999 joining fee to start the prepaid tasks."
+  },
+  {
+   "id": "in-02-04",
+   "campaign": 2,
+   "category": "task_job",
+   "reporterIp": "198.51.100.13",
+   "month": "2026-05",
+   "channel": "telegram",
+   "lossBand": "none",
+   "identifiers": [
+    {
+     "type": "telegram",
+     "value": "@zzdemo_hr_admin"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.taskpay@okdemo"
+    }
+   ],
+   "text": "Part time job: earn 3,000 a day just by liking videos. Complete simple tasks, then join our VIP task group on Telegram. First pay a 999 joining fee to start the prepaid tasks."
+  },
+  {
+   "id": "in-02-05",
+   "campaign": 2,
+   "category": "task_job",
+   "reporterIp": "198.51.100.14",
+   "month": "2026-06",
+   "channel": "telegram",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "evm",
+     "value": "0x46B2924a4657469c638Ac9A0647637C1f44acc1B"
+    },
+    {
+     "type": "telegram",
+     "value": "@zzdemo_task_mentor"
+    }
+   ],
+   "text": "Part time job: earn 3,000 a day just by liking videos. Complete simple tasks, then join our VIP task group on Telegram. First pay a 999 joining fee to start the prepaid tasks."
+  },
+  {
+   "id": "in-02-06",
+   "campaign": 2,
+   "category": "task_job",
+   "reporterIp": "198.51.100.15",
+   "month": "2026-07",
+   "channel": "telegram",
+   "lossBand": "lt_10k",
+   "identifiers": [
+    {
+     "type": "evm",
+     "value": "0x46B2924a4657469c638Ac9A0647637C1f44acc1B"
+    },
+    {
+     "type": "telegram",
+     "value": "@zzdemo_task_coach"
+    }
+   ],
+   "text": "Part time job: earn 3,000 a day just by liking videos. Complete simple tasks, then join our VIP task group on Telegram. First pay a 999 joining fee to start the prepaid tasks."
+  },
+  {
+   "id": "in-02-07",
+   "campaign": 2,
+   "category": "task_job",
+   "reporterIp": "198.51.100.16",
+   "month": "2026-08",
+   "channel": "telegram",
+   "lossBand": "gt_1l",
+   "identifiers": [
+    {
+     "type": "evm",
+     "value": "0x46B2924a4657469c638Ac9A0647637C1f44acc1B"
+    },
+    {
+     "type": "telegram",
+     "value": "@zzdemo_task_lead"
+    },
+    {
+     "type": "evm",
+     "value": "0x47203FB2F1bfDba4bFc77413AbdB694BE2ab4D88"
+    }
+   ],
+   "text": "Part time job: earn 3,000 a day just by liking videos. Complete simple tasks, then join our VIP task group on Telegram. First pay a 999 joining fee to start the prepaid tasks."
+  },
+  {
+   "id": "in-02-08",
+   "campaign": 2,
+   "category": "task_job",
+   "reporterIp": "198.51.100.17",
+   "month": "2026-09",
+   "channel": "telegram",
+   "lossBand": "lt_10k",
+   "identifiers": [
+    {
+     "type": "evm",
+     "value": "0x46B2924a4657469c638Ac9A0647637C1f44acc1B"
+    },
+    {
+     "type": "telegram",
+     "value": "@zzdemo_task_desk"
+    }
+   ],
+   "text": "Part time job: earn 3,000 a day just by liking videos. Complete simple tasks, then join our VIP task group on Telegram. First pay a 999 joining fee to start the prepaid tasks."
+  },
+  {
+   "id": "in-02-09",
+   "campaign": 2,
+   "category": "task_job",
+   "reporterIp": "198.51.100.18",
+   "month": "2026-10",
+   "channel": "telegram",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "evm",
+     "value": "0x2f426F95c7dF51a50b38737EFAe3eb57BF352149"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.taskpay@okdemo"
+    }
+   ],
+   "text": "Part time job: earn 3,000 a day just by liking videos. Complete simple tasks, then join our VIP task group on Telegram. First pay a 999 joining fee to start the prepaid tasks."
+  },
+  {
+   "id": "in-02-10",
+   "campaign": 2,
+   "category": "task_job",
+   "reporterIp": "198.51.100.19",
+   "month": "2026-05",
+   "channel": "telegram",
+   "lossBand": "unknown",
+   "identifiers": [
+    {
+     "type": "evm",
+     "value": "0x2f426F95c7dF51a50b38737EFAe3eb57BF352149"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.taskpay@okdemo"
+    }
+   ],
+   "text": "Part time job: earn 3,000 a day just by liking videos. Complete simple tasks, then join our VIP task group on Telegram. First pay a 999 joining fee to start the prepaid tasks."
+  },
+  {
+   "id": "in-03-01",
+   "campaign": 3,
+   "category": "romance",
+   "reporterIp": "198.51.100.20",
+   "month": "2026-09",
+   "channel": "app",
+   "lossBand": "gt_1l",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.lovely.trades@okdemo"
+    },
+    {
+     "type": "evm",
+     "value": "0x2f426F95c7dF51a50b38737EFAe3eb57BF352149"
+    }
+   ],
+   "text": "We met on a dating app and he talked about his trading mentor. The investment platform guarantees 20% weekly returns; members earned 5 lakh last month. Start with a small amount and deposit USDT to the wallet, then you can withdraw."
+  },
+  {
+   "id": "in-03-02",
+   "campaign": 3,
+   "category": "romance",
+   "reporterIp": "198.51.100.21",
+   "month": "2026-10",
+   "channel": "app",
+   "lossBand": "gt_1l",
+   "identifiers": [
+    {
+     "type": "evm",
+     "value": "0x2f426F95c7dF51a50b38737EFAe3eb57BF352149"
+    },
+    {
+     "type": "telegram",
+     "value": "@zzdemo_fx_mentor"
+    }
+   ],
+   "text": "We met on a dating app and he talked about his trading mentor. The investment platform guarantees 20% weekly returns; members earned 5 lakh last month. Start with a small amount and deposit USDT to the wallet, then you can withdraw."
+  },
+  {
+   "id": "in-03-03",
+   "campaign": 3,
+   "category": "romance",
+   "reporterIp": "198.51.100.22",
+   "month": "2026-05",
+   "channel": "app",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.fx.signals@okdemo"
+    },
+    {
+     "type": "evm",
+     "value": "0xf48CB85c5D89D817D36B58fb98c62289F00c3169"
+    }
+   ],
+   "text": "We met on a dating app and he talked about his trading mentor. The investment platform guarantees 20% weekly returns; members earned 5 lakh last month. Start with a small amount and deposit USDT to the wallet, then you can withdraw."
+  },
+  {
+   "id": "in-03-04",
+   "campaign": 3,
+   "category": "romance",
+   "reporterIp": "198.51.100.23",
+   "month": "2026-06",
+   "channel": "app",
+   "lossBand": "gt_1l",
+   "identifiers": [
+    {
+     "type": "evm",
+     "value": "0xf48CB85c5D89D817D36B58fb98c62289F00c3169"
+    },
+    {
+     "type": "telegram",
+     "value": "@zzdemo_fx_group"
+    }
+   ],
+   "text": "We met on a dating app and he talked about his trading mentor. The investment platform guarantees 20% weekly returns; members earned 5 lakh last month. Start with a small amount and deposit USDT to the wallet, then you can withdraw."
+  },
+  {
+   "id": "in-03-05",
+   "campaign": 3,
+   "category": "romance",
+   "reporterIp": "198.51.100.24",
+   "month": "2026-07",
+   "channel": "telegram",
+   "lossBand": "unknown",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.lovely.trades@okdemo"
+    },
+    {
+     "type": "domain",
+     "value": "zz-coinvault.example.com"
+    }
+   ],
+   "text": "We met on a dating app and he talked about his trading mentor. The investment platform guarantees 20% weekly returns; members earned 5 lakh last month. Start with a small amount and deposit USDT to the wallet, then you can withdraw."
+  },
+  {
+   "id": "in-03-06",
+   "campaign": 3,
+   "category": "romance",
+   "reporterIp": "198.51.100.25",
+   "month": "2026-08",
+   "channel": "telegram",
+   "lossBand": "gt_1l",
+   "identifiers": [
+    {
+     "type": "evm",
+     "value": "0xf48CB85c5D89D817D36B58fb98c62289F00c3169"
+    },
+    {
+     "type": "domain",
+     "value": "zz-coinvault.example.com"
+    }
+   ],
+   "text": "We met on a dating app and he talked about his trading mentor. The investment platform guarantees 20% weekly returns; members earned 5 lakh last month. Start with a small amount and deposit USDT to the wallet, then you can withdraw."
+  },
+  {
+   "id": "in-03-07",
+   "campaign": 3,
+   "category": "romance",
+   "reporterIp": "198.51.100.26",
+   "month": "2026-09",
+   "channel": "telegram",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.fx.signals@okdemo"
+    },
+    {
+     "type": "evm",
+     "value": "0x04eC871A572719370939652d1e743EB36eED97C1"
+    }
+   ],
+   "text": "We met on a dating app and he talked about his trading mentor. The investment platform guarantees 20% weekly returns; members earned 5 lakh last month. Start with a small amount and deposit USDT to the wallet, then you can withdraw."
+  },
+  {
+   "id": "in-03-08",
+   "campaign": 3,
+   "category": "romance",
+   "reporterIp": "198.51.100.27",
+   "month": "2026-10",
+   "channel": "telegram",
+   "lossBand": "gt_1l",
+   "identifiers": [
+    {
+     "type": "telegram",
+     "value": "@zzdemo_fx_mentor"
+    },
+    {
+     "type": "domain",
+     "value": "zz-coinvault.example.com"
+    }
+   ],
+   "text": "We met on a dating app and he talked about his trading mentor. The investment platform guarantees 20% weekly returns; members earned 5 lakh last month. Start with a small amount and deposit USDT to the wallet, then you can withdraw."
+  },
+  {
+   "id": "in-04-01",
+   "campaign": 4,
+   "category": "kyc_refund",
+   "reporterIp": "198.51.100.28",
+   "month": "2026-10",
+   "channel": "sms",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "domain",
+     "value": "kyc-verify.example.net"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.kyc.update@okdemo"
+    }
+   ],
+   "text": "Dear customer, your KYC has expired and your bank account will be blocked today. Update your KYC now at the link and share the OTP to complete verification."
+  },
+  {
+   "id": "in-04-02",
+   "campaign": 4,
+   "category": "kyc_refund",
+   "reporterIp": "198.51.100.29",
+   "month": "2026-05",
+   "channel": "sms",
+   "lossBand": "lt_10k",
+   "identifiers": [
+    {
+     "type": "domain",
+     "value": "kyc-verify.example.net"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.kyc.update@okdemo"
+    }
+   ],
+   "text": "Dear customer, your KYC has expired and your bank account will be blocked today. Update your KYC now at the link and share the OTP to complete verification."
+  },
+  {
+   "id": "in-04-03",
+   "campaign": 4,
+   "category": "kyc_refund",
+   "reporterIp": "198.51.100.30",
+   "month": "2026-06",
+   "channel": "sms",
+   "lossBand": "none",
+   "identifiers": [
+    {
+     "type": "domain",
+     "value": "kyc-verify.example.net"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.kyc.update@okdemo"
+    }
+   ],
+   "text": "Dear customer, your KYC has expired and your bank account will be blocked today. Update your KYC now at the link and share the OTP to complete verification."
+  },
+  {
+   "id": "in-04-04",
+   "campaign": 4,
+   "category": "kyc_refund",
+   "reporterIp": "198.51.100.31",
+   "month": "2026-07",
+   "channel": "sms",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "domain",
+     "value": "kyc-verify.example.net"
+    }
+   ],
+   "text": "Dear customer, your KYC has expired and your bank account will be blocked today. Update your KYC now at the link and share the OTP to complete verification."
+  },
+  {
+   "id": "in-04-05",
+   "campaign": 4,
+   "category": "kyc_refund",
+   "reporterIp": "198.51.100.32",
+   "month": "2026-08",
+   "channel": "sms",
+   "lossBand": "unknown",
+   "identifiers": [
+    {
+     "type": "domain",
+     "value": "kyc-verify.example.net"
+    }
+   ],
+   "text": "Dear customer, your KYC has expired and your bank account will be blocked today. Update your KYC now at the link and share the OTP to complete verification."
+  },
+  {
+   "id": "in-05-01",
+   "campaign": 5,
+   "category": "impersonation",
+   "reporterIp": "198.51.100.33",
+   "month": "2026-05",
+   "channel": "sms",
+   "lossBand": "lt_10k",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.power.bill@okdemo"
+    }
+   ],
+   "text": "Dear consumer, your electricity connection will be disconnected tonight at 9:30 pm because the previous month bill was not updated. Call our electricity officer immediately and pay the pending amount."
+  },
+  {
+   "id": "in-05-02",
+   "campaign": 5,
+   "category": "impersonation",
+   "reporterIp": "198.51.100.34",
+   "month": "2026-06",
+   "channel": "whatsapp",
+   "lossBand": "none",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.power.bill@okdemo"
+    }
+   ],
+   "text": "Dear consumer, your electricity connection will be disconnected tonight at 9:30 pm because the previous month bill was not updated. Call our electricity officer immediately and pay the pending amount."
+  },
+  {
+   "id": "in-05-03",
+   "campaign": 5,
+   "category": "impersonation",
+   "reporterIp": "198.51.100.35",
+   "month": "2026-07",
+   "channel": "sms",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.power.bill@okdemo"
+    }
+   ],
+   "text": "Dear consumer, your electricity connection will be disconnected tonight at 9:30 pm because the previous month bill was not updated. Call our electricity officer immediately and pay the pending amount."
+  },
+  {
+   "id": "in-06-01",
+   "campaign": 6,
+   "category": "lottery",
+   "reporterIp": "198.51.100.36",
+   "month": "2026-06",
+   "channel": "whatsapp",
+   "lossBand": "lt_10k",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.lucky.draw@okdemo"
+    },
+    {
+     "type": "telegram",
+     "value": "@zzdemo_prize_desk"
+    }
+   ],
+   "text": "Congratulations, you have won 25 lakh in the lucky draw. Pay the processing fee to claim the prize money today."
+  },
+  {
+   "id": "in-06-02",
+   "campaign": 6,
+   "category": "lottery",
+   "reporterIp": "198.51.100.37",
+   "month": "2026-07",
+   "channel": "whatsapp",
+   "lossBand": "lt_10k",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.lucky.draw@okdemo"
+    },
+    {
+     "type": "telegram",
+     "value": "@zzdemo_prize_desk"
+    }
+   ],
+   "text": "Congratulations, you have won 25 lakh in the lucky draw. Pay the processing fee to claim the prize money today."
+  },
+  {
+   "id": "in-06-03",
+   "campaign": 6,
+   "category": "lottery",
+   "reporterIp": "198.51.100.38",
+   "month": "2026-08",
+   "channel": "whatsapp",
+   "lossBand": "none",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.lucky.draw@okdemo"
+    }
+   ],
+   "text": "Congratulations, you have won 25 lakh in the lucky draw. Pay the processing fee to claim the prize money today."
+  },
+  {
+   "id": "in-06-04",
+   "campaign": 6,
+   "category": "lottery",
+   "reporterIp": "198.51.100.39",
+   "month": "2026-09",
+   "channel": "call",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.lucky.draw@okdemo"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.kirana.shop@okdemo"
+    }
+   ],
+   "text": "Congratulations, you have won 25 lakh in the lucky draw. Pay the processing fee to claim the prize money today."
+  },
+  {
+   "id": "in-06-05",
+   "campaign": 6,
+   "category": "lottery",
+   "reporterIp": "198.51.100.40",
+   "month": "2026-10",
+   "channel": "call",
+   "lossBand": "unknown",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.lucky.draw@okdemo"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.kirana.shop@okdemo"
+    }
+   ],
+   "text": "Congratulations, you have won 25 lakh in the lucky draw. Pay the processing fee to claim the prize money today."
+  },
+  {
+   "id": "in-07-01",
+   "campaign": 7,
+   "category": "other",
+   "reporterIp": "198.51.100.41",
+   "month": "2026-07",
+   "channel": "telegram",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "evm",
+     "value": "0xC7970a89D64b3bbCB1E40d0927Dd3Aa4810bE1aE"
+    },
+    {
+     "type": "telegram",
+     "value": "@zzdemo_p2p_buyer1"
+    }
+   ],
+   "text": "I bought USDT from you on P2P and now my bank account is frozen because the money came from a fraud complaint. Send the money back to my UPI or I will file a police case against you."
+  },
+  {
+   "id": "in-07-02",
+   "campaign": 7,
+   "category": "other",
+   "reporterIp": "198.51.100.42",
+   "month": "2026-08",
+   "channel": "telegram",
+   "lossBand": "gt_1l",
+   "identifiers": [
+    {
+     "type": "evm",
+     "value": "0xC7970a89D64b3bbCB1E40d0927Dd3Aa4810bE1aE"
+    },
+    {
+     "type": "telegram",
+     "value": "@zzdemo_p2p_buyer2"
+    }
+   ],
+   "text": "I bought USDT from you on P2P and now my bank account is frozen because the money came from a fraud complaint. Send the money back to my UPI or I will file a police case against you."
+  },
+  {
+   "id": "in-07-03",
+   "campaign": 7,
+   "category": "other",
+   "reporterIp": "198.51.100.43",
+   "month": "2026-09",
+   "channel": "telegram",
+   "lossBand": "unknown",
+   "identifiers": [
+    {
+     "type": "tron",
+     "value": "TCJsh2H63Zp9jp2CGBHcSCxGDX1jL921Vi"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.p2p.refund@okdemo"
+    }
+   ],
+   "text": "I bought USDT from you on P2P and now my bank account is frozen because the money came from a fraud complaint. Send the money back to my UPI or I will file a police case against you."
+  },
+  {
+   "id": "in-07-04",
+   "campaign": 7,
+   "category": "other",
+   "reporterIp": "198.51.100.44",
+   "month": "2026-10",
+   "channel": "telegram",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "tron",
+     "value": "TCJsh2H63Zp9jp2CGBHcSCxGDX1jL921Vi"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.p2p.refund@okdemo"
+    },
+    {
+     "type": "evm",
+     "value": "0x47203FB2F1bfDba4bFc77413AbdB694BE2ab4D88"
+    }
+   ],
+   "text": "I bought USDT from you on P2P and now my bank account is frozen because the money came from a fraud complaint. Send the money back to my UPI or I will file a police case against you."
+  },
+  {
+   "id": "in-07-05",
+   "campaign": 7,
+   "category": "other",
+   "reporterIp": "198.51.100.45",
+   "month": "2026-05",
+   "channel": "telegram",
+   "lossBand": "lt_10k",
+   "identifiers": [
+    {
+     "type": "evm",
+     "value": "0x47203FB2F1bfDba4bFc77413AbdB694BE2ab4D88"
+    },
+    {
+     "type": "telegram",
+     "value": "@zzdemo_p2p_buyer2"
+    }
+   ],
+   "text": "I bought USDT from you on P2P and now my bank account is frozen because the money came from a fraud complaint. Send the money back to my UPI or I will file a police case against you."
+  },
+  {
+   "id": "in-08-01",
+   "campaign": 8,
+   "category": "other",
+   "reporterIp": "198.51.100.46",
+   "month": "2026-08",
+   "channel": "app",
+   "lossBand": "lt_10k",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.quickloan@okdemo"
+    },
+    {
+     "type": "domain",
+     "value": "instant-loan.example.org"
+    }
+   ],
+   "text": "Your loan is overdue. Pay the processing charges now or we will send your photos to everyone in your contact list."
+  },
+  {
+   "id": "in-08-02",
+   "campaign": 8,
+   "category": "other",
+   "reporterIp": "198.51.100.47",
+   "month": "2026-09",
+   "channel": "app",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.quickloan@okdemo"
+    },
+    {
+     "type": "domain",
+     "value": "instant-loan.example.org"
+    }
+   ],
+   "text": "Your loan is overdue. Pay the processing charges now or we will send your photos to everyone in your contact list."
+  },
+  {
+   "id": "in-08-03",
+   "campaign": 8,
+   "category": "other",
+   "reporterIp": "198.51.100.48",
+   "month": "2026-10",
+   "channel": "app",
+   "lossBand": "unknown",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.quickloan@okdemo"
+    },
+    {
+     "type": "domain",
+     "value": "instant-loan.example.org"
+    }
+   ],
+   "text": "Your loan is overdue. Pay the processing charges now or we will send your photos to everyone in your contact list."
+  },
+  {
+   "id": "in-09-01",
+   "campaign": 9,
+   "category": "task_job",
+   "reporterIp": "198.51.100.49",
+   "month": "2026-09",
+   "channel": "whatsapp",
+   "lossBand": "lt_10k",
+   "identifiers": [
+    {
+     "type": "telegram",
+     "value": "@zzdemo_hr_admin"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.jobfee@okdemo"
+    }
+   ],
+   "text": "Work from home and earn 2,000 daily typing data. Contact our HR on Telegram and pay the registration fee to get your joining letter."
+  },
+  {
+   "id": "in-09-02",
+   "campaign": 9,
+   "category": "task_job",
+   "reporterIp": "198.51.100.50",
+   "month": "2026-10",
+   "channel": "whatsapp",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "telegram",
+     "value": "@zzdemo_hr_admin"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.jobfee@okdemo"
+    }
+   ],
+   "text": "Work from home and earn 2,000 daily typing data. Contact our HR on Telegram and pay the registration fee to get your joining letter."
+  },
+  {
+   "id": "in-09-03",
+   "campaign": 9,
+   "category": "task_job",
+   "reporterIp": "198.51.100.51",
+   "month": "2026-05",
+   "channel": "whatsapp",
+   "lossBand": "lt_10k",
+   "identifiers": [
+    {
+     "type": "telegram",
+     "value": "@zzdemo_hr_admin"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.jobfee@okdemo"
+    }
+   ],
+   "text": "Work from home and earn 2,000 daily typing data. Contact our HR on Telegram and pay the registration fee to get your joining letter."
+  },
+  {
+   "id": "in-09-04",
+   "campaign": 9,
+   "category": "task_job",
+   "reporterIp": "198.51.100.52",
+   "month": "2026-06",
+   "channel": "telegram",
+   "lossBand": "none",
+   "identifiers": [
+    {
+     "type": "telegram",
+     "value": "@zzdemo_hr_admin"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.tuition.fees@okdemo"
+    }
+   ],
+   "text": "Work from home and earn 2,000 daily typing data. Contact our HR on Telegram and pay the registration fee to get your joining letter."
+  },
+  {
+   "id": "in-09-05",
+   "campaign": 9,
+   "category": "task_job",
+   "reporterIp": "198.51.100.53",
+   "month": "2026-07",
+   "channel": "telegram",
+   "lossBand": "unknown",
+   "identifiers": [
+    {
+     "type": "telegram",
+     "value": "@zzdemo_hr_admin"
+    },
+    {
+     "type": "upi",
+     "value": "zzdemo.tuition.fees@okdemo"
+    }
+   ],
+   "text": "Work from home and earn 2,000 daily typing data. Contact our HR on Telegram and pay the registration fee to get your joining letter."
+  },
+  {
+   "id": "in-10-01",
+   "campaign": 10,
+   "category": "impersonation",
+   "reporterIp": "198.51.100.54",
+   "month": "2026-10",
+   "channel": "call",
+   "lossBand": "10k_1l",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.care.refund@okdemo"
+    },
+    {
+     "type": "domain",
+     "value": "support-desk.example.com"
+    }
+   ],
+   "text": "This is customer care. To process your refund please install AnyDesk and share the code shown on screen. Do this within 10 minutes or the refund will lapse."
+  },
+  {
+   "id": "in-10-02",
+   "campaign": 10,
+   "category": "impersonation",
+   "reporterIp": "198.51.100.55",
+   "month": "2026-05",
+   "channel": "call",
+   "lossBand": "gt_1l",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.care.refund@okdemo"
+    },
+    {
+     "type": "domain",
+     "value": "support-desk.example.com"
+    }
+   ],
+   "text": "This is customer care. To process your refund please install AnyDesk and share the code shown on screen. Do this within 10 minutes or the refund will lapse."
+  },
+  {
+   "id": "in-10-03",
+   "campaign": 10,
+   "category": "impersonation",
+   "reporterIp": "198.51.100.56",
+   "month": "2026-06",
+   "channel": "call",
+   "lossBand": "lt_10k",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "zzdemo.care.refund@okdemo"
+    },
+    {
+     "type": "domain",
+     "value": "support-desk.example.com"
+    }
+   ],
+   "text": "This is customer care. To process your refund please install AnyDesk and share the code shown on screen. Do this within 10 minutes or the refund will lapse."
+  }
+ ]
+}
