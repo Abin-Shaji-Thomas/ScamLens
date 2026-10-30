@@ -26,6 +26,26 @@ Standing rules for automated runs on this repo. Later prompts may refer to this 
 - Git: the run may commit, and push to `origin main` under the push rules below. Never force-push, never rewrite pushed history.
 - Never print or open `web/.env.local`. Check env names with a Node one-liner printing `NAME: SET` or `MISSING`.
 
+### Extended permissions (final round, 2026-10-30)
+The run MAY:
+- run local servers and headless Edge/Chrome against `http://localhost:*` and `https://scam-lens-two.vercel.app`;
+- use web search and fetch on PUBLIC pages (government and regulator advisories: I4C, RBI, NPCI, CERT-In, PIB, cybercrime.gov.in; vendor docs) to confirm facts;
+- run `npx tsx scripts/tg-setup.ts` and its flags with the graph-scoped `TG_SECRET`;
+- write synthetic, labelled, idempotent, additive rows to the live Supabase and the live TigerGraph through the repo's own scripts and the service-role key;
+- commit and push under the push rules.
+
+The run MUST NOT:
+- touch the Vercel, Supabase or TigerGraph dashboards;
+- make global TigerGraph schema changes (write the GSQL to `graph/migrations/` and stop with a HUMAN STEP message);
+- delete any non-synthetic data, or drop anything;
+- touch the graph Transaction_Fraud;
+- print or commit secrets, or read or print `web/.env.local`;
+- copy text from websites (paraphrase and link; never reproduce).
+
+Any new SQL goes in `web/db/migrations/NNN_name.sql`, is idempotent, and the code must work both before and after it runs (graceful degradation, like migration 002). The run cannot run SQL on Supabase: it prints a HUMAN STEP with the file path and continues.
+
+Never write the owner's personal email into any file; the public contact is in `web/src/lib/contact.ts`.
+
 ## Summary rule (mandatory)
 
 After every step, print in the chat a STEP SUMMARY in plain English for a non-expert (define technical terms in a few words):
