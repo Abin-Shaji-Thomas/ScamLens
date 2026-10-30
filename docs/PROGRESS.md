@@ -393,3 +393,13 @@ Measured per window size (same on /, samples 1-3; /about and /nope have no form)
 | PGlite tests | PASS | `retention.test.ts` (6): 3 of 5 rows purged (old pending, dismissed, upheld), recent pending kept; reports and the contested label untouched; the app works without 003; MODERATION.md section 5 SQL runs as written; SQL days equal `CONTEST_RETENTION_DAYS` |
 | /about and docs | PASS | /about: "deleted in a monthly clean-up once the contest is decided or 90 days old" (asserted in about.test.ts); knowledge 08, 16, 17; MODERATION.md; HUMAN_TASKS |
 | Found on the way | NOTE | Python on Windows wrote CRLF into MODERATION.md and broke the existing SQL-block test; doc edits are now made with Node (LF) |
+
+## J5a - Coverage ledger
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Built only from run data | PASS | `buildCoverage(result)` in `web/src/lib/coverage.ts` uses source rows, statuses, reasons, `dataAsOf`, check times and identifier types; test asserts no date literal in the lib or component |
+| All statuses render; unavailable shown as unavailable | PASS | `coverage.test.ts` (6): checked with list date, unavailable with reason, not applicable, skipped (limit), rate-limit skip note for a second wallet |
+| Not-checked lines | PASS | UPI ("UPI IDs have no public database here; only community reports are used."), TRON wallet sources not looked up, domains not checked, Etherscan chains not enabled on this plan |
+| Never "clean"/"safe"; no AI row while off | PASS | test |
+| Browser at 375 / 1440 | UNKNOWN until J6 | |

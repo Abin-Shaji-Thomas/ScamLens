@@ -1,6 +1,7 @@
 import type { CheckResponse } from "@/lib/api-schema";
 import { DEMO_LABEL } from "@/lib/demo";
 import { TIERS } from "@/lib/tiers";
+import { CoverageLedger } from "./CoverageLedger";
 import { EvidencePackButton } from "./EvidencePackButton";
 import { GraphPanel } from "./GraphPanel";
 import { ReportedList } from "./ReportedList";
@@ -63,6 +64,7 @@ export function RiskCard({ result, demo = false }: { result: CheckResponse | nul
           )}
         </div>
       </section>
+      {result && <CoverageLedger result={result} />}
       <section aria-label="Evidence tiers">
         <div className="grid gap-y-16">
           <TierSection tier={verified}>
