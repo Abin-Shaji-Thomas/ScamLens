@@ -65,6 +65,7 @@ Routes (generated from `web/src/app`):
 - /api/transcribe (API route, `web/src/app/api/transcribe/route.ts`)
 - /api/verify-receipt (API route, `web/src/app/api/verify-receipt/route.ts`)
 - / (page, `web/src/app/page.tsx`)
+- /patterns (page, `web/src/app/patterns/page.tsx`)
 - /verify (page, `web/src/app/verify/page.tsx`)
 <!-- GENERATED:END routes -->
 

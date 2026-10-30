@@ -422,3 +422,14 @@ Measured per window size (same on /, samples 1-3; /about and /nope have no form)
 | Tests (ephemeral keys) | PASS | `receipts.test.ts`: sign/verify; tamper on every top-level field, a nested finding and the signature; wrong key; missing/invalid/non-Ed25519 key = off (no receipt, health false); no quote, chat word or full identifier in a receipt; digest match and mismatch; canonical key order; deterministic re-signing; WebCrypto Ed25519 with the published key; evidence-pack code; key route 200/404; verify route valid / tampered / text / 413 / 429; all samples sign |
 | API and health | PASS | `CheckResponse.receipt` optional; smoke-live accepts it with or without and verifies it with the published key when present; `/api/health` `receipts` boolean (health tests updated deliberately: one new key) |
 | /verify page and download | UNKNOWN until the J6 browser run | |
+
+## J5d - Pattern library
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Generated from rules.ts; every rule appears | PASS | `patterns.test.ts`: one `<section id="<rule id>">` per rule, guide keys = rule ids |
+| Content per rule | PASS | six labelled parts x 18; intro "These are patterns, not verdicts."; every example triggers its own rule via `runRules` |
+| Exclusions from guards | PASS | negation, adjacent negation, needs a second rule, warning context; rule-specific notes for 5 rules |
+| Links | PASS | footer `/patterns` (and `/verify`); each Suspected finding links `/patterns#<rule id>` |
+| Banned words | PASS | page text and guide contain none (test, and the src-wide banned-words test) |
+| Browser at 375 / 1440 | UNKNOWN until J6 | |

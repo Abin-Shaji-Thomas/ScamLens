@@ -46,6 +46,8 @@ How a rule runs (`web/src/lib/signals/regex.ts`):
 
 Each counted rule adds one "suspected pattern" to the risk engine, however many times it matches. Suspected patterns alone can reach Elevated, never High.
 
+Public explanations of every rule: the pattern library at `/patterns` (see [19-DISTINCTIVE-FEATURES.md](19-DISTINCTIVE-FEATURES.md)). When a rule is added, add its entry to `web/src/lib/signals/pattern-guide.ts`; a test fails otherwise.
+
 ## Where in the code
 
 - `web/src/lib/signals/rules.ts`: the rule list.

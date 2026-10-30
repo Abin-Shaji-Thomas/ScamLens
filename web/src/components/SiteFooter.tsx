@@ -8,6 +8,12 @@ export function SiteFooter() {
           <Link href="/about" className="inline-flex min-h-11 min-w-11 items-center text-swiss-black">
             About
           </Link>
+          <Link href="/patterns" className="inline-flex min-h-11 min-w-11 items-center text-swiss-black">
+            Patterns
+          </Link>
+          <Link href="/verify" className="inline-flex min-h-11 min-w-11 items-center text-swiss-black">
+            Verify a receipt
+          </Link>
           <span>Not legal advice</span>
           <span>
             Lost money? Call <span className="font-semibold text-swiss-black">1930</span> or report at cybercrime.gov.in, and tell your bank now.

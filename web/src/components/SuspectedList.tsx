@@ -9,7 +9,10 @@ function Item({ s }: { s: Signal }) {
         &ldquo;<mark className="quote">{s.quote}</mark>&rdquo;
       </p>
       <p className="t-small mt-1 text-swiss-text">
-        rule {s.rule_id} · {s.source === "rule" ? "fixed pattern" : "AI, quote verified in your text"}
+        rule {s.rule_id} · {s.source === "rule" ? "fixed pattern" : "AI, quote verified in your text"} ·{" "}
+        <a href={`/patterns#${s.rule_id}`} className="tap">
+          about this pattern
+        </a>
       </p>
     </li>
   );

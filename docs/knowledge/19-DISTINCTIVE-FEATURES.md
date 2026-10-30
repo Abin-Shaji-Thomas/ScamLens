@@ -11,7 +11,7 @@ Four features that set ScamLens apart from list-only checkers: a coverage ledger
 | Coverage ledger ("What was checked") | built (J5a) |
 | "I already paid" mode | built (J5b) |
 | Signed check receipt and /verify | built (J5c) |
-| Pattern library (/patterns) | not built yet |
+| Pattern library (/patterns) | built (J5d) |
 
 ### 1. Coverage ledger ("What was checked")
 - **What:** a section under the risk header listing every source (OFAC SDN list, ScamSniffer open blacklist, GoPlus address security, Etherscan V2, TronGrid, ScamLens community reports, pattern rules, and the AI helper only when it is configured) with what it covers, a status word and a date. Statuses: `checked`, `not applicable`, `unavailable`, `skipped (limit)`, `off`. Then "Not checked" lines derived from the identifiers found: UPI IDs, phone numbers, Telegram handles and emails have no public database (only community reports are used); website domains were not checked against a blocklist; which sources a wallet was not looked up in (for example a TRON wallet is not on ScamSniffer or Etherscan); Etherscan chains not enabled on the current plan.
@@ -31,8 +31,15 @@ Four features that set ScamLens apart from list-only checkers: a coverage ledger
 - **How it is built:** see `web/src/lib/receipts.ts` (server: key, digest, sign, verify) and `web/src/lib/receipt-format.ts` (shared: schema, canonical JSON, wording). The browser verifies with WebCrypto Ed25519 where supported and falls back to `POST /api/verify-receipt`.
 - **Limits:** a valid receipt proves what ScamLens reported, not that the chat or the person is genuine. Rotating the key makes older receipts fail as "wrong key". Browsers without WebCrypto Ed25519 send the receipt (never the text, unless the user adds it) to the server for checking.
 
+### 4. Pattern library (/patterns)
+- **What:** a static page that explains each of the <!-- FACT:rule_count -->18<!-- /FACT --> rules: a plain name, what it looks like, why such messages use it, what to do, an "Illustrative example", when it is not a signal, and how it counts. The intro says "These are patterns, not verdicts." Every Suspected finding links to its rule's anchor (`/patterns#<rule id>`), and the footer links to the page.
+- **Why:** people learn the tactics, not just one result, and can see exactly why a phrase was flagged and when it would not be.
+- **How it is built:** the rule list, order and guards come from `web/src/lib/signals/rules.ts` (the same source as the engine); "When it is not a signal" is generated from each rule's guards (negation, corroboration) plus the warning-context rule; `web/src/lib/signals/pattern-guide.ts` adds only the plain-language text, keyed by rule id.
+- **Limits:** the explanations are hand-written; a test makes sure every rule has one and that each example really triggers its own rule, but it cannot judge the wording.
+
 ## Where in the code
 
+- `web/src/app/patterns/page.tsx`, `web/src/lib/signals/pattern-guide.ts`: the pattern library.
 - `web/src/lib/receipts.ts`, `web/src/lib/receipt-format.ts`: receipts.
 - `web/src/app/verify/page.tsx`, `web/src/components/VerifyReceipt.tsx`, `web/src/app/api/verify-receipt/route.ts`: verification.
 - `web/src/app/.well-known/scamlens-receipt-key.json/route.ts`: the public key.
