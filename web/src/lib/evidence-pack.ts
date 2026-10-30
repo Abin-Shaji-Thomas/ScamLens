@@ -1,5 +1,6 @@
 import { DEMO_LABEL } from "./demo";
 import type { CheckResponse } from "./api-schema";
+import { receiptCode } from "./receipt-format";
 import { CONTESTED_LABEL, WARNING_CONTEXT_TITLE } from "./tiers";
 
 export const NEXT_STEPS = [
@@ -18,6 +19,7 @@ export function buildEvidencePack(r: CheckResponse, opts: { demo?: boolean } = {
   const L: string[] = [];
   if (synthetic) L.push(`*** ${WATERMARK} ***`, "");
   L.push("SCAMLENS EVIDENCE SUMMARY", `Generated: ${r.checkedAt}`, `Overall: ${r.risk.label}`);
+  if (r.receipt) L.push(`Receipt code: ${receiptCode(r.receipt)} (the signed receipt file can be checked at /verify)`);
   for (const reason of r.risk.reasons) L.push(`  - ${reason}`);
   for (const notice of r.notices) L.push(`  - Note: ${notice}`);
 

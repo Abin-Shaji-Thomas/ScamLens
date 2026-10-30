@@ -137,6 +137,7 @@ export function generators(opts: { gitLog?: string } = {}): Record<string, strin
       ["Screenshot readings per network per day (default)", limits.transcribe, "`usageLimits` / `USAGE_TRANSCRIBE_PER_DAY`"],
       ["Graph lookups per network per day (default)", limits.graph, "`usageLimits` / `USAGE_GRAPH_PER_DAY`"],
       ["Contests per network per day (default)", limits.contest, "`usageLimits` / `USAGE_CONTEST_PER_DAY`"],
+      ["Server-side receipt checks per network per day (default)", limits.verify, "`usageLimits` / `USAGE_VERIFY_PER_DAY`"],
       ["AI calls per day, all users (default)", limits.globalLlm, "`usageLimits` / `USAGE_GLOBAL_LLM_PER_DAY`"],
       ["Crypto addresses checked per message", MAX_ADDRESSES, "`MAX_ADDRESSES`"],
       ["Wallets with Etherscan history per message", ETHERSCAN_MAX_ADDRESSES, "`ETHERSCAN_MAX_ADDRESSES`"],

@@ -31,7 +31,9 @@ ScamLens deploys automatically to Vercel when `main` is pushed. Secrets live in 
 | `USAGE_TRANSCRIBE_PER_DAY` | Limits | - |
 | `USAGE_GRAPH_PER_DAY` | Limits | - |
 | `USAGE_CONTEST_PER_DAY` | Limits | - |
+| `USAGE_VERIFY_PER_DAY` | Limits | Optional: server-side receipt checks per network per day (default 60) |
 | `USAGE_GLOBAL_LLM_PER_DAY` | Limits | Optional: global daily cap on LLM-using calls (check AI pass + screenshot reading), default 1500 |
+| `RECEIPT_SIGNING_KEY` | Signed check receipts (optional; off without it) | Ed25519 private key, base64 PKCS8 DER on one line. Generate your own (docs/DEPLOY.md); never commit or share it. |
 <!-- GENERATED:END env -->
 
 Check which names are set without printing values (from `web/`):

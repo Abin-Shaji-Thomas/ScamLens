@@ -75,7 +75,7 @@ export function usageStore(env: Record<string, string | undefined> = process.env
 }
 export const setUsageStoreForTests = (s: UsageStore | null) => (store = s);
 
-export type GuardedRoute = "check" | "transcribe" | "graph" | "contest";
+export type GuardedRoute = "check" | "transcribe" | "graph" | "contest" | "verify";
 
 export function usageLimits(env: Record<string, string | undefined>) {
   return {
@@ -83,6 +83,7 @@ export function usageLimits(env: Record<string, string | undefined>) {
     transcribe: positiveIntEnv(env.USAGE_TRANSCRIBE_PER_DAY, 10),
     graph: positiveIntEnv(env.USAGE_GRAPH_PER_DAY, 100),
     contest: positiveIntEnv(env.USAGE_CONTEST_PER_DAY, 3),
+    verify: positiveIntEnv(env.USAGE_VERIFY_PER_DAY, 60),
     globalLlm: positiveIntEnv(env.USAGE_GLOBAL_LLM_PER_DAY, 1500),
   };
 }
@@ -115,6 +116,7 @@ const PER_FP_MESSAGE: Record<GuardedRoute, string> = {
   transcribe: "You have reached today's limit for reading screenshots. Please paste the text instead, or try again tomorrow.",
   graph: "You have reached today's limit for link lookups. Please try again tomorrow.",
   contest: "You have reached today's limit for contesting entries. Please try again tomorrow.",
+  verify: "You have reached today's limit for server-side receipt checks. Your browser can still check receipts itself, or try again tomorrow.",
 };
 
 export const AI_SKIPPED_GLOBAL = "The AI pass is paused for today (daily limit reached). Only the fixed rule checks ran.";

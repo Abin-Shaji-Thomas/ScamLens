@@ -55,6 +55,7 @@ ScamLens is one Next.js app on Vercel. The pages are mostly static; five small s
 Routes (generated from `web/src/app`):
 
 <!-- GENERATED:START routes -->
+- /.well-known/scamlens-receipt-key.json (API route, `web/src/app/.well-known/scamlens-receipt-key.json/route.ts`)
 - /about (page, `web/src/app/about/page.tsx`)
 - /api/check (API route, `web/src/app/api/check/route.ts`)
 - /api/graph (API route, `web/src/app/api/graph/route.ts`)
@@ -62,7 +63,9 @@ Routes (generated from `web/src/app`):
 - /api/report/contest (API route, `web/src/app/api/report/contest/route.ts`)
 - /api/report (API route, `web/src/app/api/report/route.ts`)
 - /api/transcribe (API route, `web/src/app/api/transcribe/route.ts`)
+- /api/verify-receipt (API route, `web/src/app/api/verify-receipt/route.ts`)
 - / (page, `web/src/app/page.tsx`)
+- /verify (page, `web/src/app/verify/page.tsx`)
 <!-- GENERATED:END routes -->
 
 ## How to change it safely

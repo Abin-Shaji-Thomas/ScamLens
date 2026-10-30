@@ -63,7 +63,9 @@ describe("usage stores", () => {
   });
 
   it("defaults and env overrides (empty value keeps the default)", () => {
-    expect(usageLimits({})).toEqual({ check: 40, transcribe: 10, graph: 100, contest: 3, globalLlm: 1500 });
+    // verify (server-side receipt checks) added in the final round
+    expect(usageLimits({})).toEqual({ check: 40, transcribe: 10, graph: 100, contest: 3, verify: 60, globalLlm: 1500 });
+    expect(usageLimits({ USAGE_VERIFY_PER_DAY: "5" }).verify).toBe(5);
     expect(usageLimits({ USAGE_CHECK_PER_DAY: "7", USAGE_GLOBAL_LLM_PER_DAY: "" })).toMatchObject({ check: 7, globalLlm: 1500 });
   });
 

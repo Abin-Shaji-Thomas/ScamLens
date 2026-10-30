@@ -46,6 +46,18 @@ Check which names are set locally without printing values:
 node -e "process.loadEnvFile('.env.local'); for (const k of ['SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY','REPORT_HASH_PEPPER','ETHERSCAN_API_KEY','TG_HOST','TG_SECRET','OPENAI_API_KEY']) console.log(k + ': ' + (process.env[k] ? 'SET' : 'MISSING'))"
 ```
 
+## 2a. Signed check receipts (`RECEIPT_SIGNING_KEY`)
+
+Optional. With it, every successful check returns a signed receipt (Ed25519) that anyone can verify at `/verify` against the public key published at `/.well-known/scamlens-receipt-key.json`. Without it (or with an invalid value) receipts are simply off and `/api/health` shows `"receipts": false`.
+
+Generate your own key once, on your own machine (it prints the secret to your terminal only; do not paste it anywhere else):
+
+```powershell
+node -e "const {generateKeyPairSync}=require('crypto');console.log(generateKeyPairSync('ed25519').privateKey.export({format:'der',type:'pkcs8'}).toString('base64'))"
+```
+
+Put the one-line output into `web/.env.local` as `RECEIPT_SIGNING_KEY=...` and into Vercel (Production and Preview), then redeploy. Check without revealing it: `node -e "const k=require('crypto').createPrivateKey({key:Buffer.from(process.env.K,'base64'),format:'der',type:'pkcs8'});console.log(k.asymmetricKeyType==='ed25519'?'valid ed25519':'INVALID')"` with `K` set to the value. Rotating the key makes older receipts show "wrong key"; keep the old one if you need old receipts to verify.
+
 ## 2b. Security headers and the CSP trade-off
 
 Every response carries a Content Security Policy (browser rules for what a page may load) plus `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY` and a `Permissions-Policy` that turns off camera, microphone, location, payment and USB. Source: `web/src/lib/security-headers.ts`.

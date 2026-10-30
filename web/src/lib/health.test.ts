@@ -16,13 +16,13 @@ const SECRETS = {
 describe("health", () => {
   it("nothing configured: ok with 'not configured' statuses", () => {
     expect(getHealth({})).toEqual({
-      ok: true, db: "not configured", reports: "not configured", graph: "none", usageStore: "memory", llm: false, vision: false, etherscan: false, build: "local",
+      ok: true, db: "not configured", reports: "not configured", graph: "none", usageStore: "memory", llm: false, vision: false, etherscan: false, build: "local", receipts: false,
     });
   });
 
   it("everything configured: short statuses only, and no env value appears anywhere in the response", () => {
     const h = getHealth(SECRETS);
-    expect(h).toEqual({ ok: true, db: "configured", reports: "configured", graph: "tigergraph", usageStore: "supabase", llm: true, vision: true, etherscan: true, build: "local" });
+    expect(h).toEqual({ ok: true, db: "configured", reports: "configured", graph: "tigergraph", usageStore: "supabase", llm: true, vision: true, etherscan: true, build: "local", receipts: false });
     const json = JSON.stringify(h);
     for (const v of Object.values(SECRETS)) {
       expect(json).not.toContain(v);
@@ -37,7 +37,7 @@ describe("health", () => {
   it("build: the only added key is the first 7 hex characters of the deployed commit, or 'local'", () => {
     const sha = "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b";
     const h = getHealth({ ...SECRETS, VERCEL_GIT_COMMIT_SHA: sha });
-    expect(Object.keys(h).sort()).toEqual(["build", "db", "etherscan", "graph", "llm", "ok", "reports", "usageStore", "vision"]);
+    expect(Object.keys(h).sort()).toEqual(["build", "db", "etherscan", "graph", "llm", "ok", "receipts", "reports", "usageStore", "vision"]);
     expect(h.build).toBe("1a2b3c4");
     const json = JSON.stringify(h);
     expect(json).not.toContain(sha.slice(0, 8)); // never more than 7 characters of it
@@ -50,5 +50,16 @@ describe("health", () => {
 
   it("schema rejects ok:false", () => {
     expect(HealthResponse.safeParse({ ...getHealth({}), ok: false }).success).toBe(false);
+  });
+});
+
+describe("health: receipts flag", () => {
+  it("is true only for a parsable Ed25519 key, and the key never appears in the response", async () => {
+    const { generateKeyPairSync } = await import("node:crypto");
+    const key = generateKeyPairSync("ed25519").privateKey.export({ format: "der", type: "pkcs8" }).toString("base64");
+    const h = getHealth({ RECEIPT_SIGNING_KEY: key });
+    expect(h.receipts).toBe(true);
+    expect(JSON.stringify(h)).not.toContain(key.slice(10, 30));
+    expect(getHealth({ RECEIPT_SIGNING_KEY: "garbage" }).receipts).toBe(false);
   });
 });

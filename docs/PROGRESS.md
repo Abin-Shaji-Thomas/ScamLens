@@ -412,3 +412,13 @@ Measured per window size (same on /, samples 1-3; /about and /nope have no form)
 | Fields and draft in the browser | PASS | amount, date and time, payment method, transaction ID as React state; `buildComplaintDraft` uses the shared extractor with `raw` identifiers (`+91 98765 43210` kept as typed); chat text not copied; draft says it is a draft, not legal advice |
 | No request while editing or copying | PASS (without DOM) | `fetch` stubbed with `vi.stubGlobal`; render, field updates and `copyComplaintDraft` -> `fetchSpy` not called; source scan: no fetch/XMLHttpRequest/sendBeacon/WebSocket/`/api/` in the component or module. Click-through: UNKNOWN until the J6 browser run |
 | Flaky test seen | NOTE | first full run: `SQL increment_usage: atomic count, denied calls are not counted` timed out at 5000 ms (PGlite under load, unrelated file); rerun alone `Tests 18 passed (18)`, full rerun `Tests 381 passed (381)` |
+
+## J5c - Signed check receipts
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Key | PASS | `RECEIPT_SIGNING_KEY` in web/.env.local parses as `valid ed25519` (J0); tests use ephemeral keys only; no key generated or printed by the run |
+| Receipt content | PASS | version, keyId, issuedAt, build, riskLevel, mode, tiers (tier, kind, title, source, asOf, link), notices, coverage, masked identifiers, textDigest (HMAC-SHA256, HKDF-derived key) |
+| Tests (ephemeral keys) | PASS | `receipts.test.ts`: sign/verify; tamper on every top-level field, a nested finding and the signature; wrong key; missing/invalid/non-Ed25519 key = off (no receipt, health false); no quote, chat word or full identifier in a receipt; digest match and mismatch; canonical key order; deterministic re-signing; WebCrypto Ed25519 with the published key; evidence-pack code; key route 200/404; verify route valid / tampered / text / 413 / 429; all samples sign |
+| API and health | PASS | `CheckResponse.receipt` optional; smoke-live accepts it with or without and verifies it with the published key when present; `/api/health` `receipts` boolean (health tests updated deliberately: one new key) |
+| /verify page and download | UNKNOWN until the J6 browser run | |

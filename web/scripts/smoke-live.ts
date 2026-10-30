@@ -3,10 +3,22 @@
 // Run from web/: npx tsx scripts/smoke-live.ts http://localhost:3000   (or the live URL)
 import { CheckResponse } from "../src/lib/api-schema";
 import { HealthResponse } from "../src/lib/health";
+import { RECEIPT_KEY_PATH, ReceiptKey, signedBytes, type Receipt } from "../src/lib/receipt-format";
 import { NO_REPORTS_MESSAGE } from "../src/lib/risk";
 import { SAMPLES } from "../src/lib/samples";
 
 type Expect = { name: string; ok: boolean; detail?: string };
+
+async function receiptVerifies(base: string, r: Receipt): Promise<Expect> {
+  try {
+    const k = ReceiptKey.parse(await (await fetch(`${base}${RECEIPT_KEY_PATH}`, { signal: AbortSignal.timeout(20000) })).json());
+    const key = await crypto.subtle.importKey("raw", Buffer.from(k.publicKey, "base64url"), { name: "Ed25519" }, false, ["verify"]);
+    const ok = k.keyId === r.keyId && (await crypto.subtle.verify({ name: "Ed25519" }, key, Buffer.from(r.signature, "base64url"), signedBytes(r) as BufferSource));
+    return { name: "signed receipt verifies with the published key", ok, detail: `code ${r.signature.slice(0, 12)}` };
+  } catch (e) {
+    return { name: "signed receipt verifies with the published key", ok: false, detail: e instanceof Error ? e.name : "error" };
+  }
+}
 
 const OFAC_SAMPLE_WALLET = "0x252a8bd2319d8a555b872990601221b3a2053bce";
 
@@ -90,6 +102,9 @@ async function main() {
         { name: "response schema", ok: parsed.success },
       ]);
       if (parsed.success) add(s.id, [...tiersPresent(parsed.data), ...PER_SAMPLE[s.id](parsed.data)]);
+      // Receipts are optional (off without RECEIPT_SIGNING_KEY); when present, the published key must verify them.
+      if (parsed.success && parsed.data.receipt) add(s.id, [await receiptVerifies(base, parsed.data.receipt)]);
+      else if (parsed.success) console.log(`      [${s.id}] receipt: none (receipts off)`);
     } catch (e) {
       add(s.id, [{ name: "request completed", ok: false, detail: e instanceof Error ? e.name : "error" }]);
     }

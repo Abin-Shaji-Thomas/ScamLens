@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { Identifier } from "./extract/types";
 import { MAX_TEXT_CHARS } from "./limits";
+import { Receipt } from "./receipt-format";
 import { ReportedTier } from "./reports/schema";
 import { Risk } from "./risk";
 import { AiStatus, Signal } from "./signals/types";
@@ -26,5 +27,7 @@ export const CheckResponse = z.object({
   /** Plain-language notices about limits or skipped steps (never contain user text). */
   notices: z.array(z.string()).default([]),
   checkedAt: z.string(),
+  /** Signed receipt (receipt-format.ts); absent when RECEIPT_SIGNING_KEY is not configured. */
+  receipt: Receipt.optional(),
 });
 export type CheckResponse = z.infer<typeof CheckResponse>;

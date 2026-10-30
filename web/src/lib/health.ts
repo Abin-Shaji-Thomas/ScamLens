@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { tgConfig } from "./graph";
+import { receiptsConfigured } from "./receipts";
 import { MIN_PEPPER_LENGTH } from "./reports/privacy";
 import { visionConfigured } from "./transcribe";
 import { llmConfigured } from "./usage";
@@ -18,6 +19,8 @@ export const HealthResponse = z.object({
   vision: z.boolean(),
   etherscan: z.boolean(),
   build: z.string().regex(/^(?:[0-9a-f]{7}|local)$/),
+  /** true when RECEIPT_SIGNING_KEY parses as an Ed25519 key (the key itself is never shown). */
+  receipts: z.boolean(),
 });
 export type HealthResponse = z.infer<typeof HealthResponse>;
 
@@ -38,5 +41,6 @@ export function getHealth(env: Record<string, string | undefined> = process.env)
     vision: visionConfigured(env),
     etherscan: Boolean(env.ETHERSCAN_API_KEY),
     build: buildId(env.VERCEL_GIT_COMMIT_SHA),
+    receipts: receiptsConfigured(env),
   });
 }

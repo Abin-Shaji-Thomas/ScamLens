@@ -19,7 +19,7 @@ ScamLens has no accounts, so it protects itself with hard size limits, daily per
 | Clickjacking, sniffing, referrer leaks | `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, a restrictive `Permissions-Policy` |
 | Leaking secrets | Secrets only in server code via `process.env`; `/api/health` returns booleans and short statuses (plus a 7-character build id) |
 | Regex denial of service | `npx tsx scripts/redos-check.ts`: 56 regexes x 20 adversarial 6,000-character inputs, worst case 3.7 ms, 0 cases at or above 200 ms (recorded in `docs/AUDIT.md`; the round 2 re-run measured 4.8 ms) |
-| Forged or edited check results | Signed check receipts (Ed25519) verifiable at /verify (added in this round, see [19-DISTINCTIVE-FEATURES.md](19-DISTINCTIVE-FEATURES.md)) |
+| Forged or edited check results | Signed check receipts: canonical JSON (sorted keys) signed with Ed25519 via `node:crypto`; any changed field fails verification; the public key is published at `/.well-known/scamlens-receipt-key.json` with a `keyId` (first 16 hex characters of SHA-256 of the public key); /verify checks in the browser with WebCrypto, else `POST /api/verify-receipt` (20 KB cap, daily per-network limit). Receipts hold no raw text: masked identifiers, findings without quotes, links without addresses, and `textDigest` = HMAC-SHA256 of the normalised text with a key derived from the signing key by HKDF-SHA256. Missing or invalid key: feature off, no crash. See [19-DISTINCTIVE-FEATURES.md](19-DISTINCTIVE-FEATURES.md) |
 
 Limits (generated from `web/src/lib/limits.ts` and `usageLimits`):
 
@@ -40,6 +40,7 @@ Limits (generated from `web/src/lib/limits.ts` and `usageLimits`):
 | Screenshot readings per network per day (default) | 10 | `usageLimits` / `USAGE_TRANSCRIBE_PER_DAY` |
 | Graph lookups per network per day (default) | 100 | `usageLimits` / `USAGE_GRAPH_PER_DAY` |
 | Contests per network per day (default) | 3 | `usageLimits` / `USAGE_CONTEST_PER_DAY` |
+| Server-side receipt checks per network per day (default) | 60 | `usageLimits` / `USAGE_VERIFY_PER_DAY` |
 | AI calls per day, all users (default) | 1500 | `usageLimits` / `USAGE_GLOBAL_LLM_PER_DAY` |
 | Crypto addresses checked per message | 10 | `MAX_ADDRESSES` |
 | Wallets with Etherscan history per message | 1 | `ETHERSCAN_MAX_ADDRESSES` |
