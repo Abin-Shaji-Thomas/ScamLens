@@ -9,6 +9,7 @@ import { RULES } from "../src/lib/signals/rules";
 import { usageLimits } from "../src/lib/usage";
 import { EVM_CHAINS } from "../src/lib/verified/etherscan";
 import { ETHERSCAN_MAX_ADDRESSES, MAX_ADDRESSES } from "../src/lib/verified/index";
+import { smokeExpectationCount } from "./smoke-expectations";
 
 export const WEB = join(import.meta.dirname, "..");
 export const ROOT = join(WEB, "..");
@@ -193,7 +194,15 @@ export function facts(): Record<string, string> {
     eval_recall: ev.recall,
     eval_fp: ev.fp,
     eval_fn: ev.fn,
+    smoke_expectations: String(smokeExpectationCount(true)),
+    db_migrations: migrationList(join(WEB, "db", "migrations"), ".sql"),
+    graph_migrations: migrationList(join(ROOT, "graph", "migrations"), ".gsql"),
   };
+}
+
+/** Migration files in order, as backticked names: the list HUMAN_TASKS and DEPLOY tell a person to run. */
+export function migrationList(dir: string, ext: string): string {
+  return readdirSync(dir).filter((f) => f.endsWith(ext)).sort().map((f) => `\`${f}\``).join(", ");
 }
 
 // ---------- apply and check ----------
@@ -264,4 +273,57 @@ export function manifestProblems(manifest: Record<string, string[]>, changed: st
     if (!set.has(changelog)) problems.push(`${touched.join(", ")} changed but ${changelog} did not`);
   }
   return [...new Set(problems)];
+}
+
+// ---------- docs outside the knowledge base ----------
+
+/** Repo docs that also carry FACT markers and generated blocks (no six-section template). Paths from the repo root. */
+export const EXTRA_DOCS = ["README.md", "docs/DEPLOY.md", "docs/HUMAN_TASKS.md", "docs/UI_CHECKLIST.md"];
+export const loadExtraDocs = (): Doc[] => EXTRA_DOCS.map((name) => ({ name, text: read(join(ROOT, name)) }));
+
+/** Facts, generated blocks and relative links in the extra docs (links resolve from each doc's own folder). */
+export function checkExtraDocs(docs: Doc[], gens: Record<string, string>, fx: Record<string, string>, exists: (repoPath: string) => boolean = (p) => existsSync(join(ROOT, p))): string[] {
+  const problems: string[] = [];
+  for (const d of docs) {
+    for (const m of d.text.matchAll(BLOCK)) {
+      if (!(m[1] in gens)) problems.push(`${d.name}: unknown generated block "${m[1]}"`);
+      else if (m[2].trim() !== gens[m[1]].trim()) problems.push(`${d.name}: generated block "${m[1]}" is stale (run npm run docs:generate)`);
+    }
+    for (const m of d.text.matchAll(FACT)) {
+      if (!(m[1] in fx)) problems.push(`${d.name}: unknown fact "${m[1]}"`);
+      else if (m[2] !== fx[m[1]]) problems.push(`${d.name}: fact "${m[1]}" says "${m[2]}" but the code says "${fx[m[1]]}"`);
+    }
+    const dir = d.name.includes("/") ? d.name.slice(0, d.name.lastIndexOf("/")) : "";
+    for (const m of d.text.matchAll(/\]\((?!https?:|mailto:|#)([^)\s]+)\)/g)) {
+      const target = m[1].split("#")[0];
+      if (!target) continue;
+      const repoPath = join(dir, target).replaceAll("\\", "/");
+      if (!exists(repoPath.replace(/\/$/, ""))) problems.push(`${d.name}: broken link ${m[1]}`);
+    }
+  }
+  return problems;
+}
+
+// ---------- stale phrases ----------
+
+/**
+ * Sentences that were true once and are not any more (docs/knowledge/STALE_PHRASES.json). None may appear in a
+ * checked doc, except in the history docs (changelog, decisions log) and the docs a phrase lists in `allowIn`.
+ */
+export interface StalePhrase { phrase: string; why: string; since: string; allowIn?: string[] }
+export const STALE_PATH = join(KB, "STALE_PHRASES.json");
+export const HISTORY_DOCS = ["17-CHANGELOG.md", "15-DECISIONS-LOG.md"];
+export const loadStalePhrases = (): StalePhrase[] => JSON.parse(read(STALE_PATH)) as StalePhrase[];
+
+export function staleProblems(docs: Doc[], phrases: StalePhrase[]): string[] {
+  const problems: string[] = [];
+  for (const p of phrases) {
+    const needle = p.phrase.toLowerCase();
+    for (const d of docs) {
+      if (HISTORY_DOCS.includes(d.name) || p.allowIn?.includes(d.name)) continue;
+      const i = d.text.toLowerCase().indexOf(needle);
+      if (i >= 0) problems.push(`${d.name}:${d.text.slice(0, i).split("\n").length}: stale phrase "${p.phrase}" (${p.why})`);
+    }
+  }
+  return problems;
 }

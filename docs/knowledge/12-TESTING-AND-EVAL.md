@@ -14,7 +14,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/complaint-draft.test.ts` | 4 |
 | `web/src/lib/contrast.test.ts` | 8 |
 | `web/src/lib/coverage.test.ts` | 11 |
-| `web/src/lib/docs.test.ts` | 4 |
+| `web/src/lib/docs.test.ts` | 9 |
 | `web/src/lib/eval-data.test.ts` | 7 |
 | `web/src/lib/evidence-pack.test.ts` | 4 |
 | `web/src/lib/f1-safety.test.ts` | 19 |
@@ -52,7 +52,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `npm run typecheck` | TypeScript, strict |
 | `npm run lint` | ESLint |
 | `npm run build` | Production build |
-| `npm run docs:check` | Knowledge base in sync with the code |
+| `npm run docs:check` | Knowledge base, README, DEPLOY, HUMAN_TASKS and UI_CHECKLIST in sync with the code; no stale phrase from `STALE_PHRASES.json` |
 | `npm run eval` | Synthetic evaluation, writes `eval/RESULTS.md` |
 | `npx tsx scripts/smoke-live.ts <url>` | The three samples end to end against a running site |
 | `npx tsx scripts/check-headers.ts <url>` | Security headers on `/`, `/about`, `/api/health` |

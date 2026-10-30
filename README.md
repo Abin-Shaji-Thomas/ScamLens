@@ -22,7 +22,7 @@ One paste box, one risk card, three tiers that are never mixed:
 |---|---|---|
 | **1. Verified** | Facts we check ourselves, each with source, date and a link to check it yourself | OFAC SDN list, ScamSniffer open address list, GoPlus address security, Etherscan V2 (Ethereum, Polygon, Arbitrum One on the free plan), TronGrid |
 | **2. Reported** | Community reports, shown only after **2 independent reporters** within 90 days and not contested | ScamLens' own database (HMAC hashes + masked identifiers only) |
-| **3. Suspected** | Warning patterns in *your* text, each with the exact highlighted quote and the rule that fired | 18 fixed rules; an optional AI pass (built, tested with mocks, currently off) could only point at the same rules |
+| **3. Suspected** | Warning patterns in *your* text, each with the exact highlighted quote and the rule that fired | <!-- FACT:rule_count -->18<!-- /FACT --> fixed rules; an optional AI pass (built, tested with mocks, currently off) could only point at the same rules |
 
 Every card also shows a plain-language explanation of the risk level and a **What to do now** block (pause; verify through official channels; keep the chat and transaction IDs; call **1930** or file at **cybercrime.gov.in**; contact your bank immediately if you already paid).
 
@@ -74,7 +74,7 @@ web/                        Next.js 16 app (Vercel root directory)
   src/app/                  page, /about, API routes (check, transcribe, graph, report, report/contest, health)
   src/lib/identifiers.ts    extractor + validation
   src/lib/verified/         OFAC, ScamSniffer, GoPlus, Etherscan V2, TronGrid
-  src/lib/signals/          18 rules, normaliser, regex pass, validated LLM pass
+  src/lib/signals/          rules, normaliser, regex pass, validated LLM pass
   src/lib/usage.ts          abuse guard (Supabase counters, memory fallback)
   src/lib/transcribe.ts     screenshot -> text
   src/lib/reports/          hashing, masking, 2-reporter rule, contest

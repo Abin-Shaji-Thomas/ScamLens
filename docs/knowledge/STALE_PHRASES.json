@@ -1,0 +1,13 @@
+[
+  { "phrase": "not checked against a blocklist", "why": "domains are checked against GoPlus phishing sites since the finish round (H3)", "since": "2026-10-30" },
+  { "phrase": "and domains have no verified source", "why": "domains have a verified source (GoPlus phishing sites) since H3", "since": "2026-10-30" },
+  { "phrase": "Domains are not checked", "why": "domains are checked against GoPlus phishing sites since H3", "since": "2026-10-30" },
+  { "phrase": "Anyone can check the receipt file at", "why": "the receipt line became the Share proof step (H2c)", "since": "2026-10-30" },
+  { "phrase": "In the evidence pack, press", "why": "the download button moved into Share proof (H2c)", "since": "2026-10-30" },
+  { "phrase": "both named in one listed path", "why": "evidence-path links are matched by node id since H4", "since": "2026-10-30" },
+  { "phrase": "font-weight: 300", "why": "two weights only (400 and 600) since the finish round typography (H1)", "since": "2026-10-30" },
+  { "phrase": "Segoe UI Light", "why": "the stack is Arial-first with regular headings since H1", "since": "2026-10-30", "allowIn": ["16-KNOWN-GAPS-AND-ROADMAP.md"] },
+  { "phrase": "Supabase migrations are not run", "why": "the owner ran the Supabase SQL on 2026-10-30", "since": "2026-10-30" },
+  { "phrase": "TigerGraph setup is not done", "why": "tg-setup reported 19/19 queries SAME on 2026-10-30", "since": "2026-10-30" },
+  { "phrase": "screenshot reading is on", "why": "AI and screenshot reading stay off by the owner's decision", "since": "2026-10-30" }
+]

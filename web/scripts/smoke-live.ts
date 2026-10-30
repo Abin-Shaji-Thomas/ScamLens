@@ -4,10 +4,8 @@
 import { CheckResponse } from "../src/lib/api-schema";
 import { HealthResponse } from "../src/lib/health";
 import { RECEIPT_KEY_PATH, ReceiptKey, signedBytes, type Receipt } from "../src/lib/receipt-format";
-import { NO_REPORTS_MESSAGE } from "../src/lib/risk";
 import { SAMPLES } from "../src/lib/samples";
-
-type Expect = { name: string; ok: boolean; detail?: string };
+import { PER_SAMPLE, smokeExpectationCount, tiersPresent, type Expect } from "./smoke-expectations";
 
 async function receiptVerifies(base: string, r: Receipt): Promise<Expect> {
   try {
@@ -19,46 +17,6 @@ async function receiptVerifies(base: string, r: Receipt): Promise<Expect> {
     return { name: "signed receipt verifies with the published key", ok: false, detail: e instanceof Error ? e.name : "error" };
   }
 }
-
-const OFAC_SAMPLE_WALLET = "0x252a8bd2319d8a555b872990601221b3a2053bce";
-
-function tiersPresent(r: CheckResponse): Expect[] {
-  return [
-    { name: "verified tier present", ok: Array.isArray(r.verified) },
-    { name: "reported tier present with a status", ok: r.reported.status === "ok" || r.reported.status === "unavailable" },
-    { name: "suspected tier present", ok: Array.isArray(r.suspected) },
-    // Principle 4: either "No known reports. This does not mean safe." or an explicit "unavailable".
-    {
-      name: "no-reports notice or 'reports unavailable' shown",
-      ok: r.risk.reportedMessage === NO_REPORTS_MESSAGE || r.reported.status === "unavailable" || r.reported.entries.length > 0,
-      detail: `reported.status=${r.reported.status}`,
-    },
-    { name: "notices array present", ok: Array.isArray(r.notices) },
-    { name: "every quote is non-empty", ok: r.suspected.every((s) => s.quote.length > 0) },
-  ];
-}
-
-const PER_SAMPLE: Record<string, (r: CheckResponse) => Expect[]> = {
-  "digital-arrest": (r) => [
-    { name: "risk is elevated or high", ok: r.risk.level !== "low", detail: r.risk.level },
-    { name: "digital_arrest signal", ok: r.suspected.some((s) => s.rule_id === "digital_arrest") },
-    { name: "authority_impersonation signal", ok: r.suspected.some((s) => s.rule_id === "authority_impersonation") },
-    { name: "UPI identifier extracted", ok: r.identifiers.some((i) => i.type === "upi") },
-  ],
-  "crypto-investment": (r) => [
-    { name: "risk is high", ok: r.risk.level === "high", detail: r.risk.level },
-    {
-      name: "OFAC match on the sample wallet",
-      ok: r.verified.some((v) => v.source === "ofac" && v.status === "match" && v.identifier.value.toLowerCase() === OFAC_SAMPLE_WALLET),
-    },
-    { name: "guaranteed_returns signal", ok: r.suspected.some((s) => s.rule_id === "guaranteed_returns") },
-    { name: "every verified row has an https link", ok: r.verified.every((v) => v.link.startsWith("https://")) },
-  ],
-  "bank-alert": (r) => [
-    { name: "risk is low", ok: r.risk.level === "low", detail: `${r.risk.level} (${r.suspected.map((s) => s.rule_id).join(",")})` },
-    { name: "no suspected signals (negation guard)", ok: r.suspected.length === 0 },
-  ],
-};
 
 /**
  * Warm-up, not counted as an expectation: right after a deploy the first requests can hit a cold start (seen on
@@ -135,6 +93,10 @@ async function main() {
     }
   }
 
+  // A full run has a fixed number of expectations (the docs quote it as a FACT); fewer means a step was skipped.
+  const receipts = results.some((r) => r.name === "signed receipt verifies with the published key");
+  const expected = smokeExpectationCount(receipts);
+  if (results.length !== expected) results.push({ name: `all ${expected} expectations ran`, ok: false, detail: `${results.length} ran` });
   const failed = results.filter((r) => !r.ok).length;
   console.log(`\n${failed === 0 ? "ALL PASS" : `${failed} FAIL`} (${results.length} expectations)`);
   process.exit(failed === 0 ? 0 : 1);

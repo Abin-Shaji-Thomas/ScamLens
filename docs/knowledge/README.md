@@ -52,10 +52,11 @@ Special markers (do not edit their contents by hand):
 
 ## How it is tested
 
-`npm run docs:check` fails when a generated block or fact is stale, a required file or heading is missing, an internal link is broken, a path under "Where in the code" does not exist, a quoted UI string contains a banned word, or a source file mapped in MANIFEST.json changed (against `origin/main`) without its doc and the changelog. `npm test` runs the same offline checks (everything except the git comparison) in `web/src/lib/docs.test.ts`.
+`npm run docs:check` fails when a generated block or fact is stale (here and in `README.md`, `docs/DEPLOY.md`, `docs/HUMAN_TASKS.md` and `docs/UI_CHECKLIST.md`), a doc repeats a phrase listed in `docs/knowledge/STALE_PHRASES.json` (the changelog and decisions log are exempt, as history), a required file or heading is missing, an internal link is broken, a path under "Where in the code" does not exist, a quoted UI string contains a banned word, or a source file mapped in MANIFEST.json changed (against `origin/main`) without its doc and the changelog. `npm test` runs the same offline checks (everything except the git comparison) in `web/src/lib/docs.test.ts`.
 
 ## Known limits
 
 - The checker verifies numbers only where they are wrapped in a FACT marker or a generated block; a number typed as plain prose is not checked.
+- Stale phrases are caught only when someone adds them to `STALE_PHRASES.json` (phrase, why, since; optional `allowIn`). Add one whenever a change makes an old sentence untrue. `docs/SPEC.md` and `docs/PROGRESS.md` are append-only records and are not checked.
 - The commit summary in the changelog is refreshed by `docs:generate` but not compared by `docs:check`, because a commit cannot list itself.
 - The MANIFEST check compares the whole branch against `origin/main`, so once a doc changed on the branch, later edits to its sources on the same branch are not flagged again.

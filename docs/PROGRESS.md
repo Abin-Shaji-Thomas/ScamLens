@@ -728,3 +728,15 @@ Screenshots: `docs/screens/finish-example-375.png`, `docs/screens/finish-result-
 | /about line | PASS | the brief's sentence, in the privacy section, omitted on failure |
 | Live read | not verified yet | depends on the service-role read of usage_counters on Supabase; checked in H7 |
 
+## H6 - Stale-doc audit and drift tooling
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Extra docs checked | PASS | `checkExtraDocs` over README, DEPLOY, HUMAN_TASKS, UI_CHECKLIST: facts, generated blocks, relative links (from each doc's folder); docs:generate rewrites them too |
+| New facts | PASS | rule_count (README, UI_CHECKLIST, HUMAN_TASKS), smoke_expectations 39 (DEPLOY, HUMAN_TASKS, 13), db_migrations and graph_migrations (HUMAN_TASKS) |
+| Smoke count from code | PASS | expectation lists moved to `scripts/smoke-expectations.ts`; `smokeExpectationCount(true)` = 39, false = 36; smoke-live adds a FAIL when fewer ran |
+| STALE_PHRASES.json | PASS | 11 phrases with why and since; history docs exempt; case-insensitive; reports doc:line |
+| Audit | PASS | found and fixed "website domains were not checked against a blocklist" in 19; no other listed phrase in any checked doc |
+| HUMAN_TASKS | PASS | rewritten in current order: wake TigerGraph, after-push checks, monthly purge, recreate-only SQL, person-only checks (adds Share proof download and Try this example), optional |
+| Tests | PASS | docs.test.ts: extra docs clean, facts present, new facts from code, checker catches a stale fact and a broken link, stale phrases clean and caught |
+

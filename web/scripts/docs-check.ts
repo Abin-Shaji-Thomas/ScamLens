@@ -1,4 +1,5 @@
-// Fails (exit 1) when docs/knowledge/ drifts from the code. Usage: npm run docs:check
+// Fails (exit 1) when docs/knowledge/ (or the facts in README, DEPLOY, HUMAN_TASKS and UI_CHECKLIST) drift from the
+// code, or when a doc repeats a phrase listed in docs/knowledge/STALE_PHRASES.json. Usage: npm run docs:check
 // Offline checks come from docs-lib (also run by src/lib/docs.test.ts). This script adds the git check:
 // a source file mapped in MANIFEST.json that changed against origin/main (committed or not) needs its doc
 // and 17-CHANGELOG.md to change too. The "commits" block is refreshed by docs:generate but not compared,
@@ -6,9 +7,13 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { checkDocs, facts, generators, KB, loadDocs, manifestProblems, ROOT } from "./docs-lib";
+import { checkDocs, checkExtraDocs, facts, generators, KB, loadDocs, loadExtraDocs, loadStalePhrases, manifestProblems, ROOT, staleProblems } from "./docs-lib";
 
-const problems = checkDocs(loadDocs(), generators(), facts());
+const gens = generators();
+const fx = facts();
+const kb = loadDocs();
+const extra = loadExtraDocs();
+const problems = [...checkDocs(kb, gens, fx), ...checkExtraDocs(extra, gens, fx), ...staleProblems([...kb, ...extra], loadStalePhrases())];
 const git = (args: string[]) => {
   try {
     return execFileSync("git", args, { cwd: ROOT, encoding: "utf8" }).split(/\r?\n/).filter(Boolean);
