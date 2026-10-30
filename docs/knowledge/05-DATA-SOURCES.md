@@ -11,6 +11,7 @@ The Verified tier uses five sources. Two are lists stored as snapshots in the re
 | OFAC SDN list (US Treasury) | Crypto addresses listed in sanctions (EVM, TRON, BTC and others) | US government work, public domain | Snapshot; dates shown on the card and /about | Only addresses OFAC lists | Snapshot is local, so it does not fail at run time |
 | ScamSniffer scam-database (address list) | Scam-linked EVM addresses | GPL-3.0 (upstream repository licence) | Public copy is about 7 days behind ScamSniffer's live feed; snapshot date shown | Addresses only; the domain list is not used (too large) | Local snapshot |
 | GoPlus address security API | Flags for Ethereum and TRON addresses | GoPlus terms | Live | Rate limits unknown; per-request timeout | Row "Unavailable" |
+| GoPlus phishing site API | Website domains on GoPlus's phishing-site list (finish round) | GoPlus terms | Live | Up to 5 domains per check (`MAX_DOMAINS`); only the domain is sent; per-request timeout | Row "Unavailable" |
 | Etherscan V2 API | On-chain facts (type, balance, first and last transaction) | Etherscan terms | Live, 10-minute cache | Free plan: the chains marked "yes" below, 2 requests per second, first wallet per message only | Row "Unavailable", or "skipped" with the reason |
 | TronGrid | TRON account facts, with a Tronscan link | TronGrid terms | Live | Works without a key at lower limits | Row "Unavailable" |
 
@@ -28,7 +29,8 @@ Enabled chains (generated from `EVM_CHAINS`):
 
 ### What is not covered
 - UPI IDs, phone numbers, Telegram handles and emails have no verified source; they can only be Reported or Suspected.
-- Website domains: ScamSniffer's domain list measured 9.1 MB on 2026-10-29, over the 8 MB budget, so domains are not checked and the card says so in a notice.
+- Website domains: checked against GoPlus's phishing-site list only. ScamSniffer's domain list measured 9.1 MB on 2026-10-29, over the 8 MB budget, so it is not used; a check with a domain says so in a notice ("Website domains are checked only against GoPlus's phishing-site list ...").
+- Domain check probe (2026-10-30): `GET https://api.gopluslabs.io/api/v1/phishing_site?url=<domain>` needs no key; it answered `phishing_site: 1` for the phishing domain in GoPlus's own API example and `0` for example.com and a reserved demo domain, in 0.2-0.6 s. So the domain check was built.
 - Bitcoin addresses: OFAC only.
 
 ### Refreshing the lists

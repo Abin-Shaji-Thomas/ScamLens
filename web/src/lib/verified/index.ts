@@ -1,14 +1,15 @@
 import type { Identifier } from "../extract/types";
 import { uniqueIdentifiers } from "../identifiers";
 import { checkEtherscanChain, EVM_CHAINS } from "./etherscan";
-import { checkGoPlus } from "./goplus";
+import { checkGoPlus, checkGoPlusPhishing } from "./goplus";
 import { Unavailable, withTimeout } from "./http";
 import { checkOfac, SEARCH_URL } from "./ofac";
 import { BLOB_URL, checkScamSniffer } from "./scamsniffer";
 import { checkTronGrid } from "./tron";
-import { defaultDeps, unavailable, type CheckDeps, type ResultBase, type SourceResult } from "./types";
+import { defaultDeps, MAX_DOMAINS, unavailable, type CheckDeps, type ResultBase, type SourceResult } from "./types";
 
 export const MAX_ADDRESSES = 10;
+export { MAX_DOMAINS };
 export const ETHERSCAN_MAX_ADDRESSES = 1; // 15 rate-limited calls per wallet on the free plan (~7.5 s)
 
 type Task = { base: ResultBase; run: () => Promise<SourceResult> | SourceResult; guardMs: number };
@@ -30,6 +31,7 @@ function defaultLink(id: Identifier, source: ResultBase["source"]): string {
     case "scamsniffer":
       return BLOB_URL;
     case "goplus":
+    case "goplus_phishing":
       return "https://gopluslabs.io/";
     case "trongrid":
       return `https://tronscan.org/#/address/${id.value}`;
@@ -69,8 +71,10 @@ function tasksFor(id: Identifier, deps: CheckDeps, etherscanBudget: boolean): Ta
       return [ofac, goplus, { base: base(id, "trongrid", "TronGrid (TRON mainnet)", deps), run: () => checkTronGrid(id, deps), guardMs: g }];
     case "btc":
       return [ofac];
+    case "domain":
+      return [{ base: base(id, "goplus_phishing", "GoPlus phishing sites", deps), run: () => checkGoPlusPhishing(id, deps), guardMs: g }];
     default:
-      return []; // UPI, phone, Telegram, email, domain: no verified source (report-only).
+      return []; // UPI, phone, Telegram, email: no verified source (report-only).
   }
 }
 
@@ -78,15 +82,17 @@ export async function runVerifiedChecks(ids: Identifier[], deps: CheckDeps = def
   const addresses = uniqueIdentifiers(ids)
     .filter((i) => i.type === "evm" || i.type === "tron" || i.type === "btc")
     .slice(0, MAX_ADDRESSES);
+  const domains = uniqueIdentifiers(ids).filter((i) => i.type === "domain").slice(0, MAX_DOMAINS);
   const evmOrder = addresses.filter((a) => a.type === "evm");
   return Promise.all(
-    addresses.flatMap((id) => tasksFor(id, deps, evmOrder.indexOf(id) < ETHERSCAN_MAX_ADDRESSES)).map(runTask),
+    [...addresses, ...domains].flatMap((id) => tasksFor(id, deps, evmOrder.indexOf(id) < ETHERSCAN_MAX_ADDRESSES)).map(runTask),
   );
 }
 
 // F6: ScamSniffer's domain list (blacklist/domains.json) was HEAD-probed on 2026-10-29 at 9,148,722 bytes,
 // over the 8 MB budget for a lazily loaded serverless lookup, so domains are NOT checked against it.
+// Finish round (2026-10-30): domains are checked against GoPlus's phishing-site API instead (one list only).
 export const SCAMSNIFFER_DOMAINS_PROBED_BYTES = 9_148_722;
 export const DOMAIN_LIST_BUDGET_BYTES = 8 * 1024 * 1024;
-export const DOMAIN_NOT_CHECKED_NOTICE =
-  "Website domains are not checked against a blocklist here (ScamSniffer's domain list is too large for this deployment). Nothing found does not mean the site is safe.";
+export const DOMAIN_NOTICE =
+  "Website domains are checked only against GoPlus's phishing-site list (ScamSniffer's domain list is too large for this deployment). Not being listed does not mean the site is safe.";

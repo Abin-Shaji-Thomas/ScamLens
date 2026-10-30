@@ -39,3 +39,31 @@ export async function checkGoPlus(id: Identifier, deps: CheckDeps): Promise<Sour
     facts: flags.map((f) => ({ label: "Flag", value: f })),
   };
 }
+
+const PhishingResponse = z.object({
+  code: z.number(),
+  message: z.string().optional(),
+  result: z.object({ phishing_site: z.number() }).passthrough().nullable().optional(),
+});
+
+/**
+ * Website domains against GoPlus's phishing-site list (probed 2026-10-30: free, no key; a documented phishing domain
+ * returns 1, example.com 0). Only the domain is sent, never the message.
+ */
+export async function checkGoPlusPhishing(id: Identifier, deps: CheckDeps): Promise<SourceResult> {
+  const url = `https://api.gopluslabs.io/api/v1/phishing_site?url=${encodeURIComponent(id.value)}`;
+  const body = PhishingResponse.safeParse(await getJson(deps, url));
+  if (!body.success || !body.data.result) throw new Unavailable("invalid response");
+  if (body.data.code !== 1) throw new Unavailable(`GoPlus code ${body.data.code}`);
+  const listed = body.data.result.phishing_site === 1;
+  return {
+    source: "goplus_phishing",
+    sourceName: "GoPlus phishing sites",
+    identifier: { type: id.type, value: id.value },
+    checkedAt: deps.now().toISOString(),
+    link: url,
+    status: listed ? "match" : "no_match",
+    summary: listed ? "GoPlus lists this website as a phishing site." : "GoPlus does not list this website as a phishing site.",
+    facts: listed ? [{ label: "Flag", value: "phishing site" }] : [],
+  };
+}

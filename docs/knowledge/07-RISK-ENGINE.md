@@ -14,7 +14,7 @@ The risk level is decided by a few lines of fixed code, not by AI. One verified 
 | none of the above | Low signals |
 
 Definitions:
-- *verified match*: a Verified row with status `match` (OFAC, ScamSniffer, or a GoPlus flag).
+- *verified match*: a Verified row with status `match` (OFAC, ScamSniffer, a GoPlus address flag, or, since the finish round, a website listed in GoPlus phishing sites). The High explanation reads "an address or website matched a checked list".
 - *reported identifier*: at least <!-- FACT:min_reporters -->2<!-- /FACT --> distinct reporter fingerprints within <!-- FACT:report_retention_days -->90<!-- /FACT --> days, not contested.
 - *counted suspected rules*: distinct rule ids among suspected signals that are not in warning context.
 

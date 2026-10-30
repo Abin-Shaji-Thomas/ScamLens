@@ -264,7 +264,7 @@ describe("runCheck / POST /api/check", () => {
   });
 });
 
-describe("F6: verified findings are checkable, domains are honestly unchecked", () => {
+describe("F6: verified findings are checkable; domains only against GoPlus phishing sites", () => {
   it("every result (match, no match, info or unavailable) names its source, a date and an https link", async () => {
     const text = `${OFAC_ETH} ${CLEAN} ${OFAC_TRX}`;
     for (const route of [(url: string) => (url.includes("etherscan") ? etherscanRoute(url) : json(GOPLUS_CLEAN)), (() => json({}, 500)) as Route]) {
@@ -282,19 +282,49 @@ describe("F6: verified findings are checkable, domains are honestly unchecked", 
     const { DOMAIN_LIST_BUDGET_BYTES, SCAMSNIFFER_DOMAINS_PROBED_BYTES } = await import("./index");
     expect(SCAMSNIFFER_DOMAINS_PROBED_BYTES).toBeGreaterThan(DOMAIN_LIST_BUDGET_BYTES);
   });
-  it("a domain gets no verified result and a notice that it was not checked (never 'clean')", async () => {
-    const { DOMAIN_NOT_CHECKED_NOTICE } = await import("./index");
-    const r = await runCheck(
-      { text: "Claim your bonus at zz-demo-bonus-claim.example.com today" },
-      { ...deps(() => json({}, 500)), db: null },
-    );
-    expect(r.identifiers.some((i) => i.type === "domain")).toBe(true);
-    expect(r.verified.filter((v) => v.identifier.type === "domain")).toEqual([]);
-    expect(r.notices).toContain(DOMAIN_NOT_CHECKED_NOTICE);
+  it("a domain is looked up in GoPlus phishing sites: listed is a match, unlisted is no_match (never 'safe'), with the notice", async () => {
+    const { DOMAIN_NOTICE } = await import("./index");
+    const seen: string[] = [];
+    const route: Route = (url) => {
+      seen.push(url);
+      if (url.includes("/phishing_site")) return json({ code: 1, message: "OK", result: { website_contract_security: [], phishing_site: url.includes("zz-demo-bonus") ? 1 : 0 } });
+      return json({}, 500);
+    };
+    const r = await runCheck({ text: "Claim your bonus at zz-demo-bonus-claim.example.com or see other-demo.example.org today" }, { ...deps(route), db: null });
+    const rows = r.verified.filter((v) => v.source === "goplus_phishing");
+    expect(rows.map((v) => [v.identifier.value, v.status])).toEqual([
+      ["zz-demo-bonus-claim.example.com", "match"],
+      ["other-demo.example.org", "no_match"],
+    ]);
+    expect(rows[0].summary).toBe("GoPlus lists this website as a phishing site.");
+    expect(rows[1].summary).toBe("GoPlus does not list this website as a phishing site.");
+    expect(rows.map((v) => v.summary).join(" ")).not.toMatch(/\bsafe\b|\bclean\b/i);
+    expect(seen.filter((u) => u.includes("/phishing_site"))).toEqual([
+      "https://api.gopluslabs.io/api/v1/phishing_site?url=zz-demo-bonus-claim.example.com",
+      "https://api.gopluslabs.io/api/v1/phishing_site?url=other-demo.example.org",
+    ]);
+    expect(seen.join(" ")).not.toContain("Claim your bonus"); // only the domain is sent
+    expect(r.risk.level).toBe("high"); // a phishing listing is a verified match
+    expect(r.notices).toContain(DOMAIN_NOTICE);
   });
-  it("no domain in the text: no domain notice", async () => {
-    const { DOMAIN_NOT_CHECKED_NOTICE } = await import("./index");
+  it("GoPlus phishing failures are unavailable, never a pass", async () => {
+    for (const route of [() => json({}, 500), () => json({ code: 4029, message: "rate" }), () => new Response("<html>", { status: 200 }), never] as Route[]) {
+      const r = by(await runVerifiedChecks(ids("see zz-demo-bonus-claim.example.com"), deps(route, {}, 30)), "goplus_phishing");
+      expect(r).toHaveLength(1);
+      expect(r[0].status).toBe("unavailable");
+      expect(r[0].link).toBe("https://gopluslabs.io/");
+    }
+  });
+  it("at most MAX_DOMAINS domains are looked up", async () => {
+    const { MAX_DOMAINS } = await import("./index");
+    const text = Array.from({ length: MAX_DOMAINS + 2 }, (_, i) => `site${i}-demo.example.com`).join(" ");
+    const r = by(await runVerifiedChecks(ids(text), deps(() => json({ code: 1, result: { phishing_site: 0 } }))), "goplus_phishing");
+    expect(r).toHaveLength(MAX_DOMAINS);
+  });
+  it("no domain in the text: no domain notice and no phishing lookup", async () => {
+    const { DOMAIN_NOTICE } = await import("./index");
     const r = await runCheck({ text: "pay the fee now" }, { ...deps(() => json({}, 500)), db: null });
-    expect(r.notices).not.toContain(DOMAIN_NOT_CHECKED_NOTICE);
+    expect(r.notices).not.toContain(DOMAIN_NOTICE);
+    expect(by(r.verified, "goplus_phishing")).toEqual([]);
   });
 });

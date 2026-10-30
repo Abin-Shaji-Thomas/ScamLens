@@ -6,7 +6,7 @@ import { reportedFor, reportsConfig } from "./reports/service";
 import { assessRisk } from "./risk";
 import { detectSignals } from "./signals";
 import type { Completer } from "./signals/llm";
-import { DOMAIN_NOT_CHECKED_NOTICE, runVerifiedChecks } from "./verified";
+import { DOMAIN_NOTICE, runVerifiedChecks } from "./verified";
 import { defaultDeps, type CheckDeps } from "./verified/types";
 
 export { CheckRequest, CheckResponse, MAX_INPUT_CHARS } from "./api-schema";
@@ -21,7 +21,7 @@ export async function runCheck({ text }: CheckRequest, deps: RunDeps = defaultDe
   const identifiers = all.slice(0, MAX_IDENTIFIERS);
   if (all.length > MAX_IDENTIFIERS) notices.push(`Only the first ${MAX_IDENTIFIERS} identifiers were checked.`);
   if (deps.skipAi) notices.push(deps.skipAi);
-  if (identifiers.some((i) => i.type === "domain")) notices.push(DOMAIN_NOT_CHECKED_NOTICE);
+  if (identifiers.some((i) => i.type === "domain")) notices.push(DOMAIN_NOTICE);
 
   const [verified, { signals, ai: aiResult }, reported] = await Promise.all([
     runVerifiedChecks(identifiers, deps),

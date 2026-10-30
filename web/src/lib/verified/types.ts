@@ -1,8 +1,11 @@
 import { z } from "zod";
 import { IdentifierType } from "../extract/types";
 
-export const SourceId = z.enum(["ofac", "scamsniffer", "goplus", "etherscan", "trongrid"]);
+export const SourceId = z.enum(["ofac", "scamsniffer", "goplus", "goplus_phishing", "etherscan", "trongrid"]);
 export type SourceId = z.infer<typeof SourceId>;
+
+/** Website domains looked up per check (GoPlus phishing sites). */
+export const MAX_DOMAINS = 5;
 
 // There is deliberately no "safe" status: a source either matched, did not match
 // (as of a date), returned facts, or was unavailable.

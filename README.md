@@ -93,7 +93,7 @@ docs/                       SPEC, AUDIT, PROGRESS, HUMAN_TASKS, DEPLOY, MODERATI
 
 - **OFAC SDN list**: U.S. Treasury (`SDN.XML`), digital-currency address fields. US government work, public domain. Snapshot publish date shown on every row.
 - **ScamSniffer scam-database**: [github.com/scamsniffer/scam-database](https://github.com/scamsniffer/scam-database), `blacklist/all.json` address list, GPL-3.0, with attribution. The public copy is about 7 days behind ScamSniffer's live feed; the UI says so. The domain list (9.1 MB when probed on 2026-10-29) is over this deployment's 8 MB budget and is **not** used; checks that contain a domain say so.
-- **GoPlus** address security API, **Etherscan V2** API, **TronGrid** API: queried live per check, subject to their terms. Chain coverage measured with a live probe: [docs/CHAIN_SUPPORT.md](docs/CHAIN_SUPPORT.md).
+- **GoPlus** address security and phishing site APIs, **Etherscan V2** API, **TronGrid** API: queried live per check, subject to their terms. Chain coverage measured with a live probe: [docs/CHAIN_SUPPORT.md](docs/CHAIN_SUPPORT.md).
 - Helpline **1930** and **cybercrime.gov.in**: Indian Cyber Crime Coordination Centre (I4C), Ministry of Home Affairs.
 
 ## Limits
@@ -158,7 +158,7 @@ Sample 2 uses a real address from the OFAC SDN list so the Verified tier can be 
 
 ## Known gaps
 
-- **Not a complete scam database** and not a safety guarantee. UPI IDs, phone numbers, Telegram handles, emails and domains have no verified source here; they can only be Reported or Suspected.
+- **Not a complete scam database** and not a safety guarantee. UPI IDs, phone numbers, Telegram handles and emails have no verified source here; they can only be Reported or Suspected. Website domains are checked against GoPlus's phishing-site list only.
 - **The live Reported tier holds only synthetic seed data** (labelled). Real reports show only after two independent reporters name the same identifier.
 - **No accounts.** Independence is a hashed network fingerprint: people on one network count as one reporter; one person on several networks (Wi-Fi, mobile data, VPN) can count as several. The same applies to daily limits and contests.
 - **Contest review is manual.** Contested entries stay visible and labelled until you uphold or dismiss them in the Supabase SQL editor ([docs/MODERATION.md](docs/MODERATION.md)); there is no admin screen. Until migration `002_contest_policy.sql` is run, new contests are refused. Contest reasons (10-500 characters) are stored for the moderator only. Removing an upheld report from TigerGraph needs a manual REST call that has not been tested.

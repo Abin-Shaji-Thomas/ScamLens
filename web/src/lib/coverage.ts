@@ -4,7 +4,7 @@
 import type { CheckResponse } from "./api-schema";
 import type { IdentifierType } from "./extract/types";
 import { RULES } from "./signals/rules";
-import type { SourceId, SourceResult } from "./verified/types";
+import { MAX_DOMAINS, type SourceId, type SourceResult } from "./verified/types";
 
 export type CoverageStatus = "checked" | "not applicable" | "unavailable" | "skipped (limit)" | "off" | "not looked up (press Show links)";
 
@@ -34,6 +34,7 @@ const SOURCES: { id: SourceId; name: string; covers: string; types: IdentifierTy
   { id: "ofac", name: "OFAC SDN list", covers: "Crypto addresses on the US sanctions list", types: ["evm", "tron", "btc"] },
   { id: "scamsniffer", name: "ScamSniffer open blacklist", covers: "Scam-linked EVM wallets (public copy about 7 days delayed)", types: ["evm"] },
   { id: "goplus", name: "GoPlus address security", covers: "Risk flags for EVM and TRON wallets", types: ["evm", "tron"] },
+  { id: "goplus_phishing", name: "GoPlus phishing sites", covers: "Website domains on GoPlus's phishing-site list", types: ["domain"] },
   { id: "etherscan", name: "Etherscan V2", covers: "On-chain history of the first EVM wallet", types: ["evm"] },
   { id: "trongrid", name: "TronGrid", covers: "On-chain history of TRON wallets", types: ["tron"] },
 ];
@@ -115,12 +116,14 @@ export function buildCoverage(r: CheckResponse, opts?: { graph: GraphCoverage })
     if (types.has(t)) notChecked.push(`${label} have no public database here; only community reports are used.`);
   }
   const domains = r.identifiers.filter((i) => i.type === "domain");
-  if (domains.length && !r.verified.some((v) => v.identifier.type === "domain")) {
-    notChecked.push("Website domains were not checked against a blocklist.");
-  }
+  const lookedUp = new Set(r.verified.filter((v) => v.identifier.type === "domain").map((v) => v.identifier.value));
+  const missed = domains.filter((d) => !lookedUp.has(d.value)).length;
+  if (missed) notChecked.push(`${missed} website domain(s) were not looked up (only the first ${MAX_DOMAINS} are).`);
+  if (domains.length) notChecked.push("Website domains were checked only against GoPlus's phishing-site list, not other blocklists.");
   for (const id of r.identifiers.filter((i) => i.type === "evm" || i.type === "tron" || i.type === "btc")) {
     const ran = new Set(r.verified.filter((v) => v.identifier.value === id.value && !isNotOnPlan(v)).map((v) => v.source));
-    const missing = SOURCES.filter((s) => !ran.has(s.id)).map((s) => s.name);
+    // Wallet sources only: a domain-only source (GoPlus phishing sites) never applies to a wallet.
+    const missing = SOURCES.filter((s) => s.types.some((t) => t !== "domain") && !ran.has(s.id)).map((s) => s.name);
     if (ran.size && missing.length) {
       notChecked.push(`${WALLET_NAMES[id.type]} ${id.value.slice(0, 10)}...: not looked up in ${missing.join(", ")}.`);
     }

@@ -64,4 +64,4 @@ Keep `runCheck` free of storage and logging. New sources go into `tasksFor` in `
 
 ## Known limits
 
-Only the first wallet gets Etherscan history (rate limit). Domains are not checked against a blocklist. The whole check can take several seconds when Etherscan queues requests.
+Only the first wallet gets Etherscan history (rate limit). Website domains (up to 5) are checked against GoPlus's phishing-site list only. The whole check can take several seconds when Etherscan queues requests.

@@ -54,12 +54,13 @@ describe("coverage ledger ('What was checked')", () => {
     expect(c.notChecked).toContain("UPI IDs have no public database here; only community reports are used.");
   });
 
-  it("TRON wallet: says which sources were not looked up; domains say they were not checked", async () => {
+  it("TRON wallet: says which sources were not looked up; domains say which list they were checked against", async () => {
     const r = await runCheck({ text: "Send USDT to TNPeeaaFB7K9cmo4uQpcU32zGK8G1NYqeL and see zz-demo-bonus-claim.example.com" }, offline);
     const c = buildCoverage(r);
     expect(status(c, "trongrid")).not.toBe("not applicable");
     expect(c.notChecked.join(" ")).toMatch(/TRON wallet TNPeeaaFB7\.\.\.: not looked up in ScamSniffer open blacklist, Etherscan V2\./);
-    expect(c.notChecked).toContain("Website domains were not checked against a blocklist.");
+    expect(c.notChecked).toContain("Website domains were checked only against GoPlus's phishing-site list, not other blocklists.");
+    expect(status(c, "goplus_phishing")).toBe("unavailable"); // offline: never a pass
   });
 
   it("renders every status as a word, never 'clean' or 'safe', and no date is typed in the component", async () => {
@@ -98,7 +99,7 @@ describe("coverage ledger: Link graph row (G4b)", () => {
   it("the signed receipt's coverage is unchanged: without the graph argument there is no Link graph row", async () => {
     const r = await runCheck({ text: SAMPLES[0].text }, offline);
     expect(row(buildCoverage(r))).toBeUndefined();
-    expect(buildCoverage(r).rows.map((x) => x.id)).toEqual(["ofac", "scamsniffer", "goplus", "etherscan", "trongrid", "reports", "rules"]);
+    expect(buildCoverage(r).rows.map((x) => x.id)).toEqual(["ofac", "scamsniffer", "goplus", "goplus_phishing", "etherscan", "trongrid", "reports", "rules"]);
   });
   it("the ledger on the card shows the row as not looked up, and never says clean or safe", async () => {
     const r = await runCheck({ text: SAMPLES[0].text }, offline);

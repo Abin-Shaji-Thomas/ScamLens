@@ -696,3 +696,14 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 
 Screenshots: `docs/screens/finish-example-375.png`, `docs/screens/finish-result-1440.png` (with the two H0 reference shots, 4 finish-* files). The local server ran with raised daily limits through env only (not committed); the server's wrapper shell was once stopped for low memory, the server process itself kept running.
 
+## H3 - Domain check (GoPlus phishing_site)
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Probe | PASS | no key; phishing_site 1 for GoPlus's documented example domain, 0 for example.com and zz-demo-bonus-claim.example.com; 0.2-0.6 s |
+| Built | PASS | `checkGoPlusPhishing`, source goplus_phishing, MAX_DOMAINS 5, only the domain sent (test asserts the URLs and that no message text is sent) |
+| Failure rule | PASS | 500, GoPlus error code, HTML, timeout: unavailable with gopluslabs.io link (tests) |
+| Risk | PASS | a listing is a verified match: High (test) |
+| Coverage | PASS | new row "GoPlus phishing sites"; wallets are never listed as not looked up in it; Not checked says domains used this one list only |
+| Receipts | changed | coverage in new receipts includes the goplus_phishing row; older receipts still verify (receipt coverage is free text, schema unchanged) |
+

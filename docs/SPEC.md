@@ -140,3 +140,9 @@ Do Step 0 and the Step 1 audit now. Report the findings, then wait for my "next"
 - Font stack: Arial, "Helvetica Neue", Helvetica, "Liberation Sans", Roboto, sans-serif. System fonts only, no web fonts. This replaces the Segoe UI ordering of the TigerGraph finish round.
 - Two weights only: 400 for all text and headings (title, risk word, 404, section headings, step numerals) and 600 for small bold labels, finding titles and the brand. No weight 300 anywhere; `font-synthesis: none`.
 - Sizes, line heights, grid and colour tokens are unchanged. Verified in headless Edge against a reference built from the pre-056ab4b stack: identical font files, sizes, widths and line counts at 375, 768, 1280, 1440 and 1920 px.
+
+# DOMAIN CHECK: GoPlus phishing sites (2026-10-30, branch finish)
+- Probe: `GET https://api.gopluslabs.io/api/v1/phishing_site?url=<domain>`, no key; `phishing_site` 1 for the phishing domain in GoPlus's API example, 0 for example.com and a reserved demo domain.
+- Built: source `goplus_phishing` ("GoPlus phishing sites"), up to 5 domains per check, only the domain is sent. Listed = Verified match (counts toward High); not listed = no_match, worded "does not list", never "safe"; any failure = unavailable.
+- The domain notice now reads "Website domains are checked only against GoPlus's phishing-site list (ScamSniffer's domain list is too large for this deployment). Not being listed does not mean the site is safe." The 2026-10-29 decision not to load ScamSniffer's domain list stands.
+

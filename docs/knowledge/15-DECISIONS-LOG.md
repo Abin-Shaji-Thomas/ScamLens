@@ -18,6 +18,7 @@ Why ScamLens is built the way it is. Each entry gives the choice, the alternativ
 | 2026-10-29 (F2) | Daily per-network limits in Supabase with a memory fallback | No limits | Paid APIs and the service must survive abuse | Limits approximate when the store is down |
 | 2026-10-29 (F3) | Screenshot reading: the model only transcribes, the user confirms | Model decides from the image | Keeps identifiers and rules deterministic | Needs a vision key (currently off) |
 | 2026-10-29 (F6) | ScamSniffer domain list not used | Load 9.1 MB per request | Over the 8 MB serverless budget | Domains are not checked; the card says so |
+| 2026-10-30 (finish H3) | Check domains with GoPlus phishing_site | Leave domains unchecked | A live probe answered 1 for a known phishing domain and 0 for controls, no key needed | Up to 5 domains per check; a listing is a Verified match (High); the notice now says only this list is used |
 | 2026-10-29 (F6) | Etherscan free-plan chains only | Paid plan | Cost | BNB Chain and Base shown as needing a paid plan |
 | 2026-10-29 (G1) | CSP keeps `'unsafe-inline'` scripts | Nonces | Next.js emits inline bootstrap scripts; nonces force dynamic pages | Documented trade-off on /about |
 | 2026-10-29 (G2) | Contested reports stay visible and labelled, never count toward High | Hide on contest | Hiding let anyone erase a true report | Moderator review needed |

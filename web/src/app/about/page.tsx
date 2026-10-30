@@ -17,7 +17,7 @@ import { CONTESTED_LABEL, TIERS } from "@/lib/tiers";
 import { SCREENSHOT_OFF, visionConfigured } from "@/lib/transcribe";
 import { llmConfigured, usageLimits } from "@/lib/usage";
 import { DEFAULT_ETHERSCAN_RPS, EVM_CHAINS } from "@/lib/verified/etherscan";
-import { DOMAIN_LIST_BUDGET_BYTES, ETHERSCAN_MAX_ADDRESSES, MAX_ADDRESSES, SCAMSNIFFER_DOMAINS_PROBED_BYTES } from "@/lib/verified/index";
+import { DOMAIN_LIST_BUDGET_BYTES, ETHERSCAN_MAX_ADDRESSES, MAX_ADDRESSES, MAX_DOMAINS, SCAMSNIFFER_DOMAINS_PROBED_BYTES } from "@/lib/verified/index";
 import { ofacList, scamSnifferList } from "@/lib/verified/lists";
 import { GraphStatsLine } from "@/components/GraphStatsLine";
 
@@ -174,6 +174,10 @@ export default function AboutPage() {
             reports from its own sources; subject to GoPlus&apos;s terms. <A href="https://gopluslabs.io/">gopluslabs.io</A>.
           </li>
           <li className="py-4">
+            <strong>GoPlus phishing site API</strong>, queried live for up to {MAX_DOMAINS} website domains per check. Only the
+            domain is sent, never your message. A listing is a Verified match; not being listed does not mean a site is safe.
+          </li>
+          <li className="py-4">
             <strong>Etherscan V2 API</strong> (free plan): on-chain facts (type, balance, first and last transaction) for{" "}
             {list(freeChains)}. {list(paidChains)} need a paid plan and are shown as unavailable. To stay within{" "}
             {DEFAULT_ETHERSCAN_RPS} requests per second, only the first {ETHERSCAN_MAX_ADDRESSES} wallet in a message gets
@@ -183,11 +187,11 @@ export default function AboutPage() {
             <strong>TronGrid</strong> (TRON mainnet): account facts for TRON addresses, with a link to Tronscan.
           </li>
           <li className="py-4">
-            UPI IDs, phone numbers, Telegram handles, email addresses and website domains have no verified source here: they
-            can only appear in the Reported tier. ScamSniffer also publishes a domain list, but it measured{" "}
-            {(SCAMSNIFFER_DOMAINS_PROBED_BYTES / 1_000_000).toFixed(1)} MB on 2026-10-29, over our{" "}
-            {Math.round(DOMAIN_LIST_BUDGET_BYTES / 1024 / 1024)} MB budget for this deployment, so domains are not checked
-            against it and a check with a domain says so.
+            UPI IDs, phone numbers, Telegram handles and email addresses have no verified source here: they can only appear
+            in the Reported tier. Website domains are checked against GoPlus&apos;s phishing-site list only. ScamSniffer also
+            publishes a domain list, but it measured {(SCAMSNIFFER_DOMAINS_PROBED_BYTES / 1_000_000).toFixed(1)} MB on
+            2026-10-29, over our {Math.round(DOMAIN_LIST_BUDGET_BYTES / 1024 / 1024)} MB budget for this deployment, so domains
+            are not checked against it and a check with a domain says so.
           </li>
         </ul>
         <p>

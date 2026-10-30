@@ -20,6 +20,7 @@ What ScamLens cannot do yet, ranked by how much it matters, and what could come 
 | LOW | Graph drawing is small inside a large canvas | `web/src/components/GraphPanel.tsx` |
 | FIXED | First smoke run after a deploy could time out (cold start); smoke-live now warms up first | `web/scripts/smoke-live.ts` |
 | LOW | UPI, phone and Telegram identifiers have no verified source (by nature) | `web/src/lib/verified/index.ts` |
+| LOW | Website domains are checked against one list only (GoPlus phishing sites, live); ScamSniffer's domain list is too large to load. Domain check built in the finish round after a probe showed GoPlus answers 1 for a known phishing domain | `web/src/lib/verified/goplus.ts` |
 
 | FIXED | Flaky PGlite tests under parallel load (explicit 30 s timeouts on the 8 PGlite suites, TigerGraph finish round) | `web/src/test-support/pglite.ts` |
 
