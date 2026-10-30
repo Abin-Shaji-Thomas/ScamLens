@@ -455,3 +455,14 @@ Full matrix and scenario table: `docs/knowledge/18-RELEASE-READINESS.md`.
 | Metadata and images | PASS | `/opengraph-image` 200 image/png 42,067 bytes, 1200x630 (viewed: white, black rule, wordmark, one line, secondary-grey text); og:* and twitter:card summary_large_image tags in the page head; `/icon.svg` 200 image/svg+xml; `launch.test.ts` (4); style and contrast tests pass |
 | Launch kit | PASS | `docs/knowledge/20-LAUNCH-KIT.md`: X, LinkedIn, WhatsApp drafts and a 30-second script; no accusation words, no recovery promise, not legal advice, limits stated, AI line matches "switched off", link placeholder <URL> |
 | Demo doc from real outputs | PASS | `14-DEMO-AND-JUDGING.md` 90-second and 4-minute scripts use the release-gate strings and levels; rule count via FACT marker (docs:check) |
+
+## J8 - Push and live verification
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Remote not ahead | PASS | `origin-only commits: 0` |
+| Fast-forward and plain push | PASS | `9e95b19..f201b16  main -> main`; `git log origin/main -1`: `f201b16 Abin-Shaji-Thomas <abinshajiabin2006@gmail.com> docs(launch): ...` |
+| Live build = HEAD | PASS | 08:15:24 `9e95b19`, 08:16:07 `"build":"f201b16"`; `"receipts":true` |
+| smoke-live | PASS | `ALL PASS (39 expectations)`; receipts verify for all three samples (codes icPmIKap2eEM, P4bfYH1_s6tN, 8DPUAodT-Dbr) |
+| check-headers | PASS | `ALL PASS (48 checks)` |
+| Live browser | PASS | 6 screenshots `docs/screens/live-*.png` (replacing the UI round's set); console empty on /, /about, /patterns, /verify; sample check High 3/3; I already paid: 7 steps, 0 requests; receipt download -> /verify valid in the browser, tampered rejected |

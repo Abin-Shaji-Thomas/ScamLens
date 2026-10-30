@@ -26,6 +26,15 @@ The final quality gate, run on 2026-10-30 against `npm run build` + `npm run sta
 | Tests, typecheck, lint, build, docs:check, eval | PASS | `Tests 402 passed (402)`, typecheck 0, lint 0, build 0, `docs:check PASS`, eval `precision 100.0%, recall 100.0%, FP 0, FN 0` |
 | AI mode | NOT APPLICABLE | off by the owner's decision; zero model calls; UI and docs say rules only |
 
+### Live verification after the push (2026-10-30)
+| Check | Result | Evidence |
+|---|---|---|
+| Push | PASS | `9e95b19..f201b16  main -> main` (fast-forward) |
+| Live build | PASS | `/api/health` `"build":"f201b16"` about 45 s after the push; `"receipts":true` (the Vercel key parses) |
+| smoke-live | PASS | `ALL PASS (39 expectations)`, including "signed receipt verifies with the published key" for all three samples |
+| check-headers | PASS | `ALL PASS (48 checks)` |
+| Live browser | PASS | `/`, sample 1, `/patterns`, `/verify`, `/about`: no overflow, 44 px tap targets, no console messages; sample 1 High 3/3; ledger 7 rows; paid plan 7 steps, 0 requests while editing and copying; downloaded receipt verified in the browser, tampered copy rejected; print black only. Screenshots `docs/screens/live-*.png` (6) match the local ones |
+
 ### Scenarios (real check path, 2026-10-30)
 | Scenario | Risk | Verified | Reported | Suspected (w = warning context) | Receipt |
 |---|---|---|---|---|---|

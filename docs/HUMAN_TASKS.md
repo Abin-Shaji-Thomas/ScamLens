@@ -39,5 +39,6 @@ Most of `docs/UI_CHECKLIST.md` was verified in headless Edge on 2026-10-30 (layo
 
 ## Later / optional
 - **Add an AI key later, if wanted** (not needed; ScamLens is rules-only by design right now): set `OPENAI_API_KEY`, `OPENAI_MODEL` (and `OPENAI_VISION_MODEL` if needed, `OPENAI_BASE_URL` for other providers) in `web/.env.local` and in Vercel, then redeploy. The AI pass and screenshot reading switch on automatically (`/api/health` shows `"llm": true`). Then run `npx tsx scripts/smoke-transcribe.ts <your-own-synthetic-screenshot.png> --show` (must print `PASS`) and `npm run eval` in both modes before claiming any benefit.
+- **Share previews** (optional): if link previews show the wrong host, set `NEXT_PUBLIC_SITE_URL=https://scam-lens-two.vercel.app` in Vercel (not a secret) and redeploy.
 - **Moderating contests**: `docs/MODERATION.md` (list, uphold, dismiss, remove; TigerGraph clean-up after an uphold).
 - **Before judging**: keep Supabase awake and warm TigerGraph as in `docs/DEPLOY.md` section 5.
