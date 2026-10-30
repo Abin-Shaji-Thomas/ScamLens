@@ -25,7 +25,7 @@ The risk level (Low signals / Elevated / High) is computed by fixed code. Suspec
 - AI proposes, code disposes: identifiers come only from `web/src/lib/identifiers.ts`; any AI output is validated (known rule id, exact quote) or dropped. The optional AI helper is built and tested with mocks but switched off in this deployment, so the Suspected tier is fixed pattern rules only.
 - Never call anyone a scammer (banned-list: scammer, fraudster, criminal, guilty, confirmed scam are banned in user-facing text, test-enforced).
 - "No known reports. This does not mean safe." is always shown when the reports database has nothing.
-- Raw chats, transcripts, quotes and screenshots are never stored or logged.
+- Your check is never stored. If you choose to contribute a case, we store structured facts and, only if you tick it, a redacted excerpt you reviewed, visible only to the moderator, deleted with your delete code or after 90 days. Transcripts, quotes and screenshots are never stored or logged.
 - A source that fails is shown as unavailable and never counted as clean.
 - Synthetic data is labelled "Illustrative demo data".
 

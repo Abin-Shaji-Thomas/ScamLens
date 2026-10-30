@@ -821,3 +821,18 @@ Root cause of the earlier "thin headings" report: 056ab4b put Segoe UI before He
 | eval | PASS | 83 cases (p01-p03 appended), precision 100.0%, recall 100.0%, FP 0, FN 0 |
 | ReDoS | PASS | worst 4.9 ms, 0 cases >= 200 ms |
 | Levels explained on the card | PASS | "What the levels mean" with the three sentences and RISK_CEILING_NOTE (render test) |
+
+## P3 - Community data layer (migration 004)
+
+| Check | Result | Evidence |
+|---|---|---|
+| Migration 004 | PASS (local) | `web/db/migrations/004_cases_and_feedback.sql`: cases, feedback, 6 functions (security definer, empty search_path, service role only), RLS; idempotent; PGlite runs schema + 002-004 |
+| Before 004 | PASS | writes return "cases_unavailable" (route 503 "Contributing is not available right now."), reads empty; checks unaffected (test with `migrations: false`) |
+| 2-reporter rule via cases | PASS | one case: not shown; second network: shown with 2 reporters (test) |
+| Delete code | PASS | 128 bits, HMAC only; wrong or malformed code deletes nothing; right code deletes case and excerpt; "also remove my reports" removes reports and links (test) |
+| Purge | PASS | expired case, orphan excerpt, 91-day feedback removed (test) |
+| Feedback | PASS | one answer per network per identifier; rules key without identifiers; counts display only (test) |
+| Trail summary | PASS | only after 2 reporters; synthetic and real apart; no excerpt, fingerprint or case id (test) |
+| Excerpt never returned | PASS | responses of all three routes and every log line scanned; only the migration mentions the column (test) |
+| Limits | PASS | USAGE_CASE_PER_DAY 5, USAGE_FEEDBACK_PER_DAY 30, 429 with Retry-After (test) |
+| Live Supabase | HUMAN STEP | run `web/db/migrations/004_cases_and_feedback.sql` in the Supabase SQL editor |

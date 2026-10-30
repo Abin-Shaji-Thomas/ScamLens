@@ -20,6 +20,7 @@ import { DEFAULT_ETHERSCAN_RPS, EVM_CHAINS } from "@/lib/verified/etherscan";
 import { DOMAIN_LIST_BUDGET_BYTES, ETHERSCAN_MAX_ADDRESSES, MAX_ADDRESSES, MAX_DOMAINS, SCAMSNIFFER_DOMAINS_PROBED_BYTES } from "@/lib/verified/index";
 import { ofacList, scamSnifferList } from "@/lib/verified/lists";
 import { GraphStatsLine } from "@/components/GraphStatsLine";
+import { STORAGE_PROMISE } from "@/lib/privacy-copy";
 import { UsageStatsLine } from "@/components/UsageStatsLine";
 
 export const metadata: Metadata = {
@@ -203,7 +204,8 @@ export default function AboutPage() {
 
       <Section id="privacy" title="Privacy: what is stored">
         <ul className="flex list-disc flex-col gap-2 pl-5">
-          <li>Checks: nothing. Your text is processed in memory and not stored or logged.</li>
+          <li>{STORAGE_PROMISE}</li>
+          <li>Checks: your text is processed in memory and not stored or logged.</li>
           {visionOn ? (
             <li>
               Screenshots: shrunk in your browser, sent once to our AI provider to read the text, and not stored by ScamLens.
@@ -216,6 +218,15 @@ export default function AboutPage() {
             Reports: for each identifier a keyed hash (HMAC) and a masked display (for example <code>+91 98******10</code>), the
             scam type you chose, the network fingerprint hash, and the date. There is no free-text note field. Reports
             expire after {REPORT_RETENTION_DAYS} days.
+          </li>
+          <li>
+            Contributed cases (only if you choose to add one): the reports above, plus the category, channel, loss band,
+            month and which patterns fired; the optional redacted excerpt; and a keyed hash of your delete code. Cases expire
+            after 90 days.
+          </li>
+          <li>
+            &ldquo;Was this right?&rdquo; answers: scam, genuine or not sure, with fixed reasons you tick, per identifier
+            (as a keyed hash) and network fingerprint hash. No free text. Kept for 90 days.
           </li>
           <li>
             Usage limits: a hashed network key and a daily count, deleted after about {USAGE_COUNTER_RETENTION_DAYS} days.
