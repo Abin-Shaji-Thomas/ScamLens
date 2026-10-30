@@ -38,6 +38,9 @@ Grid box 100 / 100 / 91.7% of the window at 1280 / 1440 / 1920 px; no horizontal
 ### Header
 `web/src/components/SiteHeader.tsx` with `web/src/components/NavLinks.tsx`: the brand at left; Patterns, Verify a receipt and About at right in `--swiss-text`, the current page black and underlined (`aria-current="page"`), each a 44 px tap area; the links wrap onto a second row on narrow screens.
 
+### Beyond the check
+`web/src/components/BeyondTheCheck.tsx`: three `.card` entries (title, one sentence, a link) pointing to /patterns (the count comes from `RULES.length`), /verify and /about. Shown under the form before a check and after the result once there is one, so it never pushes the answer down; hidden in print.
+
 ### Link graph canvas
 White background, 1px grey links, 2.5px alert links on evidence paths only, black filled (checked) and hollow (others) circles, black 12 px labels below each circle on a white halo. Zoomed to fit with 40 px padding; 300 px tall on phones, 360-480 px otherwise. Screenshots: `docs/screens/graph-fit-375.png`, `graph-fit-768.png`, `graph-fit-1440.png`.
 

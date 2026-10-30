@@ -635,3 +635,10 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | aria-current | PASS | the current path gets aria-current="page" (render test with /verify) |
 | Footer unchanged | PASS | footer still links /about, /patterns, /verify |
 | 375 px browser check | see H2 browser pass | |
+
+## H2b - Beyond the check band
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Band content | PASS | three entries with the brief's sentences; N from RULES.length; links /patterns, /verify, /about; print:hidden; 3 x lg:col-span-4 |
+| Placement | PASS (decision) | under the form while there is no result (render test asserts the order); after the result card once there is one |

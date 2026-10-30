@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CheckResponse, MAX_INPUT_CHARS } from "@/lib/api-schema";
 import { SAMPLE_WATERMARK, SAMPLES } from "@/lib/samples";
 import { SCREENSHOT_OFF } from "@/lib/screenshot-copy";
+import { BeyondTheCheck } from "./BeyondTheCheck";
 import { RiskCard } from "./RiskCard";
 import { ScreenshotInput, ScreenshotNote, ScreenshotTrigger } from "./ScreenshotInput";
 
@@ -127,10 +128,13 @@ export function CheckForm({ screenshots = false }: { screenshots?: boolean }) {
           </aside>
         </div>
       </section>
+      {/* Under the form before a check; after the result once there is one, so it never pushes the answer down. */}
+      {!result && <BeyondTheCheck />}
       <p role="status" aria-live="polite" className="sr-only">
         {loading ? "Checking." : result ? `Result ready: ${result.risk.label}.` : ""}
       </p>
       <RiskCard result={result} demo={demo} text={checkedText} />
+      {result && <BeyondTheCheck />}
     </>
   );
 }

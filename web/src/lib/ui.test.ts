@@ -467,3 +467,23 @@ describe("header links (H2a)", () => {
     for (const h of ["/about", "/patterns", "/verify"]) expect(footer).toContain(`href="${h}"`);
   });
 });
+
+describe("Beyond the check band (H2b)", () => {
+  it("three entries with title, one sentence and a link; N comes from the rule list; hidden in print", async () => {
+    const { BeyondTheCheck } = await import("../components/BeyondTheCheck");
+    const { RULES } = await import("./signals/rules");
+    const html = renderToStaticMarkup(createElement(BeyondTheCheck));
+    expect(html).toMatch(/<section aria-labelledby="beyond-title" class="print:hidden">/);
+    expect(strip(html)).toContain("Beyond the check");
+    expect(strip(html)).toContain(`Learn the tactics behind these messages. ${RULES.length} patterns, with examples and what to do.`);
+    expect(strip(html)).toContain("Got a ScamLens receipt from a friend or a bank? Check that nobody edited it.");
+    expect(strip(html)).toContain("What we store, where the facts come from, and what we do not know.");
+    for (const h of ["/patterns", "/verify", "/about"]) expect(html).toContain(`data-beyond="${h}"`);
+    expect(html.match(/lg:col-span-4/g)).toHaveLength(3); // three columns on desktop, one on mobile
+  });
+  it("sits under the form on the empty home page", () => {
+    const html = renderToStaticMarkup(createElement(CheckForm));
+    expect(html.indexOf('aria-labelledby="beyond-title"')).toBeGreaterThan(html.indexOf('aria-labelledby="input-label"'));
+    expect(html.indexOf('aria-labelledby="beyond-title"')).toBeLessThan(html.indexOf('aria-labelledby="risk-card-title"'));
+  });
+});
