@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { Identifier } from "@/lib/extract/types";
+import { onEvidencePath } from "@/lib/graph/edges";
 import type { GraphView } from "@/lib/graph/view";
 import { DEMO_LABEL } from "@/lib/demo";
 import { MAX_GRAPH_LOOKUPS } from "@/lib/limits";
@@ -48,15 +49,8 @@ export function GraphPanel({ identifiers, onLookup }: { identifiers: Identifier[
   }, [view]);
 
   if (!linkable.length) return null;
-  // A link is on an evidence path when both of its end labels appear in the same listed path (Q1-Q3).
-  // The graph library replaces link ends with node objects after layout, so both shapes are handled.
-  const labels = new Map(view?.nodes.map((n) => [n.id, n.label]) ?? []);
-  const end = (x: unknown) => (typeof x === "object" && x !== null ? (x as { id: string }).id : String(x));
-  const onPath = (l: Link) => {
-    const a = labels.get(end(l.source));
-    const z = labels.get(end(l.target));
-    return Boolean(a && z && view?.paths.some((p) => p.text.includes(a) && p.text.includes(z)));
-  };
+  // Evidence-path links are matched by node id, never by masked label (lib/graph/edges.ts).
+  const onPath: (l: Link) => boolean = onEvidencePath(view);
 
   async function load(id: Identifier) {
     setLoading(id.value);

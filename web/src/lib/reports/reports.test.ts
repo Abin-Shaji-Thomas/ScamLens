@@ -186,6 +186,34 @@ describe("graph on synthetic seed (Postgres fallback vs independent reference)",
     const w2 = await buildGraphView({ type: "evm", value: SEED_IDS.w2 }, { REPORT_HASH_PEPPER: PEPPER }, db);
     expect(w2.paths.map((p) => p.query)).toEqual(["Q2"]);
   });
+  it("H4: every evidence path carries its links as node-id pairs that exist in the view (Q1, Q2, Q3)", async () => {
+    const { edgeKey, onEvidencePath } = await import("../graph/edges");
+    const env = { REPORT_HASH_PEPPER: PEPPER };
+    const views = [
+      await buildGraphView({ type: "upi", value: SEED_IDS.u1 }, env, db),
+      await buildGraphView({ type: "evm", value: SEED_IDS.main }, env, db),
+      await buildGraphView({ type: "evm", value: SEED_IDS.w2 }, env, db),
+    ];
+    const byQuery: Record<string, number> = {};
+    for (const v of views) {
+      const linkKeys = new Set(v.links.map((l) => edgeKey(l.source, l.target)));
+      const ids = new Set(v.nodes.map((n) => n.id));
+      for (const p of v.paths) {
+        byQuery[p.query] = (byQuery[p.query] ?? 0) + p.edges.length;
+        expect(p.edges.length, p.query).toBeGreaterThan(0);
+        for (const [a, b] of p.edges) {
+          expect(ids.has(a) && ids.has(b), `${p.query} ${a}-${b}`).toBe(true);
+          expect(linkKeys.has(edgeKey(a, b)), `${p.query} ${a}-${b}`).toBe(true);
+        }
+        if (p.query === "Q3") for (const [a, b] of p.edges) expect([a, b].map((x) => v.nodes.find((n) => n.id === x)!.type)).toContain("telegram");
+      }
+      const on = onEvidencePath(v);
+      expect(v.links.filter(on).length).toBe(new Set(v.paths.flatMap((p) => p.edges.map(([a, b]) => edgeKey(a, b)))).size);
+    }
+    expect(byQuery.Q1).toBe(4); // 2 paths x (upi-wallet, wallet-telegram)
+    expect(byQuery.Q2).toBeGreaterThan(0);
+    expect(byQuery.Q3).toBe(3); // the wallet's links to its 3 handles
+  });
   it("F7: a graph view of the seeded scenario is flagged synthetic; a real identifier's view is not", async () => {
     const v = await buildGraphView({ type: "upi", value: SEED_IDS.u1 }, { REPORT_HASH_PEPPER: PEPPER }, db);
     expect(v.synthetic).toBe(true);

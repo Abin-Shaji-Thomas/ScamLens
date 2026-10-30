@@ -38,7 +38,7 @@ Timing: `/api/graph` returns optional `elapsedMs` (whole milliseconds the answer
 
 Fallback and parity: `web/src/lib/graph/index.ts` picks TigerGraph when `TG_HOST` and `TG_SECRET` are set, and falls back to the Postgres functions on any error, labelling the view "postgres (TigerGraph unavailable)". `npx tsx scripts/tg-setup.ts` runs every Q1, Q2 and Q4 case plus Q3 on both backends and prints `N/N queries SAME`.
 
-Drawing (`web/src/components/FitGraph.tsx`, loaded by `web/src/components/GraphPanel.tsx` in the browser only): the checked identifier is a filled black circle, others hollow; links are 1px grey; a link whose two ends are both named in one listed path is 2.5px in the alert colour. Labels sit below each circle on a white halo, in the same Arial-first stack as the page. The data is memoised (a new object on every render used to restart the layout), the layout runs a bounded cooldown, and when it settles the view is zoomed to fit with 40 px padding (instantly under reduced motion, where the layout is precomputed); a new canvas size fits again. Canvas height: 300 px below 500 px wide, otherwise 40% of the width within 360-480 px (`web/src/lib/graph/drawing.ts`). Measured 2026-10-30 in headless Edge on sample 1: the whole graph inside the canvas with 26-58 px margins at 375, 768 and 1440 px (after a resize and on a fresh load), no overflow, console clean.
+Drawing (`web/src/components/FitGraph.tsx`, loaded by `web/src/components/GraphPanel.tsx` in the browser only): the checked identifier is a filled black circle, others hollow; links are 1px grey; a link that is a step of a listed path is 2.5px in the alert colour. Since the finish round (H4) each path in the view carries `edges`, its links as pairs of node ids (Q1: UPI-wallet and wallet-Telegram from the row's hashes; Q2: consecutive hops of `path`; Q3: the wallet's links to Telegram nodes, by id and node type), and `onEvidencePath` in `web/src/lib/graph/edges.ts` matches links by id. Before, it matched masked labels inside the path text, which could light a wrong link when two identifiers masked to the same label. Labels sit below each circle on a white halo, in the same Arial-first stack as the page. The data is memoised (a new object on every render used to restart the layout), the layout runs a bounded cooldown, and when it settles the view is zoomed to fit with 40 px padding (instantly under reduced motion, where the layout is precomputed); a new canvas size fits again. Canvas height: 300 px below 500 px wide, otherwise 40% of the width within 360-480 px (`web/src/lib/graph/drawing.ts`). Measured 2026-10-30 in headless Edge on sample 1: the whole graph inside the canvas with 26-58 px margins at 375, 768 and 1440 px (after a resize and on a fresh load), no overflow, console clean.
 
 Live status: verified on 2026-10-29 (19/19 SAME, recorded in `graph/README.md`). This round's re-run result is recorded below by step J2.
 
@@ -55,7 +55,8 @@ One-time global migration: graphs created before round 1 lack `Report.reporter_k
 - `web/src/lib/graph/tigergraph.ts`: REST client and backend.
 - `web/src/lib/graph/postgres.ts`: Postgres backend.
 - `web/src/lib/graph/index.ts`: backend choice and fallback.
-- `web/src/lib/graph/view.ts`: builds the view for one identifier.
+- `web/src/lib/graph/view.ts`: builds the view for one identifier, including each path's `edges`.
+- `web/src/lib/graph/edges.ts`: `edgeKey` and `onEvidencePath` (browser-safe, no server imports).
 - `web/src/components/FitGraph.tsx` and `web/src/lib/graph/drawing.ts`: drawing, fit and canvas size.
 - `web/src/lib/graph/tg-sync.ts`: live and full sync payloads.
 - `web/scripts/tg-setup.ts`: migration check, install, load, parity.
@@ -68,7 +69,7 @@ Change a query in both `graph/queries.gsql` and `web/db/schema.sql`, then run `n
 
 ## How it is tested
 
-`web/src/lib/graph/tigergraph.test.ts`: the Postgres SQL against an independent in-memory reference (`web/src/lib/graph/reference.ts`), TigerGraph response mapping, the hub filter and the two-reporter rule; live parity through `web/scripts/tg-setup.ts`.
+`web/src/lib/graph/tigergraph.test.ts`: the Postgres SQL against an independent in-memory reference (`web/src/lib/graph/reference.ts`), TigerGraph response mapping, the hub filter and the two-reporter rule; live parity through `web/scripts/tg-setup.ts`. `web/src/lib/graph/edges.test.ts`: two nodes with the same masked label, only the link on the path is highlighted. `web/src/lib/reports/reports.test.ts`: on the seeded data every Q1, Q2 and Q3 path's edges are real links of the view (Q1 4, Q3 3).
 
 The PGlite suites run with an explicit 30 s test and hook timeout, because starting Postgres in WebAssembly takes about 8 s when several suites start at once (see [12-TESTING-AND-EVAL.md](12-TESTING-AND-EVAL.md)).
 

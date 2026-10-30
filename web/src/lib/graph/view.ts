@@ -16,7 +16,15 @@ export const GraphView = z.object({
   reason: z.string().optional(),
   nodes: z.array(z.object({ id: z.string(), label: z.string(), type: z.string(), focus: z.boolean() })),
   links: z.array(z.object({ source: z.string(), target: z.string(), relation: z.string(), evidence: z.string() })),
-  paths: z.array(z.object({ query: z.string(), text: z.string(), evidence: z.array(z.string()) })),
+  paths: z.array(
+    z.object({
+      query: z.string(),
+      text: z.string(),
+      evidence: z.array(z.string()),
+      /** The links this path runs along, as pairs of node ids (order-free). The UI matches links by id, never by label. */
+      edges: z.array(z.tuple([z.string(), z.string()])).default([]),
+    }),
+  ),
   /** Time the answering backend took for this view, in whole milliseconds (absent when nothing was queried). */
   elapsedMs: z.number().int().nonnegative().optional(),
   /** True when any node is part of the seeded synthetic scenario: the UI must label it "Illustrative demo data". */
@@ -26,6 +34,8 @@ export type GraphView = z.infer<typeof GraphView>;
 
 const short = (h: string) => h.slice(0, 12); // node ids are hash prefixes, never raw identifiers
 const EMPTY = { nodes: [], links: [], paths: [], synthetic: false };
+
+const steps = (ids: string[]): [string, string][] => ids.slice(1).map((id, i) => [ids[i], id]);
 
 /** Exact check against the seed scenario's hashes (not a naming heuristic). */
 function seedNodeIds(pepper: string): Set<string> {
@@ -49,6 +59,7 @@ async function viewFrom(backend: GraphBackend, id: Identifier, hash: string, env
         query: "Q1",
         text: `${r.upi} is linked to Telegram ${r.telegram} only through shared wallet ${r.wallet}.`,
         evidence: [r.evidence_1, r.evidence_2],
+        edges: steps([short(hash), short(r.wallet_hash), short(r.telegram_hash)]),
       });
     }
   }
@@ -58,6 +69,7 @@ async function viewFrom(backend: GraphBackend, id: Identifier, hash: string, env
         query: "Q2",
         text: `Funds moved ${r.path_display.join(" -> ")} (${r.hops} hop${r.hops > 1 ? "s" : ""}) to an address flagged by ${r.flagged_source}.`,
         evidence: r.evidence,
+        edges: steps(r.path.map(short)),
       });
     }
     for (const r of (await findLinks({ kind: "q3", minSize: 2 }, deps, backend)).filter((c) => c.wallet_hash === hash)) {
@@ -65,6 +77,11 @@ async function viewFrom(backend: GraphBackend, id: Identifier, hash: string, env
         query: "Q3",
         text: `${r.cluster_size} different Telegram handles (${r.handles.join(", ")}) were reported together with this wallet by ${r.reports} different reporters.`,
         evidence: [],
+        // Q3 returns handle labels only, so its links are the wallet's links to Telegram nodes, found by id and type.
+        edges: links
+          .filter((l) => [l.source, l.target].includes(short(r.wallet_hash)))
+          .map((l): [string, string] => [l.source, l.target])
+          .filter(([a, b]) => nodes.get(a === short(r.wallet_hash) ? b : a)?.type === "telegram"),
       });
     }
   }

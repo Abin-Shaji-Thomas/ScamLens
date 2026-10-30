@@ -707,3 +707,13 @@ Screenshots: `docs/screens/finish-example-375.png`, `docs/screens/finish-result-
 | Coverage | PASS | new row "GoPlus phishing sites"; wallets are never listed as not looked up in it; Not checked says domains used this one list only |
 | Receipts | changed | coverage in new receipts includes the goplus_phishing row; older receipts still verify (receipt coverage is free text, schema unchanged) |
 
+## H4 - Evidence-path links by node id
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Server gives ids | PASS | each path has `edges` (node-id pairs): Q1 from wallet_hash/telegram_hash, Q2 from `path`, Q3 wallet-to-Telegram links by id and type |
+| UI matches by id | PASS | `onEvidencePath` (edges.ts); GraphPanel no longer reads path text (source test) |
+| Label collision | PASS | two nodes with the same masked label: only the path link is highlighted (test; the old logic lit both) |
+| Seeded data | PASS | every Q1/Q2/Q3 edge is a real link of the view; highlighted links = path edges (Q1 4, Q3 3) |
+| Browser-safe | PASS | edges.ts has no server imports; GraphPanel imports only types from view.ts |
+

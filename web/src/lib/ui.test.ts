@@ -301,7 +301,7 @@ describe("Swiss graph panel", () => {
     expect(src).toContain("ctx.lineWidth = 1.5 / scale;");
     expect(src).toContain("linkColor={(l) => (onPath(l as Link) ? ALERT : GREY)}");
     expect(src).toContain("linkWidth={(l) => (onPath(l as Link) ? 2.5 : 1)}");
-    expect(panel).toContain("p.text.includes(a) && p.text.includes(z)"); // both ends named in one listed path
+    expect(panel).toContain("onEvidencePath(view)"); // both ends are a step of a listed path, matched by node id (H4)
     // labels black, centred below the circle, drawn over a white halo
     expect(src).toMatch(/ctx\.textAlign = "center";\s*ctx\.textBaseline = "top";\s*const y = n\.y \+ r \+ 3 \/ scale;/);
     expect(src).toMatch(/ctx\.strokeStyle = WHITE;\s*ctx\.strokeText\(n\.label, n\.x, y\);\s*ctx\.fillStyle = INK;\s*ctx\.fillText\(n\.label, n\.x, y\);/);

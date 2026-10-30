@@ -87,7 +87,7 @@ Change the SQL only through a new idempotent migration that works before and aft
 
 ## How it is tested
 
-`web/src/lib/reports/reports.test.ts` runs the real SQL in PGlite: the 2-reporter rule, one fingerprint counts once, daily caps, expiry, contest labels, the old-schema fallback, and the moderator SQL copied verbatim from `docs/MODERATION.md`.
+`web/src/lib/reports/reports.test.ts` runs the real SQL in PGlite: the 2-reporter rule, one fingerprint counts once, daily caps, expiry, contest labels, the old-schema fallback, and the moderator SQL copied verbatim from `docs/MODERATION.md`. It also checks, on the seeded graph, that every evidence path lists its links as node-id pairs that exist in the view (finish round H4; see [09-GRAPH.md](09-GRAPH.md)).
 
 The PGlite suites run with an explicit 30 s test and hook timeout, because starting Postgres in WebAssembly takes about 8 s when several suites start at once (see [12-TESTING-AND-EVAL.md](12-TESTING-AND-EVAL.md)).
 
