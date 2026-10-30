@@ -447,3 +447,11 @@ Full matrix and scenario table: `docs/knowledge/18-RELEASE-READINESS.md`.
 | Performance | PASS | p50 1,118 ms, p95 3,605 ms over 10 checks |
 | Browser (5 widths x 6 pages, features, print, zoom, focus) | PASS after fix | inline /verify link 16 px -> 44 px (fix(ui) b99d27d); all else as in the matrix |
 | Suites | PASS | `Tests 402 passed (402)`, typecheck 0, lint 0, build 0, docs:check PASS, eval FP 0 / FN 0 |
+
+## J7 - Share preview and launch kit
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Metadata and images | PASS | `/opengraph-image` 200 image/png 42,067 bytes, 1200x630 (viewed: white, black rule, wordmark, one line, secondary-grey text); og:* and twitter:card summary_large_image tags in the page head; `/icon.svg` 200 image/svg+xml; `launch.test.ts` (4); style and contrast tests pass |
+| Launch kit | PASS | `docs/knowledge/20-LAUNCH-KIT.md`: X, LinkedIn, WhatsApp drafts and a 30-second script; no accusation words, no recovery promise, not legal advice, limits stated, AI line matches "switched off", link placeholder <URL> |
+| Demo doc from real outputs | PASS | `14-DEMO-AND-JUDGING.md` 90-second and 4-minute scripts use the release-gate strings and levels; rule count via FACT marker (docs:check) |
