@@ -642,3 +642,11 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 |---|---|---|
 | Band content | PASS | three entries with the brief's sentences; N from RULES.length; links /patterns, /verify, /about; print:hidden; 3 x lg:col-span-4 |
 | Placement | PASS (decision) | under the form while there is no result (render test asserts the order); after the result card once there is one |
+
+## H2c - Share proof and Why? links
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Share proof step | PASS | h3 "Share proof", the brief's sentence, Download signed receipt (button--outline), Open Verify (44 px), receipt code; only when result.receipt (render tests with and without) |
+| Download moved | PASS | the button left the evidence pack button row; the old receipt sentence is replaced by the step |
+| Why? links | PASS | /about#sources (anchor exists) after each not-applicable status and under Not checked; none on checked rows; kept out of the uppercase eyebrow |

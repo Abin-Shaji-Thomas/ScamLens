@@ -18,7 +18,7 @@ Add to the 90-second version:
 - "Show links for upi zzdemo.refund@": the graph and the Q1 path text; the note under it says which backend answered (Postgres while the TigerGraph workspace is suspended).
 - Optional, to show Q2 (money trail to a flagged address): paste the demo wallet `0x93776c64a1e60f64dec9cb7bcf0638c4ffe432d8`, check it, press "Show links for evm ...": the path text reads "Funds moved 0x9377***32d8 -> 0xc846***38Ba -> 0x1DD0***9A07 (2 hops) to an address flagged by synthetic flag (demo)." with the demo label.
 - In "I already paid", fill Amount and Transaction ID and press COPY COMPLAINT DRAFT: the draft starts "DRAFT COMPLAINT - adapt it before sending. This is a draft, not legal advice." and lists the identifiers as typed. "Nothing is sent to ScamLens."
-- In the evidence pack, press "Download signed receipt", open /verify, paste it, press VERIFY: "Signature valid: ScamLens produced this receipt at ... and it has not been altered. It shows what ScamLens reported then, not that the chat was genuine." Change one letter and verify again: "Signature not valid...".
+- Under the evidence pack, in "Share proof", press "Download signed receipt", open /verify, paste it, press VERIFY: "Signature valid: ScamLens produced this receipt at ... and it has not been altered. It shows what ScamLens reported then, not that the chat was genuine." Change one letter and verify again: "Signature not valid...".
 - Open a Suspected finding's "about this pattern" link: the /patterns entry with what it looks like, why, what to do, an illustrative example and when it is not a signal.
 - /about: sources and dates, what is stored, and "AI assistance is optional and currently off."
 ### Fallbacks

@@ -108,3 +108,26 @@ describe("coverage ledger: Link graph row (G4b)", () => {
     expect(out).not.toMatch(/\bclean\b|\bsafe\b/i);
   });
 });
+
+describe("coverage ledger: Why? links (H2c)", () => {
+  it("each 'not applicable' row and the Not checked list link to /about#sources, which exists", async () => {
+    const r = await runCheck({ text: SAMPLES[1].text }, offline);
+    const out = html(r);
+    const rows = out.match(/<li[^>]*data-status="not applicable"[^>]*>[\s\S]*?<\/li>/g) ?? [];
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) expect(row).toMatch(/<a href="\/about#sources" class="tap" data-why="true">Why\?<\/a>/);
+    const other = out.match(/<li[^>]*data-status="checked"[^>]*>[\s\S]*?<\/li>/g) ?? [];
+    for (const row of other) expect(row).not.toContain("data-why");
+    expect(out).toMatch(/Each source covers only some kinds of identifier\. <a href="\/about#sources"/);
+    const about = (await import("node:fs")).readFileSync(new URL("../app/about/page.tsx", import.meta.url), "utf8");
+    expect(about).toContain('<Section id="sources"');
+  });
+
+  it("no Not checked list means no extra Why? line", async () => {
+    const r = await runCheck({ text: "Meeting moved to 4 pm" }, offline);
+    expect(buildCoverage(r).notChecked).toEqual([]);
+    const bare = html(r);
+    expect(bare).not.toContain("Not checked");
+    expect(bare).not.toContain("Each source covers only some kinds of identifier.");
+  });
+});

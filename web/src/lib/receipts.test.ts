@@ -162,9 +162,43 @@ describe("receipt routes", () => {
 });
 
 describe("evidence pack receipt line (browser fix)", () => {
-  it("the /verify link inside the sentence has a 44px tap area", async () => {
+  it("the Share proof /verify link has a 44px tap area", async () => {
     const { readFileSync } = await import("node:fs");
     const src = readFileSync(new URL("../components/EvidencePackButton.tsx", import.meta.url), "utf8");
-    expect(src).toMatch(/<a href="\/verify" className="tap">/);
+    expect(src).toMatch(/<a href="\/verify" className="inline-flex min-h-11 items-center">/);
+  });
+});
+
+describe("Share proof step (H2c)", () => {
+  const strip = (h: string) => h.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+  async function render(withReceipt: boolean) {
+    const { createElement } = await import("react");
+    const { renderToStaticMarkup } = await import("react-dom/server");
+    const { EvidencePackButton } = await import("../components/EvidencePackButton");
+    const r = await runCheck({ text: CHAT }, offline);
+    return renderToStaticMarkup(createElement(EvidencePackButton, { result: withReceipt ? { ...r, receipt } : r, demo: false }));
+  }
+
+  it("shows a labelled step with the sentence, the download button, a /verify link and the code when a receipt exists", async () => {
+    const html = await render(true);
+    expect(html).toContain("data-share-proof");
+    expect(html).toMatch(/<h3[^>]*>Share proof<\/h3>/);
+    expect(strip(html)).toContain(
+      "Download the signed receipt and send it to your bank, a family member or the cybercrime portal. Anyone can check at Verify that it was not edited.",
+    );
+    expect(html).toMatch(/<button type="button" class="button button--outline">Download signed receipt<\/button>/);
+    expect(html).toMatch(/<a href="\/verify" class="inline-flex min-h-11 items-center">Open Verify<\/a>/);
+    expect(strip(html)).toContain(`Receipt code ${receiptCode(receipt)}.`);
+    // The step sits after the evidence pack controls, and is not printed.
+    expect(html.indexOf("data-share-proof")).toBeGreaterThan(html.indexOf("Print or save as PDF"));
+    expect(html).toMatch(/class="[^"]*print:hidden[^"]*" data-share-proof/);
+  });
+
+  it("shows nothing about receipts when the check returned none", async () => {
+    const html = await render(false);
+    expect(html).not.toContain("data-share-proof");
+    expect(html).not.toContain("Download signed receipt");
+    expect(html).not.toContain("Receipt code");
+    expect(html).not.toContain('href="/verify"');
   });
 });

@@ -2,7 +2,7 @@
 
 **Evidence-linked scam check for India.** Paste a suspicious chat, wallet address, UPI ID or Telegram handle. ScamLens returns a risk card that keeps three kinds of evidence strictly apart, each with its source, and never gives a verdict about a person.
 
-**Signed receipts:** every check can download a signed receipt (Ed25519) that anyone can verify at `/verify`; it holds no raw text. Off unless `RECEIPT_SIGNING_KEY` is set ([docs/DEPLOY.md](docs/DEPLOY.md) section 2a).
+**Signed receipts:** every check offers a "Share proof" step to download a signed receipt (Ed25519) that anyone can verify at `/verify`; it holds no raw text. Off unless `RECEIPT_SIGNING_KEY` is set ([docs/DEPLOY.md](docs/DEPLOY.md) section 2a).
 
 **AI status:** the Suspected tier uses fixed pattern rules; AI assistance is optional and currently off (no key is configured, so screenshot reading is off too and the page asks you to paste the text).
 

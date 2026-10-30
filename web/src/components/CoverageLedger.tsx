@@ -1,6 +1,20 @@
 import type { CheckResponse } from "@/lib/api-schema";
 import { buildCoverage, type GraphCoverage } from "@/lib/coverage";
 
+/** Points to the sources section on /about, which says what each source covers and when it does not apply. */
+export const WHY_HREF = "/about#sources";
+
+function WhyLink() {
+  return (
+    <>
+      {" "}
+      <a href={WHY_HREF} className="tap" data-why>
+        Why?
+      </a>
+    </>
+  );
+}
+
 /** "What was checked": every source with its status and date, built from this result only. Never says "clean". */
 export function CoverageLedger({ result, graph = null }: { result: CheckResponse; graph?: GraphCoverage }) {
   const { rows, notChecked } = buildCoverage(result, { graph });
@@ -22,6 +36,7 @@ export function CoverageLedger({ result, graph = null }: { result: CheckResponse
                 <p className="t-small">
                   <span className="font-semibold text-swiss-black">{r.status}</span>
                   {r.when && <span className="text-swiss-text"> · {r.when}</span>}
+                  {r.status === "not applicable" && <WhyLink />}
                 </p>
               </li>
             ))}
@@ -36,6 +51,10 @@ export function CoverageLedger({ result, graph = null }: { result: CheckResponse
                   </li>
                 ))}
               </ul>
+              <p className="t-small mt-2 text-swiss-text">
+                Each source covers only some kinds of identifier.
+                <WhyLink />
+              </p>
             </div>
           )}
         </div>
