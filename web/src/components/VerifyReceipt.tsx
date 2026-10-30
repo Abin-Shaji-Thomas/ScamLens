@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { INVALID_MESSAGE, RECEIPT_KEY_PATH, Receipt, ReceiptKey, signedBytes, validMessage } from "@/lib/receipt-format";
+import { EXAMPLE_COST_NOTE, fetchExampleReceipt } from "@/lib/verify-example";
 
 type Outcome = { ok: boolean; message: string; how: string; textNote?: string };
 
@@ -27,6 +29,22 @@ export function VerifyReceipt() {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [out, setOut] = useState<Outcome | null>(null);
+  const [example, setExample] = useState<"idle" | "loading" | "filled">("idle");
+  const [exampleError, setExampleError] = useState<string | null>(null);
+
+  async function tryExample() {
+    setExample("loading");
+    setExampleError(null);
+    const got = await fetchExampleReceipt();
+    if ("json" in got) {
+      setJson(got.json);
+      setOut(null);
+      setExample("filled");
+    } else {
+      setExampleError(got.error);
+      setExample("idle");
+    }
+  }
 
   async function run() {
     setBusy(true);
@@ -80,7 +98,37 @@ export function VerifyReceipt() {
       <label htmlFor="receipt-json" className="eyebrow">
         Paste the receipt (the downloaded JSON file)
       </label>
-      <textarea id="receipt-json" className="textarea mt-4" value={json} onChange={(e) => setJson(e.target.value)} rows={8} />
+      <textarea
+        id="receipt-json"
+        className="textarea mt-4"
+        value={json}
+        onChange={(e) => {
+          setJson(e.target.value);
+          setExample("idle");
+        }}
+        rows={8}
+      />
+      {example === "filled" && <p className="t-small mt-3 text-swiss-text">Example receipt for sample 3 filled in. Press Verify to check it.</p>}
+      {!json.trim() && example !== "filled" && (
+        <div className="card mt-6 flex flex-col" data-verify-empty>
+          <h2 className="font-semibold text-swiss-black">How to get a receipt</h2>
+          <p className="mt-2 text-swiss-text">
+            Run a check on the <Link href="/" className="tap">home page</Link>, then press &ldquo;Download signed receipt&rdquo; under Share proof.
+            Open the downloaded file and paste everything in it here.
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <button type="button" className="button button--outline" disabled={example === "loading"} onClick={() => void tryExample()}>
+              {example === "loading" ? "Getting an example..." : "Try an example"}
+            </button>
+          </div>
+          <p className="t-small mt-3 text-swiss-text">{EXAMPLE_COST_NOTE}</p>
+          {exampleError && (
+            <p role="alert" className="mt-3 text-swiss-black">
+              {exampleError}
+            </p>
+          )}
+        </div>
+      )}
       <label htmlFor="receipt-text" className="eyebrow mt-8">
         Optional: the original text, to confirm it matches
       </label>

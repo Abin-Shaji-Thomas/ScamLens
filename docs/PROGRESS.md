@@ -660,3 +660,13 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | Server validation | PASS | `patternExample`: only ids in RULES with a guide entry; empty, unknown, case-changed, repeated and inherited keys rejected (tests) |
 | Pre-fill, no auto-submit | PASS | textarea holds the example, note and demo label shown, Check enabled, no result rendered (test) |
 | Prerender kept | PASS | the build first failed (searchParams outside Suspense under cache components); fixed with `<Suspense>` around `ExampleCheckForm`, the empty form as fallback; build lists `/` as partial prerender (shell static, form streamed); smoke and header checks re-run in H7 |
+
+## H2e - /verify empty state
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| How to get a receipt | PASS | card shown while the box is empty: run a check, Download signed receipt under Share proof, paste the file; link home (render test) |
+| Try an example | PASS | posts sample 3 to /api/check once, fills the box with the pretty receipt JSON (verifies with the test key); cost note on the page |
+| No auto-verify | PASS | source test: tryExample only fills the box; one `void run()` (the Verify button) |
+| Failures | PASS | no receipt, 429, 500, bad shape, network: one plain sentence each (tests) |
+
