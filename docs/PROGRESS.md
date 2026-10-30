@@ -791,3 +791,21 @@ Screenshots: `docs/screens/finish-example-375.png`, `docs/screens/finish-result-
 | web/src/lib/contact.ts, footer contact | missing |
 | web/src/app/icon.svg | exists |
 | Personal email in files | found 6 times in this file (history rows); replaced with `<owner email>`. Older commits still contain it (pushed history is not rewritten) |
+
+## P1 - Look parity
+
+Reference: localhost:3000 did not answer, so `0f00ca8` (the commit before 056ab4b) was built in a temporary worktree outside the repo (its own `npm ci` from the same lockfile; Turbopack, as the app's Tailwind loader needs) on port 3500, then removed. Captured with headless Edge: `CSS.getPlatformFontsForNode` plus computed family, weight, size, line-height, letter-spacing, transform, decoration and colour for body, brand, header links, h1, .lead, .eyebrow, textarea, primary button, sample links, .t-risk, .t-h2, tier titles, finding titles, small text and footer, on /, after sample 1 and on /about, at 1440 and 375.
+
+| Comparison | Result |
+|---|---|
+| reference vs local vs live, 576 values | 518 SAME; 58 differ, all explained below |
+| platform font, every selector, every page, both widths | Arial in all three (reference too: Windows maps "Helvetica Neue"/Helvetica to Arial) |
+| h1 lines / width | 2/1001 at 1440 and 3/335 at 375 in all three; /about 1/1001 and 1/335 |
+| h1 rendered pixels (SHA-256 of the h1 box) | identical in reference, local and live at 1440 and at 375 |
+| h1 and .t-risk weight | reference 300, now 400: Arial has no light face on Windows, so both draw the same regular Arial (pixels identical); on macOS the reference would have drawn Helvetica Neue Light, which the owner does not want, so 400 stays |
+| header links (40 of the 58) | new element since the reference (finish round); Arial 400, 18 px, 44 px tap areas |
+| .t-risk colour after sample 1 | content, not style: the reference build ran without the database, so sample 1 was Elevated (black); local and live are High (alert red) |
+| overflow | none on any page at 1440 or 375 |
+| live CSS | `--font: Arial, "Helvetica Neue", Helvetica, "Liberation Sans", Roboto, sans-serif`; font-weight declarations only 400, 600, bolder, inherit, initial; no 300 |
+
+Root cause of the earlier "thin headings" report: 056ab4b put Segoe UI before Helvetica with weight 300, which drew Segoe UI Light on Windows; e0add7c (finish round) restored the Arial-first stack at 400. Nothing else differs, so no code change in P1. Screenshots: `docs/screens/look-ref-home-1440.png`, `look-ref-home-375.png`, `look-ref-sample1-1440.png`.
