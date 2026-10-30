@@ -139,6 +139,8 @@ export const RULES: readonly Rule[] = [
       /\b(prepaid|merchant|vip)\s+tasks?\b/gi,
       /\b(part[- ]time|work from home)\b[^.\n]{0,60}\b(earn|per day|daily)\b/gi,
       /\bghar\s+(baithe|se)\b[^.\n]{0,40}\b(kamao|kamaiye|kamai|earn)\b/gi,
+      // Reversed order with money per day: "earn 3,000 a day just by liking videos" (not "earn points by rating").
+      /\b(earn|make)\s+(₹|rs\.?\s?|inr\s?)?\d[\d,]*\s*(a day|per day|daily)\b[^.\n]{0,30}\bby\s+(liking|rating|reviewing|subscribing|following)\b/gi,
     ],
   },
   {

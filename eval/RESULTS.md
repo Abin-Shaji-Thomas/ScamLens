@@ -2,9 +2,9 @@
 
 **Illustrative demo data**: every chat in `eval/chats.json` is synthetic and hand-written for this project.
 
-- Date: 2026-10-30T11:00:56.056Z
-- Git commit: 02d8955
-- Cases: 80 (40 scam / 40 normal; 34 normal cases are deliberately tricky)
+- Date: 2026-10-30T11:31:16.025Z
+- Git commit: 4f59f59 (with uncommitted changes)
+- Cases: 83 (41 scam / 42 normal; 36 normal cases are deliberately tricky)
 - Modes run: regex-only. with-AI: not run (OPENAI_API_KEY / OPENAI_MODEL not set)
 - Command: `cd web && npm run eval`
 
@@ -17,9 +17,9 @@
 | accuracy | 100.0% |
 | precision | 100.0% |
 | recall | 100.0% |
-| false positives | 0 of 40 normal |
-| false negatives | 0 of 40 scam |
-| TP / FP / TN / FN | 40 / 0 / 40 / 0 |
+| false positives | 0 of 42 normal |
+| false negatives | 0 of 41 scam |
+| TP / FP / TN / FN | 41 / 0 / 42 / 0 |
 
 False positives: none
 
@@ -34,13 +34,13 @@ Per rule (a hit counts when the rule fired on a chat whose hand label includes i
 | urgency_deadline | 12 | 12 | 11 | 91.7% | 91.7% |
 | seed_phrase_request | 3 | 3 | 3 | 100.0% | 100.0% |
 | otp_pin_request | 4 | 4 | 4 | 100.0% | 100.0% |
-| move_platform | 4 | 4 | 4 | 100.0% | 100.0% |
+| move_platform | 5 | 5 | 5 | 100.0% | 100.0% |
 | remote_access_app | 3 | 3 | 3 | 100.0% | 100.0% |
 | authority_impersonation | 5 | 5 | 5 | 100.0% | 100.0% |
 | digital_arrest | 5 | 4 | 4 | 100.0% | 80.0% |
 | fake_kyc | 4 | 4 | 4 | 100.0% | 100.0% |
 | fake_refund | 4 | 4 | 4 | 100.0% | 100.0% |
-| task_earn | 5 | 5 | 5 | 100.0% | 100.0% |
+| task_earn | 6 | 6 | 6 | 100.0% | 100.0% |
 | romance_investment | 3 | 3 | 3 | 100.0% | 100.0% |
 | third_party_account | 3 | 2 | 2 | 100.0% | 66.7% |
 | small_amount_first | 6 | 6 | 6 | 100.0% | 100.0% |
@@ -52,8 +52,8 @@ Per rule (a hit counts when the rule fired on a chat whose hand label includes i
 
 | metric | value |
 |---|---|
-| hand-listed identifiers | 6 |
-| extracted | 6 |
+| hand-listed identifiers | 7 |
+| extracted | 7 |
 | precision | 100.0% |
 | recall | 100.0% |
 

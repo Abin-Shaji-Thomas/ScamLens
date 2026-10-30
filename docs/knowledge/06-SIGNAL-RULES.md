@@ -22,7 +22,7 @@ All rules (generated from `web/src/lib/signals/rules.ts`):
 | 9 | `digital_arrest` | "Digital arrest" or arrest-warrant threat | 6 | rule-specific negation |
 | 10 | `fake_kyc` | KYC / PAN / Aadhaar update threat | 2 | drops negated hits |
 | 11 | `fake_refund` | Refund or cashback that needs your PIN, a QR scan or a link | 2 | drops negated hits |
-| 12 | `task_earn` | Like-and-earn or paid online tasks | 4 | none |
+| 12 | `task_earn` | Like-and-earn or paid online tasks | 5 | none |
 | 13 | `romance_investment` | Romantic contact steering towards investment | 1 | none |
 | 14 | `third_party_account` | Pay into a third party's account | 3 | none |
 | 15 | `small_amount_first` | "Send a small amount first" | 2 | none |
@@ -65,5 +65,8 @@ Add a pattern only with a test that it fires on a scam example and a test that i
 `web/src/lib/signals/signals.test.ts` (each rule, guards, de-obfuscation, hallucinated AI quotes dropped), `web/src/lib/signals/context.test.ts` (warning context and decoys), the eval in `eval/run.ts`, and the ReDoS script.
 
 ## Known limits
+
+- Narrow on purpose (final round P2, `eval/qa-scenarios.md`): "Inspector X from the Mumbai Cyber Crime cell" does not fire `authority_impersonation` ("cyber crime cell" also appears in genuine advice to report there); "members withdrew 2.4 lakh" does not fire `fake_profit_proof`; "start small with just 5,000" does not fire `small_amount_first`; a refund plus "install AnyDesk" counts only as `remote_access_app`; "share your recovery phrase and your OTP" is past the 15-character window of `otp_pin_request`. Each would add false positives on genuine text; in every case other patterns still give the same level.
+- `task_earn` matches the reversed order "earn 3,000 a day by liking videos" only with an amount and a per-day word (final round P2), so "earn reward points by rating your orders" does not fire.
 
 Rules are English-first; the Hinglish set is small. A warning sentence and a scam request in the same sentence is a known gaming route (addressed in this round, see [07-RISK-ENGINE.md](07-RISK-ENGINE.md)).

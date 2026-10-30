@@ -33,7 +33,7 @@ describe("eval/chats.json round 2 (G3)", () => {
     expect(g3.filter((c: { label: string }) => c.label === "normal")).toHaveLength(4);
   });
   it("earlier cases are still present (66 before round 2)", () => {
-    expect(data.chats.filter((c: { added?: string }) => c.added !== "G3" && c.added !== "J3")).toHaveLength(66);
+    expect(data.chats.filter((c: { added?: string }) => c.added !== "G3" && c.added !== "J3" && c.added !== "P2")).toHaveLength(66);
   });
 });
 
@@ -42,8 +42,20 @@ describe("eval/chats.json final round (J3)", () => {
   it("adds exactly 3 decoy-warning scams and 3 benign warnings, after the 74 earlier cases", () => {
     expect(j3.filter((c: { label: string; decoy_warning?: boolean }) => c.label === "scam" && c.decoy_warning)).toHaveLength(3);
     expect(j3.filter((c: { label: string }) => c.label === "normal")).toHaveLength(3);
-    expect(data.chats).toHaveLength(80);
     expect(data.chats.slice(0, 74).some((c: { added?: string }) => c.added === "J3")).toBe(false);
-    expect(new Set(data.chats.map((c: { id: string }) => c.id)).size).toBe(80); // ids stay unique
+    expect(data.chats.slice(74, 80).every((c: { added?: string }) => c.added === "J3")).toBe(true); // J3 is cases 75-80
+    expect(new Set(data.chats.map((c: { id: string }) => c.id)).size).toBe(data.chats.length); // ids stay unique
+  });
+});
+
+describe("eval/chats.json final round P2 (appended only)", () => {
+  it("appends 1 scam and 2 hard negatives after the 80 earlier cases, leaving those unchanged in order", () => {
+    const p2 = data.chats.slice(80);
+    expect(data.chats).toHaveLength(83);
+    expect(p2.map((c: { id: string }) => c.id)).toEqual(["p01", "p02", "p03"]);
+    expect(p2.every((c: { added?: string }) => c.added === "P2")).toBe(true);
+    expect(p2.filter((c: { label: string }) => c.label === "scam")).toHaveLength(1);
+    expect(p2.filter((c: { label: string; hard_negative?: boolean }) => c.label === "normal" && c.hard_negative)).toHaveLength(2);
+    expect(data.chats.slice(0, 80).some((c: { added?: string }) => c.added === "P2")).toBe(false);
   });
 });

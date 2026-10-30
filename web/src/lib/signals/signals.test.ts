@@ -163,3 +163,25 @@ describe("F5 obfuscation and Hinglish", () => {
     expect(ruleIds("I am at the station, see you at 5")).toEqual([]);
   });
 });
+
+describe("task_earn reversed word order (final round P2)", () => {
+  it.each([
+    "Earn 3,000 a day just by liking videos! Complete simple tasks and get paid.",
+    "Make ₹2500 per day by rating hotels on our app.",
+    "earn rs 1,200 daily by reviewing products",
+  ])("fires on money per day earned by liking or rating: %s", (t) => {
+    expect(ruleIds(t)).toContain("task_earn");
+  });
+  it.each(["Earn reward points by rating your recent orders in the app.", "Earn 50 points a day by following our page.", "Earn a degree by studying online."])(
+    "does not fire without an amount of money per day: %s",
+    (t) => {
+      expect(ruleIds(t)).not.toContain("task_earn");
+    },
+  );
+  it("a news-style sentence is shown in warning context, not counted", async () => {
+    const r = await detectSignals("News: police said such messages promise people they can earn 3,000 a day by liking videos.", { env: {} });
+    const hits = r.signals.filter((s) => s.rule_id === "task_earn");
+    expect(hits.length).toBeGreaterThan(0);
+    expect(hits.every((s) => s.context === "warning")).toBe(true);
+  });
+});

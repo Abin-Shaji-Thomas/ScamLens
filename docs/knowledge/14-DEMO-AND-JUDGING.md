@@ -36,7 +36,7 @@ Add to the 90-second version:
 | 1 | Is it live? | Yes, https://scam-lens-two.vercel.app; `/api/health` shows the deployed commit |
 | 2 | Is anyone using it? | Not yet at scale; the live Reported tier is mostly labelled demo data |
 | 3 | Where is the AI? | ScamLens is crypto-side verification (on-chain facts, sanctions and blocklists) plus a rule-based language check (<!-- FACT:rule_count -->18<!-- /FACT --> fixed rules). An optional AI helper is built and tested with mocks but switched off; no measured AI benefit is claimed |
-| 4 | How accurate is it? | On <!-- FACT:eval_cases -->80<!-- /FACT --> synthetic cases the rules reach precision <!-- FACT:eval_precision -->100.0%<!-- /FACT --> and recall <!-- FACT:eval_recall -->100.0%<!-- /FACT --> with <!-- FACT:eval_fp -->0<!-- /FACT --> false positive; these are our own cases, not real-world accuracy |
+| 4 | How accurate is it? | On <!-- FACT:eval_cases -->83<!-- /FACT --> synthetic cases the rules reach precision <!-- FACT:eval_precision -->100.0%<!-- /FACT --> and recall <!-- FACT:eval_recall -->100.0%<!-- /FACT --> with <!-- FACT:eval_fp -->0<!-- /FACT --> false positive; these are our own cases, not real-world accuracy |
 | 5 | Can it be wrong? | Yes; that is why it shows sources and quotes and never a verdict |
 | 6 | What stops fake reports? | 2 independent networks needed, hashed fingerprints, daily caps |
 | 7 | What about the person wrongly reported? | They can contest; the entry stays labelled and stops counting toward High until reviewed |
