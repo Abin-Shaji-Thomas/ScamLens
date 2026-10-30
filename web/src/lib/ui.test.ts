@@ -433,3 +433,15 @@ describe("AI off (no key): rules only, screenshot reading hidden, no AI claims",
     }
   });
 });
+
+describe("report form is never offered on the synthetic samples (G5.2)", () => {
+  it.each([0, 1, 2])("sample %i: no 'Report these identifiers' when the card is a demo", async (i) => {
+    const r = await runCheck({ text: SAMPLES[i].text }, offline);
+    expect(renderToStaticMarkup(createElement(RiskCard, { result: r, demo: true }))).not.toContain("Report these identifiers");
+  });
+  it("the same text typed by a person (not a demo) does offer the form when it has identifiers", async () => {
+    const r = await runCheck({ text: SAMPLES[0].text }, offline);
+    expect(r.identifiers.length).toBeGreaterThan(0);
+    expect(renderToStaticMarkup(createElement(RiskCard, { result: r, demo: false }))).toContain("Report these identifiers");
+  });
+});

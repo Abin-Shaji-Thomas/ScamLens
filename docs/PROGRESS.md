@@ -565,3 +565,9 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | Light face on Windows | PASS | `CSS.getPlatformFontsForNode` on the h1: `Segoe UI Light / SegoeUI-Light` (was `Arial / ArialMT`); body `Segoe UI` |
 | No overflow | PASS | / and sample 1 at 375, 768, 1280, 1440, 1920: overflow false, grid 100/100/100/100/91.7%, tap 44 px, sample 1 High 3/3, console empty |
 | Docs | PASS | README, HUMAN_TASKS item 6.5, UI_CHECKLIST font note and row 4, knowledge 11, 16, 17 |
+
+## G5.2 - Report form on samples
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Hidden on samples | PASS (already) | RiskCard renders the form only when the card is not a demo; ui.test.ts +4: samples 1-3 with demo -> no "Report these identifiers"; same text as a non-demo -> offered |
