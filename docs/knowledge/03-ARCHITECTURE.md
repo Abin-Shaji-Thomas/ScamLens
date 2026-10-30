@@ -59,6 +59,7 @@ Routes (generated from `web/src/app`):
 - /about (page, `web/src/app/about/page.tsx`)
 - /api/check (API route, `web/src/app/api/check/route.ts`)
 - /api/graph (API route, `web/src/app/api/graph/route.ts`)
+- /api/graph/stats (API route, `web/src/app/api/graph/stats/route.ts`)
 - /api/health (API route, `web/src/app/api/health/route.ts`)
 - /api/report/contest (API route, `web/src/app/api/report/contest/route.ts`)
 - /api/report (API route, `web/src/app/api/report/route.ts`)

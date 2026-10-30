@@ -540,3 +540,12 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | Background, sequential, non-blocking | PASS | `runLinkHints` awaits one lookup at a time (test asserts one active call); the card renders with no hint first (SSR test) |
 | With links / no links / failure | PASS | `link-hints.test.ts`: sentence "This UPI ID is linked to 2 other identifiers in community reports. Show links to see how.", not-proof note, demo label; no links -> empty; 500 -> skipped; 429 -> stop; network error -> nothing; no banned words |
 | Bug found by a test | FIXED | `hints?.at === result.checkedAt` was true when both were undefined; LinkHints and RiskCard now check the object first |
+
+## G4d - /about Link graph section and live counts
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| TigerGraph built-in statistics with the graph token | PASS | read-only probe: `stat_vertex_number` Report 8, UPI 2, Wallet 7, TelegramHandle 5 (22); `stat_edge_number` MENTIONS 16, PAID 5 (21) |
+| Route | PASS | `GET /api/graph/stats`: graph limit, TigerGraph then Postgres, 5-minute cache, counts only, 404 when nothing answers |
+| Tests | PASS | `stats.test.ts` (7): success, Postgres fallback, failure 404 and empty line, success response and cache header, cache window, 429 with no graph query; ui.test.ts /about now lists 9 sections (deliberate: new section) |
+| /about static | see build | `/about` remains ○ (static) in the build route list |

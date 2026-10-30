@@ -19,6 +19,7 @@ import { llmConfigured, usageLimits } from "@/lib/usage";
 import { DEFAULT_ETHERSCAN_RPS, EVM_CHAINS } from "@/lib/verified/etherscan";
 import { DOMAIN_LIST_BUDGET_BYTES, ETHERSCAN_MAX_ADDRESSES, MAX_ADDRESSES, SCAMSNIFFER_DOMAINS_PROBED_BYTES } from "@/lib/verified/index";
 import { ofacList, scamSnifferList } from "@/lib/verified/lists";
+import { GraphStatsLine } from "@/components/GraphStatsLine";
 
 export const metadata: Metadata = {
   title: "About ScamLens",
@@ -224,7 +225,18 @@ export default function AboutPage() {
         </ul>
       </Section>
 
-      <Section id="demo" title="Demo data" band>
+      <Section id="graph" title="Link graph" band>
+        <p>
+          Links between identifiers (a UPI ID and a Telegram handle reported with the same wallet, a wallet paying a flagged
+          address) are answered by TigerGraph, a graph database; if it is unavailable, the same queries run on our Postgres
+          copy and the result says so. The graph holds only keyed hashes and masked labels (for example{" "}
+          <code>zz***d@okdemo</code>), never full identifiers or chats, and it never links people through exchanges or
+          addresses with more than {DEFAULT_HUB_MAX} counterparties.
+        </p>
+        <GraphStatsLine />
+      </Section>
+
+      <Section id="demo" title="Demo data">
         <p>
           The sample messages and the seeded link graph are invented and always marked &quot;{SAMPLE_WATERMARK}&quot; or
           &quot;Illustrative demo data&quot;. One sample uses a wallet that really is on the OFAC list, so the Verified tier

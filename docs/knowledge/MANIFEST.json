@@ -36,7 +36,8 @@
     "web/src/components/FitGraph.tsx",
     "web/src/components/GraphPanel.tsx",
     "web/src/lib/graph/drawing.ts",
-    "web/src/components/LinkHints.tsx"
+    "web/src/components/LinkHints.tsx",
+    "web/src/components/GraphStatsLine.tsx"
   ],
   "10-SECURITY-AND-ABUSE.md": [
     "web/src/lib/security-headers.ts",

@@ -46,6 +46,8 @@ Postgres (Supabase) is the source of truth, and TigerGraph holds the same links 
 
 The response also carries `elapsedMs`, so the graph note shows how long TigerGraph took ("Graph backend: tigergraph (N ms)").
 
+`GET /api/graph/stats` reads TigerGraph's built-in vertex and edge counts (`POST /restpp/builtins/ScamLens` with `stat_vertex_number` / `stat_edge_number`) for the /about page; the Postgres copy answers when TigerGraph cannot.
+
 ## Proving the two backends agree
 
 `npx tsx scripts/tg-setup.ts` runs every Q1/Q2/Q4 case for every UPI and wallet, plus Q3, on **both** TigerGraph and Postgres, against the same Supabase data. It prints `N/N queries SAME`, or the exact differences. The Postgres SQL is itself checked against an independent in-memory implementation in the unit tests.
