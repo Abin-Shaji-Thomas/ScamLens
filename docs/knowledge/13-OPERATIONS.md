@@ -32,6 +32,8 @@ ScamLens deploys automatically to Vercel when `main` is pushed. Secrets live in 
 | `USAGE_GRAPH_PER_DAY` | Limits | - |
 | `USAGE_CONTEST_PER_DAY` | Limits | - |
 | `USAGE_VERIFY_PER_DAY` | Limits | Optional: server-side receipt checks per network per day (default 60) |
+| `USAGE_CASE_PER_DAY` | Limits | Optional: contributed cases (default 5) and "Was this right?" answers (default 30) per network per day |
+| `USAGE_FEEDBACK_PER_DAY` | Limits | - |
 | `USAGE_GLOBAL_LLM_PER_DAY` | Limits | Optional: global daily cap on LLM-using calls (check AI pass + screenshot reading), default 1500 |
 | `RECEIPT_SIGNING_KEY` | Signed check receipts (optional; off without it) | Ed25519 private key, base64 PKCS8 DER on one line. Generate your own (docs/DEPLOY.md); never commit or share it. |
 | `NEXT_PUBLIC_SITE_URL` | Share preview (optional, not a secret) | Public site URL, e.g. https://scam-lens-two.vercel.app; makes share-image links absolute |

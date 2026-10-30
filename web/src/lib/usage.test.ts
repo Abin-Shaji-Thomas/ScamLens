@@ -68,8 +68,10 @@ describe("usage stores", () => {
 
   it("defaults and env overrides (empty value keeps the default)", () => {
     // verify (server-side receipt checks) added in the final round
-    expect(usageLimits({})).toEqual({ check: 40, transcribe: 10, graph: 100, contest: 3, verify: 60, globalLlm: 1500 });
+    // case and feedback (contributed cases, "Was this right?") added in the final round P3
+    expect(usageLimits({})).toEqual({ check: 40, transcribe: 10, graph: 100, contest: 3, verify: 60, case: 5, feedback: 30, globalLlm: 1500 });
     expect(usageLimits({ USAGE_VERIFY_PER_DAY: "5" }).verify).toBe(5);
+    expect(usageLimits({ USAGE_CASE_PER_DAY: "2", USAGE_FEEDBACK_PER_DAY: "9" })).toMatchObject({ case: 2, feedback: 9 });
     expect(usageLimits({ USAGE_CHECK_PER_DAY: "7", USAGE_GLOBAL_LLM_PER_DAY: "" })).toMatchObject({ check: 7, globalLlm: 1500 });
   });
 

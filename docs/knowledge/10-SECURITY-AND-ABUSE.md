@@ -2,7 +2,7 @@
 
 ## In plain words
 
-ScamLens has no accounts, so it protects itself with hard size limits, daily per-network counters and strict browser security headers. It never stores the text people check, never echoes input in errors, and logs only an event name, a status and a duration. AI output (when enabled) is treated as untrusted: it can only point at known rules with exact quotes, and anything else is dropped.
+ScamLens has no accounts, so it protects itself with hard size limits, daily per-network counters and strict browser security headers. It never stores the text people check (a contributed case keeps only structured facts and, if the person ticks it, a redacted excerpt for the moderator), never echoes input in errors, and logs only an event name, a status and a duration. AI output (when enabled) is treated as untrusted: it can only point at known rules with exact quotes, and anything else is dropped.
 
 ## Details
 
@@ -72,5 +72,7 @@ Any new route must cap its body, validate with zod, consume the usage guard befo
 `web/src/lib/f1-safety.test.ts` (limits, 413/429, banned words, no console calls, CSP directives), `web/src/lib/usage.test.ts` (counters in PGlite, fallback), `web/src/lib/health.test.ts` (no env value leaks), `web/src/lib/transcribe.test.ts` (image checks, no storage), `web/src/lib/signals/signals.test.ts` (fabricated quotes dropped).
 
 ## Known limits
+
+- Contributed cases (migration 004) have their own daily limit (`USAGE_CASE_PER_DAY`, default 5; the per-day report cap also applies) and feedback has `USAGE_FEEDBACK_PER_DAY` (default 30). A case is deleted only with its delete code (128 random bits; only a keyed hash is stored), so a lost code means the case expires after 90 days or the owner removes it on request.
 
 Limits are per network, so a shared network shares one budget. `'unsafe-inline'` scripts are allowed because the framework requires them (a nonce-based CSP would force dynamic rendering of every page).
