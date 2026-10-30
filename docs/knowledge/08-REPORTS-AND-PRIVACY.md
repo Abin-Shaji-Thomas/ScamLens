@@ -21,7 +21,7 @@ Anyone can report the identifiers in a check, without an account and only after 
 ### Retention
 - Reports expire after <!-- FACT:report_retention_days -->90<!-- /FACT --> days (`expires_at`).
 - Usage counters are deleted after about 7 days.
-- Contest reasons: see "Contest policy" below (retention added in this round, migration 003).
+- Contest reasons: deleted by `purge_old_contests()` (migration `web/db/migrations/003_contest_retention.sql`) once the contest is decided or <!-- FACT:contest_retention_days -->90<!-- /FACT --> days old. The moderator runs it monthly (`docs/MODERATION.md` section 5); the app never calls it. It never touches reports, so a label set by a purged pending contest stays until a person clears it or the reports expire.
 
 ### Contest policy
 Contesting needs the full identifier (the person must know it). The reason (10 to 500 characters) is stored only for the moderator and never shown on the site. The entry stays visible, labelled "Contested, under review", and stops counting toward High. A moderator upholds (removes the reports) or dismisses (clears the label) using the SQL in `docs/MODERATION.md`. Each network can contest at most <!-- FACT:contests_per_day -->3<!-- /FACT --> entries per day.
@@ -68,6 +68,7 @@ Database objects (generated from `web/db/*.sql`):
 | `contests_status` | index | `web/db/migrations/002_contest_policy.sql` |
 | `contest_identifier_v2` | function | `web/db/migrations/002_contest_policy.sql` |
 | `reported_counts_v2` | function | `web/db/migrations/002_contest_policy.sql` |
+| `purge_old_contests` | function | `web/db/migrations/003_contest_retention.sql` |
 <!-- GENERATED:END db -->
 
 ## Where in the code

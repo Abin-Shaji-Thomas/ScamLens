@@ -9,7 +9,8 @@ Steps (Supabase -> SQL Editor -> New query, one file per run, in this order; all
 1. All of `web/db/schema.sql` -> Run.
 2. All of `web/db/supabase-grants.sql` -> Run.
 3. All of `web/db/migrations/002_contest_policy.sql` -> Run.
-4. Check: `select * from increment_usage('test:manual', 5);` returns `allowed = true, remaining = 4`; then `delete from usage_counters where key = 'test:manual';`. And `select count(*) from contests;` returns `0` without error.
+4. All of `web/db/migrations/003_contest_retention.sql` -> Run (contest retention, final round). Then once a month: `select * from purge_old_contests();` (see `docs/MODERATION.md` section 5). Until it runs, contest reasons are simply kept (old behaviour).
+5. Check: `select * from increment_usage('test:manual', 5);` returns `allowed = true, remaining = 4`; then `delete from usage_counters where key = 'test:manual';`. And `select count(*) from contests;` returns `0` without error.
 
 ## 2. Confirm the live build after a push
 `curl.exe -s https://scam-lens-two.vercel.app/api/health` must show `"build"` equal to `git rev-parse --short HEAD` (first 7 characters). If not, open Vercel -> Deployments and check the latest deployment. Rollback: Vercel -> Deployments -> choose the previous Ready deployment -> **Promote to Production**.

@@ -99,10 +99,12 @@ Authorization: Bearer <token for TG_SECRET>
 
 Then run `npx tsx scripts/tg-setup.ts --check` and expect `N/N queries SAME`.
 
-## 5. Housekeeping
+## 5. Housekeeping (monthly)
 
-Contests older than 90 days that were decided can be deleted:
+Contest reasons are kept only while you need them. After migration `web/db/migrations/003_contest_retention.sql` has been run once, run this on the first day of each month:
 
 ```sql
-delete from contests where status <> 'pending' and decided_at < now() - interval '90 days';
+select * from purge_old_contests();
 ```
+
+It deletes every contest that is already decided (upheld or dismissed) and every contest older than 90 days, and returns how many rows it deleted. It never changes reports: if an old pending contest is purged, its "Contested, under review" label stays until you clear it (section 2a) or the reports expire. Decide pending contests within 90 days so nothing is lost.

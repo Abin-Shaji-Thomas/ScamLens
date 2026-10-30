@@ -68,6 +68,7 @@ describe("/about contest policy (G2)", () => {
     expect(text).toMatch(/The entry stays visible, labelled "Contested, under review"/);
     expect(text).toMatch(/no longer counts toward a high risk level/);
     expect(text).toMatch(/Nobody can erase a report just by contesting it/);
+    expect(text).toMatch(/deleted in a monthly clean-up once the contest is decided or 90 days old/);
     expect(text).not.toMatch(/hidden from public badges/);
   });
 });

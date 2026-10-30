@@ -12,7 +12,7 @@ What ScamLens cannot do yet, ranked by how much it matters, and what could come 
 | FIXED | A warning word could hide a solicitation in the same sentence (fixed in J3, commit fix(signals)) | `web/src/lib/signals/context.ts` |
 | FIXED | Eval false positive v01, a bank advisory "If someone says ..., it is a fraud call" (fixed in J3 with a general conditional-awareness marker) | `web/src/lib/signals/context.ts` |
 | LOW | Solicitation detection is verb-list based: a request phrased without those verbs ("the fee is due tonight") does not defeat a marker in the same sentence | `web/src/lib/signals/context.ts` |
-| MED | Contest reasons are kept with no retention limit | `web/db/migrations/002_contest_policy.sql` (fixed in J4) |
+| FIXED | Contest reasons had no retention limit (fixed in J4 with migration 003 and a monthly purge; until a person runs them, reasons are kept as before) | `web/db/migrations/003_contest_retention.sql` |
 | MED | Screenshot upload was offered with no vision key (fixed in J2: hidden, driven by the health check's `vision` flag) | `web/src/components/CheckForm.tsx` |
 | MED | Whether the live Supabase has migration 002 applied: UNKNOWN | `docs/HUMAN_TASKS.md` |
 | MED | TigerGraph workspace does not auto-start (HTTP 500 "Auto start is not enabled"); live graph answers from Postgres until a person resumes it | `web/scripts/tg-setup.ts`, `docs/HUMAN_TASKS.md` |

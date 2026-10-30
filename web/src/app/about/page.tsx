@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { DEFAULT_HUB_MAX } from "@/lib/graph";
 import {
+  CONTEST_RETENTION_DAYS,
   DEFAULT_REPORTS_MAX_PER_DAY,
   MAX_IDENTIFIERS,
   MAX_TEXT_CHARS,
@@ -149,7 +150,8 @@ export default function AboutPage() {
           short reason (10 to 500 characters). The entry stays visible, labelled &quot;{CONTESTED_LABEL}&quot;, and from then
           on it no longer counts toward a high risk level. Nobody can erase a report just by contesting it. A person
           reviews each contest: if it is upheld the reports are removed; if it is dismissed the label is cleared. Your
-          reason is only seen by that reviewer and is never shown on the site. Each network can contest at most{" "}
+          reason is only seen by that reviewer and is never shown on the site; it is deleted in a monthly clean-up once the
+          contest is decided or {CONTEST_RETENTION_DAYS} days old. Each network can contest at most{" "}
           {limits.contest} entries per day.
         </p>
       </Section>

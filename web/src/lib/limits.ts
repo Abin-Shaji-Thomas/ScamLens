@@ -14,3 +14,5 @@ export const REPORT_RETENTION_DAYS = 90;
 export const DEFAULT_REPORTS_MAX_PER_DAY = 5;
 /** Daily usage counters (db/schema.sql increment_usage) are pruned after this many days. */
 export const USAGE_COUNTER_RETENTION_DAYS = 7;
+/** Contest reasons are deleted by purge_old_contests() (db/migrations/003) once decided or older than this. */
+export const CONTEST_RETENTION_DAYS = 90;

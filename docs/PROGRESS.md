@@ -384,3 +384,12 @@ Measured per window size (same on /, samples 1-3; /about and /nope have no form)
 | 6 eval cases, old cases untouched | PASS | j01-j06 appended; first 74 cases byte-identical to HEAD (script check); `eval-data.test.ts` asserts 3 + 3, 80 total, unique ids |
 | Eval before/after | PASS | 74 cases, round 2 code: P 97.4%, R 100.0%, FP 1 (v01), FN 0. Same 80 cases with the pre-J3 code: acc 93.8%, P 92.7%, R 95.0%, FP 3 (v01, j04, j06), FN 2 (j01, j03). Final: acc 100.0%, P 100.0%, R 100.0%, FP 0, FN 0. New false negatives: none |
 | Honesty note | NOTE | the 6 cases were written after the fix (regression examples, not a blind test); README says so |
+
+## J4 - Contest retention
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Migration 003, idempotent | PASS | `web/db/migrations/003_contest_retention.sql`: `purge_old_contests()` deletes contests that are decided or older than 90 days; the file runs twice cleanly; a second purge deletes 0 |
+| PGlite tests | PASS | `retention.test.ts` (6): 3 of 5 rows purged (old pending, dismissed, upheld), recent pending kept; reports and the contested label untouched; the app works without 003; MODERATION.md section 5 SQL runs as written; SQL days equal `CONTEST_RETENTION_DAYS` |
+| /about and docs | PASS | /about: "deleted in a monthly clean-up once the contest is decided or 90 days old" (asserted in about.test.ts); knowledge 08, 16, 17; MODERATION.md; HUMAN_TASKS |
+| Found on the way | NOTE | Python on Windows wrote CRLF into MODERATION.md and broke the existing SQL-block test; doc edits are now made with Node (LF) |

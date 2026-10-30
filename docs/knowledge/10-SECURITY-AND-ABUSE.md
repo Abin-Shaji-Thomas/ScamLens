@@ -35,6 +35,7 @@ Limits (generated from `web/src/lib/limits.ts` and `usageLimits`):
 | Report retention (days) | 90 | `REPORT_RETENTION_DAYS` |
 | Reports per network per day (default) | 5 | `DEFAULT_REPORTS_MAX_PER_DAY` / `REPORTS_MAX_PER_DAY` |
 | Usage counter retention (days) | 7 | `USAGE_COUNTER_RETENTION_DAYS` |
+| Contest reason retention (days, after migration 003) | 90 | `CONTEST_RETENTION_DAYS` |
 | Checks per network per day (default) | 40 | `usageLimits` / `USAGE_CHECK_PER_DAY` |
 | Screenshot readings per network per day (default) | 10 | `usageLimits` / `USAGE_TRANSCRIBE_PER_DAY` |
 | Graph lookups per network per day (default) | 100 | `usageLimits` / `USAGE_GRAPH_PER_DAY` |
