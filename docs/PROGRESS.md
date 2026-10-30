@@ -556,3 +556,12 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 |---|---|---|
 | Shape unchanged | PASS | no code change; health.test.ts unchanged |
 | Documented | PASS | README routes block, DEPLOY section 6, knowledge 10 and 13: "graph":"tigergraph" means configured, not awake |
+
+## G5.1 - Font order
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Stack changed | PASS | `globals.css`, the graph canvas font and `style.test.ts`: `"Helvetica Neue", "Segoe UI", Roboto, Helvetica, Arial, sans-serif` |
+| Light face on Windows | PASS | `CSS.getPlatformFontsForNode` on the h1: `Segoe UI Light / SegoeUI-Light` (was `Arial / ArialMT`); body `Segoe UI` |
+| No overflow | PASS | / and sample 1 at 375, 768, 1280, 1440, 1920: overflow false, grid 100/100/100/100/91.7%, tap 44 px, sample 1 High 3/3, console empty |
+| Docs | PASS | README, HUMAN_TASKS item 6.5, UI_CHECKLIST font note and row 4, knowledge 11, 16, 17 |

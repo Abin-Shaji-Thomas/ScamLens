@@ -11,7 +11,7 @@ The **Verified** column records what the 2026-10-30 run checked in headless Micr
 | 1 | No horizontal scroll at 375, 768, 1280, 1440, 1920 px on `/`, samples 1-3, `/about`, `/nope` | DevTools device mode; drag sideways | yes: `scrollWidth <= innerWidth` everywhere |
 | 2 | The page uses the width: content is ~90% of the window at 1280/1440/1920 (capped at 1760 px) | look at the margins on a wide screen | yes: grid box 100 / 100 / 91.7% |
 | 3 | Header: "ScamLens" (bold) left, "About" (grey-blue) right | look | yes (screenshots) |
-| 4 | Hero title is very large and light (weight 300) and spans about three quarters of the width | look | partly: on Windows the title renders in Arial at 400 (see note below) |
+| 4 | Hero title is very large and light (weight 300) and spans about three quarters of the width | look | yes: Segoe UI Light on Windows (`CSS.getPlatformFontsForNode`, 2026-10-30); macOS: person |
 | 5 | Form: label in small uppercase letters, text box with a 2px black line on top and a light line below, black "CHECK" and outline "UPLOAD A SCREENSHOT INSTEAD" buttons; right column with a black rule, "TRY A SAMPLE:", three sample links and the two privacy notes | look at >= 1024 px; below that they stack | yes |
 | 6 | Risk header: "RISK CARD", the level as a huge word ("High" in dark red, others black), one sentence, the row "Low signals · Elevated · High" with the current level bold and underlined, and a 3-part meter (1, 2 or 3 filled) | samples 1, 2, 3 | yes: sample 1 High/3, sample 2 High/3, sample 3 Low signals/1 |
 | 7 | Tiers: three columns at >= 1024 px, each with a 2px black top rule, small "01/02/03", heading, grey-blue explanation, rows divided by thin light lines | look | yes |
@@ -39,4 +39,4 @@ The **Verified** column records what the 2026-10-30 run checked in headless Micr
 | 29 | Screen reader: "Result ready: <level>." announced; scale read as "Scale: <label>"; tier numerals 01-03 and the 404 numeral are not read | NVDA / VoiceOver | person |
 | 30 | The same checks on the live URL after deploy | browser | see docs/PROGRESS.md (U6) |
 
-Font note: the stack is `"Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif`. Windows maps "Helvetica" to Arial (`HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\FontSubstitutes`), so Windows browsers render Arial and never reach Segoe UI Light; Arial has no light face, so headings show at weight 400. On macOS and iOS, Helvetica Neue has a light face and weight 300 renders as designed.
+Font note: the stack is `"Helvetica Neue", "Segoe UI", Roboto, Helvetica, Arial, sans-serif` (since the TigerGraph finish round; before, Helvetica came second, and Windows maps "Helvetica" to Arial, which has no light face). Measured 2026-10-30 in headless Edge on Windows: the h1 renders in Segoe UI Light (`SegoeUI-Light`), body text in Segoe UI. On macOS and iOS, Helvetica Neue has a light face.

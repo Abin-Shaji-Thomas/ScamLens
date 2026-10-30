@@ -61,7 +61,7 @@ describe("Swiss style rules", () => {
   });
   it("system font stack only: no next/font, no web font imports", () => {
     expect(offenders(/next\/font|fonts\.googleapis|@font-face/)).toEqual([]);
-    expect(readFileSync(CSS_PATH, "utf8")).toContain('--font: "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif;');
+    expect(readFileSync(CSS_PATH, "utf8")).toContain('--font: "Helvetica Neue", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;');
   });
   it("motion: transitions are 200ms and only on color, background-color or border-color; no keyframe animation", () => {
     const bad: string[] = [];

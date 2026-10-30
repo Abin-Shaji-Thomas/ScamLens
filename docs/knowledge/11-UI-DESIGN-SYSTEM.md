@@ -21,7 +21,7 @@ The interface follows Minimalism & Swiss Style: a 12-column grid that fills the 
 | `--swiss-black-hover` | #1f2937 | button hover | white on it 14.68 |
 
 ### Type
-- Font stack: `"Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif` (system fonts only; no web fonts). On Windows, "Helvetica" maps to Arial, which has no light face, so headings render at 400 there (measured 2026-10-30).
+- Font stack: `"Helvetica Neue", "Segoe UI", Roboto, Helvetica, Arial, sans-serif` (system fonts only; no web fonts). "Segoe UI" comes before Helvetica because Windows maps "Helvetica" to Arial, which has no light face; with this order Windows renders the h1 in Segoe UI Light (measured 2026-10-30 with `CSS.getPlatformFontsForNode`).
 - h1 `.t-title`: weight 300, `clamp(2.5rem, 6vw, 6rem)` / 1.05. Risk word `.t-risk`: `clamp(3rem, 8vw, 8rem)`. 404 numeral `.t-404`: `clamp(6rem, 20vw, 16rem)`.
 - Section headings `.t-h2`: 1.5rem, weight 400 (weight 300 only at 28 px and above). Body 1.125rem / 1.6. Small `.t-small`: 0.875rem / 1.5, never below 14 px. `.eyebrow`: 0.875rem, 0.1em tracking, uppercase by CSS only.
 - Reading text is capped at 65ch.

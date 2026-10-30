@@ -17,7 +17,7 @@
   --swiss-clay: #7a4f32; /* accent text, link hover, hover rule on paper */
   --swiss-alert: #b00020; /* only the word "High" (and its meter) and the graph's evidence-path link */
   --swiss-black-hover: #1f2937;
-  --font: "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif;
+  --font: "Helvetica Neue", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color-scheme: only light;
 }
 

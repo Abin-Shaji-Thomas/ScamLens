@@ -33,7 +33,7 @@ Most of `docs/UI_CHECKLIST.md` was verified in headless Edge on 2026-10-30 (layo
 2. Screen reader (NVDA or VoiceOver): "Result ready: ..." is announced; the 01/02/03 and 404 numerals are not read.
 3. DevTools -> Network -> Offline, press Check: "Error. ..." appears in black, with no stack trace.
 4. With TigerGraph suspended, press "Show links ...": "The graph database is waking up..." appears after about 3 s.
-5. On macOS or iOS, check that the big headings render in a light weight (Helvetica Neue Light); on Windows they are regular weight (see the font question in the UI round handoff).
+5. On macOS or iOS, check that the big headings render in a light weight (Helvetica Neue Light). On Windows they use Segoe UI Light (measured in headless Edge on 2026-10-30).
 
 ## Later / optional
 - **Add an AI key later, if wanted** (not needed; ScamLens is rules-only by design right now): set `OPENAI_API_KEY`, `OPENAI_MODEL` (and `OPENAI_VISION_MODEL` if needed, `OPENAI_BASE_URL` for other providers) in `web/.env.local` and in Vercel, then redeploy. The AI pass and screenshot reading switch on automatically (`/api/health` shows `"llm": true`). Then run `npx tsx scripts/smoke-transcribe.ts <your-own-synthetic-screenshot.png> --show` (must print `PASS`) and `npm run eval` in both modes before claiming any benefit.
