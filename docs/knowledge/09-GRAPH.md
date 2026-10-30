@@ -32,7 +32,7 @@ Hub filter: no query links people through an exchange address or a node with mor
 
 Fallback and parity: `web/src/lib/graph/index.ts` picks TigerGraph when `TG_HOST` and `TG_SECRET` are set, and falls back to the Postgres functions on any error, labelling the view "postgres (TigerGraph unavailable)". `npx tsx scripts/tg-setup.ts` runs every Q1, Q2 and Q4 case plus Q3 on both backends and prints `N/N queries SAME`.
 
-Drawing (`web/src/components/GraphPanel.tsx`): the checked identifier is a filled black circle, others hollow; links are 1px grey; a link whose two ends are both named in one listed path is 2.5px in the alert colour.
+Drawing (`web/src/components/FitGraph.tsx`, loaded by `web/src/components/GraphPanel.tsx` in the browser only): the checked identifier is a filled black circle, others hollow; links are 1px grey; a link whose two ends are both named in one listed path is 2.5px in the alert colour. Labels sit below each circle on a white halo. The data is memoised (a new object on every render used to restart the layout), the layout runs a bounded cooldown, and when it settles the view is zoomed to fit with 40 px padding (instantly under reduced motion, where the layout is precomputed); a new canvas size fits again. Canvas height: 300 px below 500 px wide, otherwise 40% of the width within 360-480 px (`web/src/lib/graph/drawing.ts`). Measured 2026-10-30 in headless Edge on sample 1: the whole graph inside the canvas with 26-58 px margins at 375, 768 and 1440 px (after a resize and on a fresh load), no overflow, console clean.
 
 Live status: verified on 2026-10-29 (19/19 SAME, recorded in `graph/README.md`). This round's re-run result is recorded below by step J2.
 
@@ -50,6 +50,7 @@ One-time global migration: graphs created before round 1 lack `Report.reporter_k
 - `web/src/lib/graph/postgres.ts`: Postgres backend.
 - `web/src/lib/graph/index.ts`: backend choice and fallback.
 - `web/src/lib/graph/view.ts`: builds the view for one identifier.
+- `web/src/components/FitGraph.tsx` and `web/src/lib/graph/drawing.ts`: drawing, fit and canvas size.
 - `web/src/lib/graph/tg-sync.ts`: live and full sync payloads.
 - `web/scripts/tg-setup.ts`: migration check, install, load, parity.
 - `web/src/lib/graph/migrations.ts`: the migration decision (skip or human step) and secret masking for error details.

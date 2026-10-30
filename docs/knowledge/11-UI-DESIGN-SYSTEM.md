@@ -35,6 +35,9 @@ The interface follows Minimalism & Swiss Style: a 12-column grid that fills the 
 ### Measured (2026-10-30, headless Edge)
 Grid box 100 / 100 / 91.7% of the window at 1280 / 1440 / 1920 px; no horizontal overflow at 375-1920 px; smallest tap target 44 px; print is black on white.
 
+### Link graph canvas
+White background, 1px grey links, 2.5px alert links on evidence paths only, black filled (checked) and hollow (others) circles, black 12 px labels below each circle on a white halo. Zoomed to fit with 40 px padding; 300 px tall on phones, 360-480 px otherwise. Screenshots: `docs/screens/graph-fit-375.png`, `graph-fit-768.png`, `graph-fit-1440.png`.
+
 ### Share preview
 `web/src/app/opengraph-image.tsx` (1200x630, generated at build time with `next/og` and its built-in font, so no web font is loaded) and `web/src/app/icon.svg` use the palette only: white, black, secondary text and the rule colour. `web/src/lib/launch.test.ts` checks the colours.
 

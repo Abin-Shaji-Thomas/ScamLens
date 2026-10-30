@@ -18,6 +18,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/eval-data.test.ts` | 7 |
 | `web/src/lib/evidence-pack.test.ts` | 4 |
 | `web/src/lib/f1-safety.test.ts` | 19 |
+| `web/src/lib/graph/drawing.test.ts` | 2 |
 | `web/src/lib/graph/migrations.test.ts` | 6 |
 | `web/src/lib/graph/tigergraph.test.ts` | 13 |
 | `web/src/lib/health.test.ts` | 6 |
@@ -32,7 +33,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/signals/signals.test.ts` | 21 |
 | `web/src/lib/style.test.ts` | 11 |
 | `web/src/lib/transcribe.test.ts` | 17 |
-| `web/src/lib/ui.test.ts` | 39 |
+| `web/src/lib/ui.test.ts` | 40 |
 | `web/src/lib/usage.test.ts` | 18 |
 | `web/src/lib/verified/verified.test.ts` | 30 |
 <!-- GENERATED:END tests -->

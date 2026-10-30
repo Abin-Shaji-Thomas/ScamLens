@@ -7,17 +7,9 @@ import type { GraphView } from "@/lib/graph/view";
 import { DEMO_LABEL } from "@/lib/demo";
 import { MAX_GRAPH_LOOKUPS } from "@/lib/limits";
 
-const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), { ssr: false });
+// The canvas (FitGraph) is browser-only; it holds the graph ref so the drawing can be zoomed to fit.
+const FitGraph = dynamic(() => import("./FitGraph"), { ssr: false });
 
-// Swiss graph: the checked identifier is a filled black circle, others hollow with a 1.5px black stroke;
-// links are 1px grey, the evidence-path link 2.5px alert; labels are black below the nodes.
-const INK = "#000000";
-const GREY = "#808080";
-const ALERT = "#b00020"; // only the evidence-path link
-const WHITE = "#ffffff";
-const R_FOCUS = 6;
-const R_NODE = 4.5;
-const FONT = '"Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif';
 const WAKING_AFTER_MS = 3000;
 const REDUCED = "(prefers-reduced-motion: reduce)";
 const prefersReducedMotion = () => window.matchMedia(REDUCED).matches;
@@ -26,7 +18,6 @@ function subscribeReducedMotion(onChange: () => void) {
   mq.addEventListener("change", onChange);
   return () => mq.removeEventListener("change", onChange);
 }
-type Node = GraphView["nodes"][number];
 type Link = GraphView["links"][number];
 
 export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
@@ -106,48 +97,7 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
             <p className="mt-4 text-swiss-text">No linked identifiers in reports. This does not mean safe.</p>
           ) : (
             <div ref={box} role="img" aria-label="Link graph; the same links are listed as text below." className="mt-4 w-full overflow-hidden print:hidden">
-              <ForceGraph2D
-                graphData={{ nodes: view.nodes.map((n) => ({ ...n })), links: view.links.map((l) => ({ ...l })) }}
-                width={width}
-                height={Math.min(420, Math.round(width * 0.75))}
-                backgroundColor={WHITE}
-                warmupTicks={reduceMotion ? 120 : 0}
-                cooldownTicks={reduceMotion ? 0 : Infinity}
-                enableNodeDrag={!reduceMotion}
-                nodeLabel={(n) => `${(n as Node).type}: ${(n as Node).label}`}
-                nodeVal={(n) => ((n as Node).focus ? 6 : 2)}
-                linkLabel={(l) => (l as Link).evidence}
-                linkColor={(l) => (onPath(l as Link) ? ALERT : GREY)}
-                linkWidth={(l) => (onPath(l as Link) ? 2.5 : 1)}
-                linkDirectionalArrowLength={(l) => ((l as Link).relation === "payment" ? 4 : 0)}
-                linkDirectionalArrowColor={(l) => (onPath(l as Link) ? ALERT : GREY)}
-                nodeCanvasObjectMode={() => "replace"}
-                nodeCanvasObject={(n, ctx, scale) => {
-                  const node = n as Node & { x?: number; y?: number };
-                  if (node.x === undefined || node.y === undefined) return;
-                  const r = node.focus ? R_FOCUS : R_NODE;
-                  ctx.beginPath();
-                  ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
-                  ctx.fillStyle = node.focus ? INK : WHITE;
-                  ctx.fill();
-                  ctx.lineWidth = 1.5 / scale;
-                  ctx.strokeStyle = INK;
-                  ctx.stroke();
-                  ctx.font = `${12 / scale}px ${FONT}`;
-                  ctx.fillStyle = INK;
-                  ctx.textAlign = "center";
-                  ctx.textBaseline = "top";
-                  ctx.fillText(node.label, node.x, node.y + r + 4 / scale);
-                }}
-                nodePointerAreaPaint={(n, color, ctx) => {
-                  const node = n as Node & { x?: number; y?: number };
-                  if (node.x === undefined || node.y === undefined) return;
-                  ctx.fillStyle = color;
-                  ctx.beginPath();
-                  ctx.arc(node.x, node.y, (node.focus ? R_FOCUS : R_NODE) + 2, 0, 2 * Math.PI);
-                  ctx.fill();
-                }}
-              />
+              <FitGraph view={view} width={width} reduceMotion={reduceMotion} onPath={onPath} />
             </div>
           )}
           <ul className="mt-6 flex flex-col divide-y divide-swiss-rule border-t border-swiss-rule">

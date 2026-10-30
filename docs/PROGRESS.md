@@ -505,3 +505,13 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | Why it looked empty | FOUND | tg-setup printed only the first case (the collection wallet, no path); it now prints how many cases return rows and the first non-empty one |
 | UI never implies a Q2 path that was not found | PASS | GraphPanel lists only the paths returned; no Q2 line when none |
 | Human seeding option | NOT NEEDED | a labelled demo path already exists; the demo doc says which wallet to paste |
+
+## G3 - Graph drawing
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Cause | FOUND | `cooldownTicks={Infinity}` meant onEngineStop never fired, so nothing could fit the view; `graphData` was rebuilt every render (layout restarts); the ref needed for zoomToFit is not reachable through next/dynamic |
+| Fix | PASS | new client-only `FitGraph.tsx` holds the ref: memoised data, bounded cooldown (160 ticks), `zoomToFit(400 or 0, 40)` on engine stop and again on resize; height 300 / 360-480 px; labels below nodes with a white halo; colours unchanged |
+| Browser (sample 1 -> Show links, local, backend tigergraph) | PASS | first measurement after a resize showed margins 0 at 375 and 768 (clipped) -> added refit on resize; then resize: 375 margins 58/41/71/26, 768 226/41/237/27, 1440 509/42/517/28; fresh 375: 30/46/38/31; overflow false everywhere; console [] |
+| Q2 path text in the UI | PASS | pasted demo wallet 0x9377...32d8: `Q2 Funds moved 0x9377***32d8 -> 0xc846***38Ba -> 0x1DD0***9A07 (2 hops) to an address flagged by synthetic flag (demo).` (matches the demo doc) |
+| Tests | PASS | `drawing.test.ts` (canvas height, label size, padding); ui.test.ts graph pin now reads FitGraph.tsx (same assertions; values that changed on purpose: 160 warm-up ticks, label halo order) plus fit-on-stop and refit-on-resize |

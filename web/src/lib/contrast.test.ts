@@ -89,6 +89,7 @@ describe("where grey, tan and alert may appear", () => {
       .filter((f) => !f.endsWith("globals.css"))
       .filter((f) => /swiss-alert|#b00020/i.test(readFileSync(f, "utf8")))
       .map((f) => relative(SRC, f).replaceAll("\\", "/"));
-    expect(fileUses).toEqual(["components/GraphPanel.tsx"]);
+    // The graph drawing (the only alert use outside the CSS) moved from GraphPanel.tsx to FitGraph.tsx in G3.
+    expect(fileUses).toEqual(["components/FitGraph.tsx"]);
   });
 });

@@ -290,20 +290,33 @@ describe("Swiss tiers and risk header (server-rendered)", () => {
 });
 
 describe("Swiss graph panel", () => {
-  const src = readFileSync(join(import.meta.dirname, "..", "components", "GraphPanel.tsx"), "utf8");
+  // G3: the drawing moved from GraphPanel.tsx into FitGraph.tsx (it needs the graph ref to zoom to fit).
+  const panel = readFileSync(join(import.meta.dirname, "..", "components", "GraphPanel.tsx"), "utf8");
+  const src = readFileSync(join(import.meta.dirname, "..", "components", "FitGraph.tsx"), "utf8");
 
   it("canvas drawing follows the spec (the canvas itself needs a browser; this pins the drawing code)", () => {
     expect(src).toContain('const INK = "#000000";');
     expect(src).toContain('const GREY = "#808080";');
-    expect(src).toMatch(/ctx\.fillStyle = node\.focus \? INK : WHITE;/); // checked = filled black, others hollow
+    expect(src).toMatch(/ctx\.fillStyle = n\.focus \? INK : WHITE;/); // checked = filled black, others hollow
     expect(src).toContain("ctx.lineWidth = 1.5 / scale;");
     expect(src).toContain("linkColor={(l) => (onPath(l as Link) ? ALERT : GREY)}");
     expect(src).toContain("linkWidth={(l) => (onPath(l as Link) ? 2.5 : 1)}");
-    expect(src).toContain("p.text.includes(a) && p.text.includes(z)"); // both ends named in one listed path
-    expect(src).toMatch(/ctx\.fillStyle = INK;\s*ctx\.textAlign = "center";\s*ctx\.textBaseline = "top";/); // labels black, below
-    // reduced motion kept: layout settled before first paint, no drag animation
-    expect(src).toContain("warmupTicks={reduceMotion ? 120 : 0}");
-    expect(src).toContain("cooldownTicks={reduceMotion ? 0 : Infinity}");
+    expect(panel).toContain("p.text.includes(a) && p.text.includes(z)"); // both ends named in one listed path
+    // labels black, centred below the circle, drawn over a white halo
+    expect(src).toMatch(/ctx\.textAlign = "center";\s*ctx\.textBaseline = "top";\s*const y = n\.y \+ r \+ 3 \/ scale;/);
+    expect(src).toMatch(/ctx\.strokeStyle = WHITE;\s*ctx\.strokeText\(n\.label, n\.x, y\);\s*ctx\.fillStyle = INK;\s*ctx\.fillText\(n\.label, n\.x, y\);/);
+    // reduced motion kept: layout settled before first paint (no animation), no drag
+    expect(src).toContain("warmupTicks={reduceMotion ? 160 : 0}");
+    expect(src).toContain("cooldownTicks={reduceMotion ? 0 : 160}");
+    expect(src).toContain("enableNodeDrag={!reduceMotion}");
+  });
+
+  it("G3: the graph zooms to fit with padding when the layout settles (instantly with reduced motion), on stable data", () => {
+    expect(src).toContain("onEngineStop={fit}");
+    expect(src).toContain("fg.current?.zoomToFit(reduceMotion ? 0 : 400, FIT_PADDING_PX)");
+    expect(src).toMatch(/useMemo\(\(\) => \(\{ nodes: view\.nodes/);
+    expect(src).not.toContain("Infinity"); // a never-ending cooldown never fires onEngineStop
+    expect(src).toMatch(/zoomToFit\(0, FIT_PADDING_PX\), 50\);\s*return \(\) => clearTimeout\(t\);\s*\}, \[width, height\]\);/); // refit on resize
   });
 
   it("server render: full-width panel with a 2px top rule and text-link buttons, no canvas yet", () => {
