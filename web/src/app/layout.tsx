@@ -3,9 +3,24 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
 
+const TITLE = "ScamLens";
+const DESCRIPTION = "Evidence-linked scam check for India: verified, reported and suspected signals, each with its source.";
+
+/** Optional NEXT_PUBLIC_SITE_URL (not a secret) makes share-image URLs absolute; ignored when missing or invalid. */
+export function siteUrl(env: Record<string, string | undefined> = process.env): URL | undefined {
+  try {
+    return env.NEXT_PUBLIC_SITE_URL ? new URL(env.NEXT_PUBLIC_SITE_URL) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export const metadata: Metadata = {
-  title: "ScamLens",
-  description: "Evidence-linked scam check for India: verified, reported and suspected signals, each with its source.",
+  metadataBase: siteUrl(),
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: { title: TITLE, description: DESCRIPTION, siteName: TITLE, type: "website", locale: "en_IN" },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 
 // System font stack only (no web fonts): fast, private and no extra requests.
