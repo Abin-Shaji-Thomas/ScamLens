@@ -849,3 +849,14 @@ Root cause of the earlier "thin headings" report: 056ab4b put Segoe UI before He
 | Idempotent | PASS | second run same row counts, no second contest (test) |
 | --remove | PASS (local) | removes only this dataset's rows; earlier demo data unchanged (test); not run on live |
 
+## P5 - Scam trail in the check
+
+| Check | Result | Evidence |
+|---|---|---|
+| Trail job | PASS | 2.5 s deadline, concurrency 3, max 5 identifiers, wallets first; TigerGraph then labelled Postgres (tests) |
+| Risk | PASS | Low to Elevated with "Linked to an identifier reported by N independent people"; never High; never lowers; nothing on failure (tests) |
+| Failure | PASS | timeout: status unavailable, notice, Link graph row unavailable (test) |
+| Receipts | PASS | new receipts sign an optional graph row; a receipt without it still verifies; tampering fails (test) |
+| UI | PASS | Scam trail section with counts, demo label, not-proof note, backend and ms; absent without links (render test) |
+| Timings (local build, live TigerGraph) | PASS after a fix | first run: two of five checks hit 2.5 s; after sharing the TigerGraph client and parallel reads: 0.74-1.76 s cold, 0.62-0.78 s warm; taskpay UPI 8 linked (6 reported, max 9), mentor handle 6 linked, cbi UPI 2 linked; unseen UPI 0 links |
+

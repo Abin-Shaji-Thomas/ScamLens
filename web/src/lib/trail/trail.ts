@@ -53,7 +53,18 @@ const sorted = (o: Record<string, number> | undefined) =>
 const day = (d: string | Date | null | undefined) => (d ? new Date(d).toISOString().slice(0, 10) : undefined);
 
 let flaggedCache: { at: number; set: Set<string> } | null = null;
-export const resetTrailCacheForTests = () => (flaggedCache = null);
+export const resetTrailCacheForTests = () => {
+  flaggedCache = null;
+  tgShared = null;
+};
+
+// One TigerGraph client per server instance, so its token is fetched once, not on every check.
+let tgShared: { key: string; backend: GraphBackend } | null = null;
+function sharedTigerGraph(tg: NonNullable<ReturnType<typeof tgConfig>>, timeoutMs: number): GraphBackend {
+  const key = [tg.host, tg.graph, timeoutMs].join("|");
+  if (tgShared?.key !== key) tgShared = { key, backend: tigerGraphBackend({ ...tg, timeoutMs }) };
+  return tgShared.backend;
+}
 async function flaggedSet(db: Db, now: number): Promise<Set<string>> {
   if (flaggedCache && now - flaggedCache.at < 5 * 60_000) return flaggedCache.set;
   const set = new Set((await db.selectAll<{ address_hash: string }>("flagged_addresses")).map((r) => r.address_hash));
@@ -80,11 +91,13 @@ export async function runScamTrail(ids: Identifier[], deps: TrailDeps): Promise<
   const clock = deps.now ?? (() => performance.now());
   const t0 = clock();
   const tg = tgConfig(deps.env);
-  const primary = deps.backend ?? (tg ? tigerGraphBackend({ ...tg, timeoutMs: deps.timeoutMs ?? TRAIL_TIMEOUT_MS }) : postgresBackend(db));
+  const primary = deps.backend ?? (tg ? sharedTigerGraph(tg, deps.timeoutMs ?? TRAIL_TIMEOUT_MS) : postgresBackend(db));
   let backendName: string = primary.name;
   const N = hubMax(deps.env);
   const work = async (): Promise<Trail> => {
     const hashed = picked.map((i) => ({ id: i, hash: identifierHash(pepper, i.type, i.value) }));
+    // In parallel with the graph queries. If it fails, only the "reaches a verified address" sentence is lost.
+    const flaggedP = flaggedSet(db, Date.now()).catch(() => new Set<string>());
     const neighbourhood = (b: GraphBackend) => mapLimit(hashed, TRAIL_CONCURRENCY, (h) => b.run({ kind: "q4", hash: h.hash, depth: 2, idType: h.id.type }, N));
     let edges: Q4Edge[][];
     try {
@@ -97,7 +110,8 @@ export async function runScamTrail(ids: Identifier[], deps: TrailDeps): Promise<
     const mine = new Set(hashed.map((h) => h.hash));
     const neighbours = hashed.map((h, i) => new Set(edges[i].flatMap((e) => [e.src, e.dst]).filter((x) => x !== h.hash)));
     const all = [...new Set([...mine, ...neighbours.flatMap((s) => [...s])])];
-    const [counts, flagged] = await Promise.all([reportedCounts(db, all), flaggedSet(db, Date.now())]);
+    const clusterP = clusterRow(db, all); // in parallel with the reported counts
+    const [counts, flagged, cluster] = await Promise.all([reportedCounts(db, all), flaggedP, clusterP]);
     const byHash = new Map(counts.map((c) => [c.identifier_hash, c]));
     const entries: TrailEntry[] = hashed.map((h, i) => {
       const linked = [...neighbours[i]];
@@ -111,7 +125,7 @@ export async function runScamTrail(ids: Identifier[], deps: TrailDeps): Promise<
         touchesFlagged: [h.hash, ...linked].some((x) => flagged.has(x)),
       };
     });
-    const summary = await trailSummary(db, all, counts);
+    const summary = trailSummary(cluster, counts);
     return { status: "ok", backend: backendName, entries, summary };
   };
   try {
@@ -122,10 +136,19 @@ export async function runScamTrail(ids: Identifier[], deps: TrailDeps): Promise<
   }
 }
 
-/** Case counts once migration 004 exists (each case once); before it, counts from the reports alone. */
-async function trailSummary(db: Db, hashes: string[], counts: CountRow[]): Promise<TrailSummary | undefined> {
+/** Case counts for the whole trail (migration 004); null before the migration or on any error. */
+async function clusterRow(db: Db, hashes: string[]): Promise<ClusterRow | null> {
   try {
     const [c] = await db.call<ClusterRow>("case_trail_cluster", { p_hashes: hashes });
+    return c ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Case counts once migration 004 holds cases (each case once); otherwise counts from the reports alone. */
+function trailSummary(c: ClusterRow | null, counts: CountRow[]): TrailSummary | undefined {
+  {
     if (c && c.cases > 0) {
       return {
         source: "cases", cases: c.cases, reporters: c.reporters, syntheticCases: c.synthetic_cases, realCases: c.real_cases,
@@ -133,8 +156,6 @@ async function trailSummary(db: Db, hashes: string[], counts: CountRow[]): Promi
         firstSeen: day(c.first_seen), lastSeen: day(c.last_seen),
       };
     }
-  } catch {
-    /* migration 004 not run: fall back to reports */
   }
   const shown = counts.filter((c) => c.reporters >= 2);
   if (!shown.length) return undefined;

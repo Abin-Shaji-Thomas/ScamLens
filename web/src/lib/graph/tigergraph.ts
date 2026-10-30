@@ -46,9 +46,16 @@ export function tigerGraphClient(cfg: TgConfig) {
   const f = cfg.fetch ?? fetch;
   const timeout = cfg.timeoutMs ?? 8000;
   let auth: { header: string; at: number } | undefined;
+  let pending: Promise<string> | undefined;
 
-  async function authHeader(): Promise<string> {
-    if (auth && Date.now() - auth.at < 6 * 24 * 3600 * 1000) return auth.header;
+  // Parallel queries share one token request instead of each fetching its own.
+  function authHeader(): Promise<string> {
+    if (auth && Date.now() - auth.at < 6 * 24 * 3600 * 1000) return Promise.resolve(auth.header);
+    pending ??= fetchAuthHeader().finally(() => (pending = undefined));
+    return pending;
+  }
+
+  async function fetchAuthHeader(): Promise<string> {
     let header = `GSQL-Secret ${cfg.secret}`;
     try {
       const res = await f(`${cfg.host}/gsql/v1/tokens`, {
