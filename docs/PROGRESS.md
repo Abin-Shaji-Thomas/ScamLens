@@ -587,3 +587,16 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | HUMAN_TASKS | PASS | rewritten to the real state: done items marked, routine after-push checks, keep TigerGraph awake, person-only UI checks incl. the clipboard, optional Q2 demo wallet |
 | UI_CHECKLIST | PASS | rows 31-38: ledger (incl. Link graph row), I already paid, receipts and /verify, /patterns, share preview, graph timing note, link hint, /about counts; each marked verified (with the run) or person-only / live check G7 |
 | SPEC | PASS | appended "TIGERGRAPH AND GRAPH UI DECISIONS (2026-10-30)"; older text untouched |
+
+## G7 - Post-flight, push and live verification
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Post-flight | PASS | `Tests 435 passed (435)`, typecheck 0, lint 0, build 0, `docs:check PASS`, eval `precision 100.0%, recall 100.0%, FP 0, FN 0` |
+| Push | PASS | origin-only commits 0; `89ad467..76767c7  main -> main` (fast-forward, plain push) |
+| Live build | PASS | 12:43:34 `"build":"76767c7"` = HEAD; `"receipts":true` |
+| smoke-live | PASS | `warm-up check 1: ok (5 s)`, `ALL PASS (39 expectations)` |
+| check-headers | PASS | `ALL PASS (48 checks)` |
+| Live graph (TigerGraph awake) | PASS | `/api/graph`: `backend: 'tigergraph', elapsedMs: 609, nodes: 5, paths: 2`; `/api/graph/stats`: `{"backend":"tigergraph","vertices":22,"edges":21}` |
+| Live browser | PASS | sample 1 High; hint "This UPI ID is linked to 4 other identifiers in community reports. Show links to see how." + "A link is not proof of wrongdoing." + demo label; note "Graph backend: tigergraph (654 ms)" (375 px: 614 ms); ledger "not looked up (press Show links)" -> "checked · tigergraph, 654 ms"; graph margins 466/42/477/29 at 1440 and 30/46/39/31 at 375, overflow false; /about "Right now the graph holds 22 vertices (identifiers and reports) and 21 links, counted by TigerGraph."; console [] |
+| Screenshots | PASS | `docs/screens/live-graph-1440.png`, `live-graph-375.png`, `live-hint-1440.png`, `live-about-graph-1440.png` |
