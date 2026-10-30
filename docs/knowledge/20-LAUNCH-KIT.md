@@ -32,7 +32,9 @@ Short, honest launch posts and a 30-second video script. They say what ScamLens 
 | 0-5 s | The home page | "Got a message that feels wrong? Paste it into ScamLens." |
 | 5-15 s | Sample 1 checked: the large word **High**, the 3-part meter, quoted phrases | "It shows the evidence: what is verified, what others reported, and what is only suspected, with the exact words." |
 | 15-22 s | "What was checked" and "I already paid" | "It says what it could not check, and if you already paid, the first step is always 1930." |
-| 22-30 s | /verify showing "Signature valid" | "Evidence, not verdicts. Not legal advice. Free at <URL>." |
+| 22-30 s | "Share proof" on the result, then /verify showing "Signature valid" | "Evidence, not verdicts. Not legal advice. Free at <URL>." |
+
+No receipt to hand for the last shot? On /verify press "Try an example" (it uses 1 daily check), then Verify. To show one pattern, open /patterns and press "Try this example".
 
 ### Rules for every post
 - No accusation words, no promise to prevent scams or recover money, no crypto product promotion.

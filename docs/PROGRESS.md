@@ -679,3 +679,20 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | try/catch | PASS | throwing, blocked and missing storage: no throw, line allowed, still once per page (ref) |
 | Placement | PASS | under the badge, before What was checked; print:hidden (render test) |
 
+## H2 browser check (local, headless Edge, 2026-10-30)
+
+| Check | 375 | 1440 |
+|---|---|---|
+| Header: 4 links at 44 px, no horizontal overflow | PASS (links wrap to a second row, header bottom 136 px) | PASS (one row, 92 px) |
+| /patterns: Check a message to /, 18 Try links at 44 px | PASS | PASS |
+| Try this example (withdrawal_fee): box filled, note, demo label, no result, Check enabled | PASS | PASS |
+| /?example=nope: empty box, no note | PASS | PASS |
+| Beyond the check: 3 cards | PASS | PASS |
+| Sample 3: New line on first result only (absent on 2nd check and after reload) | PASS | PASS |
+| Share proof: sentence, Download button, Open Verify 44 px, receipt code | PASS | PASS |
+| Why?: 7 links for 7 not-applicable rows, /about#sources | PASS | PASS |
+| /verify: empty card with cost note; Try an example fills; Verify -> Signature valid (browser) | PASS | PASS |
+| Console errors or warnings | none | none |
+
+Screenshots: `docs/screens/finish-example-375.png`, `docs/screens/finish-result-1440.png` (with the two H0 reference shots, 4 finish-* files). The local server ran with raised daily limits through env only (not committed); the server's wrapper shell was once stopped for low memory, the server process itself kept running.
+
