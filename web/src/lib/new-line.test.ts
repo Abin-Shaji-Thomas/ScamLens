@@ -61,3 +61,12 @@ describe("one-time New line (H2f)", () => {
     expect(src).not.toMatch(/localStorage/);
   });
 });
+
+describe("privacy page names the flag (H2f follow-up)", () => {
+  it("/about says what the browser keeps for the New line", () => {
+    const about = readFileSync(new URL("../app/about/page.tsx", import.meta.url), "utf8");
+    const privacy = about.slice(about.indexOf('<Section id="privacy"'), about.indexOf('<Section id="graph"'));
+    expect(privacy).toMatch(/one flag in this tab&apos;s session storage/);
+    expect(privacy).toContain("It holds no text and is gone when the tab closes.");
+  });
+});

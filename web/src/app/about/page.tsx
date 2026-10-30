@@ -221,6 +221,10 @@ export default function AboutPage() {
             Usage limits: a hashed network key and a daily count, deleted after about {USAGE_COUNTER_RETENTION_DAYS} days.
             Daily limits per network: {limits.check} checks{visionOn ? `, ${limits.transcribe} screenshots` : ""}, {limits.graph} link lookups.
           </li>
+          <li>
+            Your browser: one flag in this tab&apos;s session storage so the &ldquo;New:&rdquo; line on a result shows only once.
+            It holds no text and is gone when the tab closes.
+          </li>
           <li>Server logs hold only an event name, a status and a duration.</li>
           <li>
             Browser security rules (Content Security Policy): the page may only load scripts, styles, fonts and data from
