@@ -122,3 +122,16 @@ Do Step 0 and the Step 1 audit now. Report the findings, then wait for my "next"
 - The only new on-screen text is decorative numerals (tier 01-03 and the 404 page's "404"), both aria-hidden. Every other string is unchanged; the 404 link keeps "Go to the check".
 - An evidence-path link is a graph link whose two end labels both appear in one listed path (Q1-Q3), computed in the browser; the graph API is unchanged.
 - /api/health adds "build" (first 7 hex characters of VERCEL_GIT_COMMIT_SHA, else "local"); nothing else is echoed.
+
+# TIGERGRAPH AND GRAPH UI DECISIONS (2026-10-30, branch tg-finish; these override earlier sections where they differ)
+- The automated run may run tg-setup, install queries, load data and check parity on graph ScamLens with the graph-scoped token only. It never drops anything, never touches Transaction_Fraud, and never attempts a global schema change: tg-setup reads the schema and, if a migration is missing, stops with "HUMAN STEP REQUIRED" and the exact GSQL for the owner (migration 001 was applied by hand; it adds `Report.reporter_key STRING DEFAULT ""`).
+- TigerGraph error messages include the response detail, masked and capped at 800 characters. The long query install is retried on a dropped connection.
+- Q2 works on the demo data (4 of 7 demo wallets have a path); tg-setup reports how many cases return rows. No extra demo seeding.
+- The link graph zooms to fit its canvas (40 px padding) when the layout settles and after a resize; 300 px tall on phones, 360-480 px otherwise; labels below nodes on a white halo; colours unchanged.
+- `/api/graph` returns optional `elapsedMs`; the note reads "Graph backend: tigergraph (N ms)"; the fallback label is unchanged.
+- The coverage ledger shows a "Link graph" row driven by the page's own lookup; the signed receipt's coverage does not include it, so receipts are unchanged.
+- After a result, up to 3 reported identifiers get a background graph lookup (one at a time, graph daily limit) and one plain sentence when links exist, with "A link is not proof of wrongdoing."; failures show nothing.
+- /about has a "Link graph" section with live counts from `GET /api/graph/stats` (TigerGraph built-in statistics, Postgres fallback, 5-minute cache, graph limit, counts only); /about stays static.
+- `/api/health` keeps its shape; `"graph":"tigergraph"` means configured, not awake.
+- Font stack: "Helvetica Neue", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, so Windows uses Segoe UI Light for weight 300.
+- PGlite suites run with explicit 30 s timeouts (start-up under parallel load); smoke-live warms up before counting expectations.

@@ -37,6 +37,14 @@ The **Verified** column records what the 2026-10-30 run checked in headless Micr
 | 27 | Zoom 200% at 1280 px: no lost content, no sideways scroll | Ctrl + = | yes: 640 px viewport, no overflow, same text length (2630 chars) |
 | 28 | Console: no errors and no Content Security Policy violations on `/`, after a check, after "Show links", `/about` | DevTools Console | yes: no messages. `/nope` logs only the expected "404 (Not Found)" for the page itself |
 | 29 | Screen reader: "Result ready: <level>." announced; scale read as "Scale: <label>"; tier numerals 01-03 and the 404 numeral are not read | NVDA / VoiceOver | person |
-| 30 | The same checks on the live URL after deploy | browser | see docs/PROGRESS.md (U6) |
+| 30 | The same checks on the live URL after deploy | browser | yes: release gate and live runs in `docs/PROGRESS.md` (final round J8; TigerGraph finish round G7) |
+| 31 | Coverage ledger "What was checked": every source with a status word and a date, "Not checked" lines, never "clean"; "Link graph" row says "not looked up (press Show links)" until Show links, then "checked" with the backend and ms | any result | yes (final round J6; Link graph row: render tests, live check G7) |
+| 32 | "I already paid": 7 steps starting with 1930, 4 optional fields, COPY COMPLAINT DRAFT; nothing sent | open it on a result | yes (0 requests measured); clipboard: person |
+| 33 | Evidence pack: "Download signed receipt" and "Receipt code ..."; /verify says "Signature valid ..." for it and "Signature not valid ..." for an edited copy | download, paste at /verify | yes (final round J6 and J8) |
+| 34 | /patterns: 18 rules, each with what it looks like, why, what to do, an illustrative example, when it is not a signal, how it counts; each Suspected finding links to its anchor | open /patterns | yes (final round J6) |
+| 35 | Share preview: pasting the link in a chat app shows the 1200x630 image with the wordmark | paste the live link | image and tags verified locally; real chat apps: person |
+| 36 | Graph note reads "Graph backend: tigergraph (N ms)" (fallback: "postgres (TigerGraph unavailable)") | sample 1 -> Show links | live check G7 |
+| 37 | Linked-identifier hint under Reported: "This UPI ID is linked to N other identifiers in community reports. Show links to see how." with "A link is not proof of wrongdoing." and the demo label (absent when there are no links or on failure) | sample 1 | render tests; live check G7 |
+| 38 | /about "Link graph" section ends with "Right now the graph holds N vertices ... and M links, counted by TigerGraph." (omitted on failure) | open /about | live check G7 |
 
 Font note: the stack is `"Helvetica Neue", "Segoe UI", Roboto, Helvetica, Arial, sans-serif` (since the TigerGraph finish round; before, Helvetica came second, and Windows maps "Helvetica" to Arial, which has no light face). Measured 2026-10-30 in headless Edge on Windows: the h1 renders in Segoe UI Light (`SegoeUI-Light`), body text in Segoe UI. On macOS and iOS, Helvetica Neue has a light face.

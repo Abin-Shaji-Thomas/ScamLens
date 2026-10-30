@@ -36,9 +36,11 @@ Optional:
 | `ETHERSCAN_PLAN` (`paid`), `ETHERSCAN_RPS` | BNB Chain + Base; request rate | free plan, 2/s |
 | `TRONGRID_API_KEY` | higher TronGrid limits | keyless |
 | `REPORTS_MAX_PER_DAY` | reports per fingerprint per day | 5 |
-| `USAGE_CHECK_PER_DAY`, `USAGE_TRANSCRIBE_PER_DAY`, `USAGE_GRAPH_PER_DAY`, `USAGE_CONTEST_PER_DAY`, `USAGE_GLOBAL_LLM_PER_DAY` | abuse guard | 40, 10, 100, 3, 1500 |
+| `USAGE_CHECK_PER_DAY`, `USAGE_TRANSCRIBE_PER_DAY`, `USAGE_GRAPH_PER_DAY`, `USAGE_CONTEST_PER_DAY`, `USAGE_VERIFY_PER_DAY`, `USAGE_GLOBAL_LLM_PER_DAY` | abuse guard (verify = server-side receipt checks; the graph limit also covers `/api/graph/stats` and the background link hints) | 40, 10, 100, 3, 60, 1500 |
+| `RECEIPT_SIGNING_KEY` | signed check receipts (section 2a) | receipts off |
+| `NEXT_PUBLIC_SITE_URL` | absolute share-preview image URLs (not a secret) | the deployment URL |
 
-`SUPABASE_ANON_KEY` is not read by the code; do not set it in Vercel. Never prefix any of these with `NEXT_PUBLIC_`.
+`SUPABASE_ANON_KEY` is not read by the code; do not set it in Vercel. Never prefix any secret with `NEXT_PUBLIC_` (only `NEXT_PUBLIC_SITE_URL`, which is public, has it).
 
 Check which names are set locally without printing values:
 
@@ -72,6 +74,7 @@ Check a running server: `npx tsx scripts/check-headers.ts <base-url>` prints PAS
 2. All of `web/db/supabase-grants.sql` -> Run. Enables RLS and limits every table and function to the service role.
 3. Check: `select * from increment_usage('test:manual', 5);` returns `allowed = true, remaining = 4`; then `delete from usage_counters where key = 'test:manual';`.
 4. All of `web/db/migrations/002_contest_policy.sql` -> Run (round 2: contested reports stay visible and labelled). Idempotent. Check: `select count(*) from contests;` runs without error. Before it is run, the code falls back to the old reading function and refuses new contests. Future schema changes go into `web/db/migrations/NNN_name.sql`, run in number order after `schema.sql`.
+4b. All of `web/db/migrations/003_contest_retention.sql` -> Run (contest retention: `purge_old_contests()`). Idempotent. Then once a month `select * from purge_old_contests();` (`docs/MODERATION.md` section 5). Both migrations were run on the live project on 2026-10-30.
 5. Demo data was seeded once already. **Do not re-run** `scripts/graph-demo.ts --supabase` on the live project.
 6. Contest moderation (uphold / dismiss / remove): `docs/MODERATION.md`.
 
@@ -105,7 +108,7 @@ curl.exe -s https://scam-lens-two.vercel.app/api/health
 
 The two must match (if git prints more than 7 characters, compare the first 7). `"graph":"tigergraph"` means TigerGraph is configured (`TG_HOST` and `TG_SECRET` set), not that the workspace is awake: health makes no network calls. Whether TigerGraph actually answered shows under the graph ("Graph backend: tigergraph (N ms)" or "postgres (TigerGraph unavailable)") and in the coverage ledger's Link graph row. If they differ after a few minutes, the deployment is still building or failed: check Vercel -> Deployments.
 
-Then run, against the live URL: `npx tsx scripts/smoke-live.ts <url>` (expect `ALL PASS (36 expectations)`) and `npx tsx scripts/check-headers.ts <url>` (expect `ALL PASS (48 checks)`). The UI has no web fonts and no third-party requests (system fonts only, round 2), so nothing besides the app itself needs to be allowed by the CSP.
+Then run, against the live URL: `npx tsx scripts/smoke-live.ts <url>` (it warms up first, then expects `ALL PASS`; 39 expectations at the last live run) and `npx tsx scripts/check-headers.ts <url>` (expect `ALL PASS (48 checks)`). The UI has no web fonts and no third-party requests (system fonts only, round 2), so nothing besides the app itself needs to be allowed by the CSP.
 
 ## 7. Rollback
 

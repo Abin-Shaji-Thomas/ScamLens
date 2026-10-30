@@ -577,3 +577,13 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | Criterion | Result | Evidence |
 |---|---|---|
 | Warm-up | PASS (code) | polls /api/health up to 60 s, then one harmless /api/check (60 s timeout, one retry); commented that it uses 1 of the 40 daily checks; not counted as an expectation. Live run in G7 |
+
+## G6 - Docs sweep
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Stale facts removed | PASS | "36 expectations" (DEPLOY, HUMAN_TASKS) -> warm-up + ALL PASS, 39 at the last live run; HUMAN_TASKS item 1 UNKNOWN -> DONE (owner confirmed 002 and 003) with the monthly purge; "five small server functions" -> wording that cannot go stale; knowledge 16 TigerGraph row -> setup done, no auto-start; "did not wake" now only in dated history (PROGRESS, generated commit log) |
+| DEPLOY | PASS | env table adds `USAGE_VERIFY_PER_DAY` (60), `RECEIPT_SIGNING_KEY`, `NEXT_PUBLIC_SITE_URL`; section 3 adds migration 003 and the monthly purge; NEXT_PUBLIC_ rule reworded |
+| HUMAN_TASKS | PASS | rewritten to the real state: done items marked, routine after-push checks, keep TigerGraph awake, person-only UI checks incl. the clipboard, optional Q2 demo wallet |
+| UI_CHECKLIST | PASS | rows 31-38: ledger (incl. Link graph row), I already paid, receipts and /verify, /patterns, share preview, graph timing note, link hint, /about counts; each marked verified (with the run) or person-only / live check G7 |
+| SPEC | PASS | appended "TIGERGRAPH AND GRAPH UI DECISIONS (2026-10-30)"; older text untouched |

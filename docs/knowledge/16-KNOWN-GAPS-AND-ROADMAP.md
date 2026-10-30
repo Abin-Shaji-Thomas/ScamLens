@@ -15,7 +15,7 @@ What ScamLens cannot do yet, ranked by how much it matters, and what could come 
 | FIXED | Contest reasons had no retention limit (fixed in J4 with migration 003 and a monthly purge; until a person runs them, reasons are kept as before) | `web/db/migrations/003_contest_retention.sql` |
 | MED | Screenshot upload was offered with no vision key (fixed in J2: hidden, driven by the health check's `vision` flag) | `web/src/components/CheckForm.tsx` |
 | MED | Whether the live Supabase has migration 002 applied: UNKNOWN | `docs/HUMAN_TASKS.md` |
-| MED | TigerGraph workspace does not auto-start (HTTP 500 "Auto start is not enabled"); live graph answers from Postgres until a person resumes it | `web/scripts/tg-setup.ts`, `docs/HUMAN_TASKS.md` |
+| LOW | TigerGraph setup done (19/19 SAME, 2026-10-30), but Savanna has no auto-start: an idle workspace suspends and the graph answers from Postgres (labelled) until a person resumes it | `docs/HUMAN_TASKS.md` item 3 |
 | FIXED | Windows rendered headings at weight 400 (Helvetica aliased to Arial); the stack now puts Segoe UI before Helvetica and the h1 uses Segoe UI Light | `web/src/app/globals.css` |
 | LOW | Graph drawing is small inside a large canvas | `web/src/components/GraphPanel.tsx` |
 | FIXED | First smoke run after a deploy could time out (cold start); smoke-live now warms up first | `web/scripts/smoke-live.ts` |

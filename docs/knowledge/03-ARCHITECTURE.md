@@ -2,7 +2,7 @@
 
 ## In plain words
 
-ScamLens is one Next.js app on Vercel. The pages are mostly static; five small server functions do the work. Reports and counters live in Supabase (Postgres). The link graph lives in TigerGraph, with the same queries in Postgres as a fallback. Sanctions and blacklist data are snapshots stored in the repo; GoPlus, Etherscan and TronGrid are called live. If anything outside the app fails, the card says so instead of guessing.
+ScamLens is one Next.js app on Vercel. The pages are mostly static; a handful of small server routes (listed below, generated from `web/src/app`) do the work. Reports and counters live in Supabase (Postgres). The link graph lives in TigerGraph, with the same queries in Postgres as a fallback. Sanctions and blacklist data are snapshots stored in the repo; GoPlus, Etherscan and TronGrid are called live. If anything outside the app fails, the card says so instead of guessing.
 
 ## Details
 
