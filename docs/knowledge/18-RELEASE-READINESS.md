@@ -59,10 +59,26 @@ The final quality gate, run on 2026-10-30 against `npm run build` + `npm run sta
 ### Screenshots (`docs/screens/final-*.png`, 12)
 `final-home-375`, `final-sample1-375`, `final-sample1-1440`, `final-sample1-1920`, `final-ledger-1440` (full result page: ledger, tiers, paid plan open with the draft), `final-paid-1440`, `final-print-1440`, `final-verify-1440` (valid result), `final-verify-375`, `final-patterns-1440`, `final-patterns-375`, `final-about-1920`. What they show: the 12-column layout as in the UI round; "What was checked" as a two-column section after the risk header; the paid plan inside the beige band with large light numerals; the footer with Patterns and Verify links.
 
+### Second gate (finish round, branch finish, 2026-10-30)
+Local `npm run build` + `next start` with the real keys (no AI key), daily limits raised through env for the run only.
+
+| Check | Result | Evidence |
+|---|---|---|
+| `npm test` x3 | PASS | 33 files, `Tests 480 passed (480)` on each of the three runs |
+| typecheck, lint, build, docs:check | PASS | 0, 0, 0, `docs:check PASS`; build lists `/` as partial prerender |
+| eval | PASS | `regex-only: precision 100.0%, recall 100.0%, FP 0, FN 0`; identifiers 100.0% / 100.0% |
+| smoke-live (local) | PASS | `ALL PASS (39 expectations)` |
+| API scenarios | PASS | the 13 scenarios and 4 error paths of the table below give the same levels and messages (samples 2 and 3 through smoke-live) |
+| Domain check (H3) | PASS | demo domain: Low, `goplus_phishing:no_match`; GoPlus's documented phishing example: High, `goplus_phishing:match`; the domain notice on both |
+| /api/usage-stats (H5) | PASS | `{"checks":129,"days":7}` from the real Supabase table (service-role read works; the number includes our testing) |
+| Pages: 5 widths x 6 pages | PASS | /, /about, /patterns, /verify, 404, /?example=fake_kyc at 375, 768, 1280, 1440, 1920: no overflow, h1 Arial 400, header links 44 px, no console errors; /about shows the usage line and "... counted by TigerGraph." |
+| Discoverability flow (H2) | PASS | at 375 and 1440: 18 Try links, example pre-fill without a check, invalid id empty, New line on the first result only, Share proof, Why? 8 of 8 not-applicable rows (GoPlus phishing sites adds one), /verify Try an example then "Signature valid" |
+| TigerGraph | PASS (awake) | /about stats counted by TigerGraph during the run |
+
 ### UNKNOWN (needs a person)
 - Clipboard copy of the complaint draft (headless Edge blocks the clipboard, so the on-page fallback was what ran).
 - Hover colours, screen reader announcements, real phones, macOS font weight.
-- TigerGraph parity on the live workspace (the workspace does not auto-start).
+- TigerGraph stays awake only while the Savanna workspace is resumed (no auto-start); parity was 19/19 SAME in the TigerGraph finish round.
 
 ## Where in the code
 

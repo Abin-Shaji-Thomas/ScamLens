@@ -740,3 +740,16 @@ Screenshots: `docs/screens/finish-example-375.png`, `docs/screens/finish-result-
 | HUMAN_TASKS | PASS | rewritten in current order: wake TigerGraph, after-push checks, monthly purge, recreate-only SQL, person-only checks (adds Share proof download and Try this example), optional |
 | Tests | PASS | docs.test.ts: extra docs clean, facts present, new facts from code, checker catches a stale fact and a broken link, stale phrases clean and caught |
 
+## H7 - Second gate (local)
+
+| Check | Result | Evidence |
+|---|---|---|
+| npm test x3 | PASS | 480/480, 480/480, 480/480 |
+| typecheck, lint, build, docs:check | PASS | 0 / 0 / 0 / PASS |
+| eval | PASS | precision 100.0%, recall 100.0%, FP 0, FN 0 |
+| local smoke | PASS | ALL PASS (39 expectations) |
+| scenarios | PASS | 13 + 4 error paths; domain demo Low/no_match, phishing example High/match |
+| pages 5 x 6 | PASS | no overflow, Arial 400, 44 px nav, no console errors |
+| H2 flow re-run | PASS | 375 and 1440 |
+| usage-stats | PASS | 129 checks from Supabase |
+
