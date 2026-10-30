@@ -58,4 +58,4 @@ Use only the Swiss tokens; keep every feature driven by real run data or by `rul
 
 ## Known limits
 
-Browser checks at 375 and 1440 px are recorded in [18-RELEASE-READINESS.md](18-RELEASE-READINESS.md) once J6 runs.
+All four were checked in the browser at 375 and 1440 px on 2026-10-30; results in [18-RELEASE-READINESS.md](18-RELEASE-READINESS.md). The clipboard copy itself is UNKNOWN (headless Edge blocks the clipboard; the on-page fallback worked).

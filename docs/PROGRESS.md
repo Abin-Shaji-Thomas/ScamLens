@@ -433,3 +433,17 @@ Measured per window size (same on /, samples 1-3; /about and /nope have no form)
 | Links | PASS | footer `/patterns` (and `/verify`); each Suspected finding links `/patterns#<rule id>` |
 | Banned words | PASS | page text and guide contain none (test, and the src-wide banned-words test) |
 | Browser at 375 / 1440 | UNKNOWN until J6 | |
+
+## J6 - Final quality gate
+
+Full matrix and scenario table: `docs/knowledge/18-RELEASE-READINESS.md`.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Scenarios (13 + 4 error paths) | PASS | samples High/High/Low; identifier-only Low; obfuscated, Hinglish and decoy texts Elevated; news warning Low with hits marked warning; 400/413/400/503 error paths; every check signed |
+| Failure injection | PASS | invalid Etherscan key, unreachable Supabase/TigerGraph -> unavailable rows, no "No known reports", graph unavailable |
+| Daily limit | PASS | 429 in 18 ms with Retry-After |
+| Privacy audit | PASS | logger only; health booleans; receipts without raw text |
+| Performance | PASS | p50 1,118 ms, p95 3,605 ms over 10 checks |
+| Browser (5 widths x 6 pages, features, print, zoom, focus) | PASS after fix | inline /verify link 16 px -> 44 px (fix(ui) b99d27d); all else as in the matrix |
+| Suites | PASS | `Tests 402 passed (402)`, typecheck 0, lint 0, build 0, docs:check PASS, eval FP 0 / FN 0 |
