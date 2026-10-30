@@ -753,3 +753,15 @@ Screenshots: `docs/screens/finish-example-375.png`, `docs/screens/finish-result-
 | H2 flow re-run | PASS | 375 and 1440 |
 | usage-stats | PASS | 129 checks from Supabase |
 
+## H7 - Live
+
+| Check | Result | Evidence |
+|---|---|---|
+| push | PASS | ccfffa6..62e71ca main -> main |
+| health | PASS | build 62e71ca after ~60 s |
+| smoke-live | PASS | ALL PASS (39 expectations) |
+| check-headers | PASS | ALL PASS (48 checks) |
+| parity local vs live | PASS | 30 rows, 0 diffs, 0 console errors |
+| look parity vs reference | PASS | 39 typography values x 5 widths identical; h1 wraps identical |
+| screenshots | PASS | 6 live-*.png replace the 10 earlier ones |
+

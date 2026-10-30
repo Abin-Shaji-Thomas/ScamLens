@@ -75,6 +75,18 @@ Local `npm run build` + `next start` with the real keys (no AI key), daily limit
 | Discoverability flow (H2) | PASS | at 375 and 1440: 18 Try links, example pre-fill without a check, invalid id empty, New line on the first result only, Share proof, Why? 8 of 8 not-applicable rows (GoPlus phishing sites adds one), /verify Try an example then "Signature valid" |
 | TigerGraph | PASS (awake) | /about stats counted by TigerGraph during the run |
 
+### Live verification after the finish-round push (2026-10-30)
+| Check | Result | Evidence |
+|---|---|---|
+| Push | PASS | `ccfffa6..62e71ca  main -> main` (fast-forward from branch finish) |
+| Live build | PASS | `/api/health` `"build":"62e71ca"` about 60 s after the push; `"receipts":true`, `"graph":"tigergraph"`, `"llm":false` |
+| smoke-live | PASS | `ALL PASS (39 expectations)` (warm-up ok in 2 s) |
+| check-headers | PASS | `ALL PASS (48 checks)` |
+| New features live | PASS | `/api/usage-stats` `{"checks":173,"days":7}` (includes our testing); `/?example=fake_kyc` 200 and pre-filled; GoPlus's documented phishing example High with `goplus_phishing:match` |
+| Local vs live, 5 widths x 6 pages | PASS | 30 rows, 0 differences (overflow, h1 text, font, weight, header link heights, small targets, console errors, example pre-fill); 0 console errors live; /about "... counted by TigerGraph." |
+| Look parity | PASS | against the owner-look reference: 39 typography values per width (family, weight, size) identical at 375, 768, 1280, 1440, 1920; h1 wraps identically (3, 2, 2, 2, 2 lines); remaining differences are this round's new content (the first h2 on / is "Beyond the check"; the result page is longer) |
+| Screenshots | PASS | the earlier live set (10 files) replaced by `docs/screens/live-home-375.png`, `live-example-375.png`, `live-about-1440.png`, `live-patterns-1440.png`, `live-home-1920.png`, `live-verify-1920.png` |
+
 ### UNKNOWN (needs a person)
 - Clipboard copy of the complaint draft (headless Edge blocks the clipboard, so the on-page fallback was what ran).
 - Hover colours, screen reader announcements, real phones, macOS font weight.
