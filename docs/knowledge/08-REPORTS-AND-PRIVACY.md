@@ -89,6 +89,8 @@ Change the SQL only through a new idempotent migration that works before and aft
 
 `web/src/lib/reports/reports.test.ts` runs the real SQL in PGlite: the 2-reporter rule, one fingerprint counts once, daily caps, expiry, contest labels, the old-schema fallback, and the moderator SQL copied verbatim from `docs/MODERATION.md`.
 
+The PGlite suites run with an explicit 30 s test and hook timeout, because starting Postgres in WebAssembly takes about 8 s when several suites start at once (see [12-TESTING-AND-EVAL.md](12-TESTING-AND-EVAL.md)).
+
 ## Known limits
 
 People sharing one network (an office, a college, some mobile carriers) count as one reporter; one person on several networks can count as several. Review of contests is manual.

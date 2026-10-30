@@ -92,4 +92,4 @@ The tests test themselves where it matters: the style scanner and the docs check
 
 ## Known limits
 
-One baseline run on 2026-10-30 had 3 failures that did not reproduce in the next runs (likely timing of the PGlite tests under load). Click-only states (offline error, waking graph, open report form) are covered by browser runs, not unit tests.
+PGlite suites used to time out now and then (up to 6 of them in one run): each `localDb()` starts Postgres in WebAssembly, about 1 s alone but about 8 s when six start in parallel under vitest's workers, past the default 5 s limit. Since the TigerGraph finish round the 8 PGlite suites set `vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 })`; no assertion was relaxed, and four full runs in a row passed. Click-only states (offline error, waking graph, open report form) are covered by browser runs, not unit tests.

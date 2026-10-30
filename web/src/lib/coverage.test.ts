@@ -1,11 +1,15 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { CoverageLedger } from "../components/CoverageLedger";
 import { runCheck, type RunDeps } from "./check";
 import { buildCoverage } from "./coverage";
 import { SAMPLES } from "./samples";
 import { localDb } from "../test-support/pglite";
+
+// PGlite suite: each localDb() starts Postgres in WebAssembly (about 1 s alone, about 8 s when six start in parallel
+// under vitest's workers), so the default 5 s limit was flaky. Explicit timeouts; no assertion is relaxed.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
 
 const offline: RunDeps = {
   fetch: (() => Promise.reject(new Error("offline"))) as typeof fetch,

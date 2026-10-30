@@ -3,6 +3,10 @@ import { POST as checkRoute } from "../app/api/check/route";
 import { POST as contestRoute } from "../app/api/report/contest/route";
 import { POST as graphRoute } from "../app/api/graph/route";
 import { localDb } from "../test-support/pglite";
+
+// PGlite suite: each localDb() starts Postgres in WebAssembly (about 1 s alone, about 8 s when six start in parallel
+// under vitest's workers), so the default 5 s limit was flaky. Explicit timeouts; no assertion is relaxed.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
 import {
   AI_SKIPPED_GLOBAL,
   AI_SKIPPED_STORE,

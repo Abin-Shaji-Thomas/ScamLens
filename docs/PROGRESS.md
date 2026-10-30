@@ -479,3 +479,11 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | Live health | PASS | `{"ok":true,...,"graph":"tigergraph","usageStore":"supabase","llm":false,"vision":false,"etherscan":true,"build":"89ad467","receipts":true}` = HEAD |
 | Baseline suites | FLAKY | first run `Tests 6 failed | 400 passed (406)` (six PGlite tests at 5.7-6.7 s > 5000 ms default); rerun `Tests 406 passed (406)`; typecheck 0, lint 0, build 0, docs:check PASS. Fixed next (G5.3 moved forward) |
 | WORKING_RULES | PASS | narrow TigerGraph permission added; dashboards stay human-only |
+
+## G5.3 (moved forward) - Flaky PGlite tests
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Cause found | PASS | test hooks are already reset in afterEach (usage.test.ts, transcribe.test.ts); measured `localDb()`: `sequential localDb() ms: 1321, 981, 1257 | 6 in parallel: 7943 ms` -> start-up cost under parallel workers exceeds the 5000 ms default |
+| Fix without weakening | PASS | `vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 })` in the 8 PGlite suites, with a comment; no assertion changed |
+| Stability | PASS | four runs in a row: `Tests 406 passed (406)` x 4 |

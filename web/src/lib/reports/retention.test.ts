@@ -1,11 +1,15 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { localDb, MIGRATIONS_DIR } from "../../test-support/pglite";
 import { extractIdentifiers } from "../identifiers";
 import { CONTEST_RETENTION_DAYS } from "../limits";
 import { fingerprintHash } from "./privacy";
 import { contestIdentifier, reportedFor, reportsConfig, submitReport } from "./service";
+
+// PGlite suite: each localDb() starts Postgres in WebAssembly (about 1 s alone, about 8 s when six start in parallel
+// under vitest's workers), so the default 5 s limit was flaky. Explicit timeouts; no assertion is relaxed.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
 
 // Migration 003: contest reasons are kept only while a moderator needs them.
 const PEPPER = "test-pepper-0123456789";

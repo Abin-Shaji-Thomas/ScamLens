@@ -21,6 +21,8 @@ What ScamLens cannot do yet, ranked by how much it matters, and what could come 
 | LOW | First smoke run after a deploy can time out (cold start) | `web/scripts/smoke-live.ts` |
 | LOW | UPI, phone and Telegram identifiers have no verified source (by nature) | `web/src/lib/verified/index.ts` |
 
+| FIXED | Flaky PGlite tests under parallel load (explicit 30 s timeouts on the 8 PGlite suites, TigerGraph finish round) | `web/src/test-support/pglite.ts` |
+
 ### Roadmap (not built)
 - Partnerships for verified UPI and phone data (bank or NPCI feeds), if they ever become available.
 - More Hinglish and regional-language patterns, with eval cases for each.

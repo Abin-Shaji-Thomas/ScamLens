@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { POST as checkRoute } from "../app/api/check/route";
 import { POST as contestRoute } from "../app/api/report/contest/route";
@@ -13,6 +13,10 @@ import { MAX_IDENTIFIERS, MAX_TEXT_CHARS, MIN_INDEPENDENT_REPORTERS, REPORT_RETE
 import { FORBIDDEN_LOG_FIELDS, formatLog } from "./log";
 import { fingerprintHash, reporterKey } from "./reports/privacy";
 import { checkCsp, contentSecurityPolicy, parseCsp, REQUIRED_HEADERS, securityHeaders } from "./security-headers";
+
+// PGlite suite: each localDb() starts Postgres in WebAssembly (about 1 s alone, about 8 s when six start in parallel
+// under vitest's workers), so the default 5 s limit was flaky. Explicit timeouts; no assertion is relaxed.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
 
 const SRC = join(import.meta.dirname, "..");
 const post = (body: string) => new Request("http://x/api", { method: "POST", body });

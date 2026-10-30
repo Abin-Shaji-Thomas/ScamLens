@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { localDb } from "../../test-support/pglite";
 import type { Db } from "../reports/db";
 import { reportsConfig } from "../reports/service";
@@ -8,6 +8,10 @@ import { buildFullPayload, PayloadBuilder, reportEvidence } from "./tg-sync";
 import { mapResult, queryParams, tigerGraphBackend } from "./tigergraph";
 import { buildGraphView } from "./view";
 import type { GraphBackend } from "./types";
+
+// PGlite suite: each localDb() starts Postgres in WebAssembly (about 1 s alone, about 8 s when six start in parallel
+// under vitest's workers), so the default 5 s limit was flaky. Explicit timeouts; no assertion is relaxed.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
 
 const PEPPER = "test-pepper-0123456789";
 const HOST = "https://ws.example.i.tgcloud.io";

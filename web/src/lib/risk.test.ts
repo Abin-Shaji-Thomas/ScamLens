@@ -1,9 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { localDb } from "../test-support/pglite";
 import { runCheck } from "./check";
 import type { RunDeps } from "./check";
 import { reportsConfig, submitReport } from "./reports/service";
 import { assessRisk, NO_REPORTS_MESSAGE, type RiskInput } from "./risk";
+
+// PGlite suite: each localDb() starts Postgres in WebAssembly (about 1 s alone, about 8 s when six start in parallel
+// under vitest's workers), so the default 5 s limit was flaky. Explicit timeouts; no assertion is relaxed.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
 
 const none: RiskInput = { verifiedMatches: 0, reportedIdentifiers: 0, suspectedRules: 0, unavailableSources: 0 };
 

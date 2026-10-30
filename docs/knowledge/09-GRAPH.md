@@ -58,6 +58,8 @@ Change a query in both `graph/queries.gsql` and `web/db/schema.sql`, then run `n
 
 `web/src/lib/graph/tigergraph.test.ts`: the Postgres SQL against an independent in-memory reference (`web/src/lib/graph/reference.ts`), TigerGraph response mapping, the hub filter and the two-reporter rule; live parity through `web/scripts/tg-setup.ts`.
 
+The PGlite suites run with an explicit 30 s test and hook timeout, because starting Postgres in WebAssembly takes about 8 s when several suites start at once (see [12-TESTING-AND-EVAL.md](12-TESTING-AND-EVAL.md)).
+
 ## Known limits
 
 A suspended Savanna workspace takes up to a minute to wake; the first lookup then shows the waking message or falls back to Postgres. Removing an upheld report from TigerGraph needs a manual REST call (documented in `docs/MODERATION.md`, untested).
