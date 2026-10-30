@@ -16,6 +16,7 @@ import { RiskBadge } from "./RiskBadge";
 import { SuspectedList } from "./SuspectedList";
 import { TierSection } from "./TierSection";
 import { VerifiedList } from "./VerifiedList";
+import { ScamTrail } from "./ScamTrail";
 import { WhatToDoNow } from "./WhatToDoNow";
 
 function Identifiers({ ids }: { ids: CheckResponse["identifiers"] }) {
@@ -113,6 +114,7 @@ export function RiskCard({
           )}
         </div>
       </section>
+      {result && <ScamTrail trail={result.trail} />}
       {result && <WhatToDoNow text={text} />}
       {result && (
         <section aria-label="Evidence pack and reporting">

@@ -27,6 +27,8 @@ When you press Check, the browser sends your text to one server function. That f
  card  <-----------------    4. JSON response (CheckResponse schema, web/src/lib/api-schema.ts)
 ```
 
+**Scam trail (final round P5).** Next to the sources, the rules and the reports, every check runs `runScamTrail` (`web/src/lib/trail/trail.ts`) with a hard 2.5 s deadline: up to 5 identifiers of graph types (wallets first), 3 at a time, each with its 2-step neighbourhood (Q4) from TigerGraph, or from the Postgres copy labelled `postgres (TigerGraph unavailable)` when TigerGraph fails. For each identifier it counts linked identifiers, how many of those are reported by 2+ independent people, the most reporters behind one of them, and whether the cluster reaches a flagged address; for the whole trail it adds case counts by category, channel, loss band and month (`case_trail_cluster`, migration 004) or, before 004, counts from the reports. Synthetic and real counts are kept apart. A failure or the deadline gives status `unavailable` and the notice "The scam trail (links to other reported identifiers) could not be checked this time, so it is missing from this result.", never a clean result; without a graph database the trail is `off` (no notice).
+
 ### Step by step, with sample 2 (crypto "investment" with a sanctioned wallet)
 1. **Validate.** The body is at most <!-- FACT:max_text_chars -->6,000<!-- /FACT --> characters of text; larger requests get a friendly 413 without the text being echoed.
 2. **Guard.** The network fingerprint (keyed hash of the IP) may run <!-- FACT:checks_per_day -->40<!-- /FACT --> checks per day by default; over the limit the server answers 429 before calling any external source.

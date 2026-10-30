@@ -45,6 +45,11 @@ export interface RiskInput {
   unavailableSources: number;
   /** False when the reports database could not be queried: then we must not claim "no known reports". */
   reportsAvailable?: boolean;
+  /**
+   * Scam trail (P5): the most independent reporters behind any identifier LINKED to one in the text (not the
+   * identifier itself). >= 2 can raise Low to Elevated; it never counts toward High and never lowers a level.
+   */
+  trailLinkedReporters?: number;
 }
 
 /**
@@ -54,6 +59,7 @@ export interface RiskInput {
  * Low      = nothing found; never presented as safe.
  * Contested reports (G2) can raise Low to Elevated at most; they never count toward High.
  * Suspected signals alone (including any number of AI signals) can never produce High.
+ * A scam trail link to an identifier reported by >= 2 independent people can raise Low to Elevated at most.
  */
 export function assessRisk(i: RiskInput): Risk {
   const reasons: string[] = [];
@@ -67,12 +73,14 @@ export function assessRisk(i: RiskInput): Risk {
       `${i.warningOnlyRules} pattern(s) appear only in warning or news-style text (for example "never share your OTP"), so they are shown but not counted`,
     );
   }
+  const trail = i.trailLinkedReporters ?? 0;
+  if (trail >= 2) reasons.push(`Linked to an identifier reported by ${trail} independent people`);
   if (i.unavailableSources > 0) reasons.push(`${i.unavailableSources} source(s) unavailable - result is incomplete`);
 
   const level: RiskLevel =
     i.verifiedMatches > 0 || (i.reportedIdentifiers > 0 && i.suspectedRules > 0)
       ? "high"
-      : i.suspectedRules > 0 || i.reportedIdentifiers > 0 || contested > 0
+      : i.suspectedRules > 0 || i.reportedIdentifiers > 0 || contested > 0 || trail >= 2
         ? "elevated"
         : "low";
 

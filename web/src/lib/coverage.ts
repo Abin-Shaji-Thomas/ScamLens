@@ -4,6 +4,7 @@
 import type { CheckResponse } from "./api-schema";
 import type { IdentifierType } from "./extract/types";
 import { RULES } from "./signals/rules";
+import { TRAIL_TYPES } from "./trail/schema";
 import { MAX_DOMAINS, type SourceId, type SourceResult } from "./verified/types";
 
 export type CoverageStatus = "checked" | "not applicable" | "unavailable" | "skipped (limit)" | "off" | "not looked up (press Show links)";
@@ -80,10 +81,24 @@ function sourceRow(s: (typeof SOURCES)[number], r: CheckResponse): CoverageRow {
 /** The "Link graph" row; only added when the page passes the graph state (the signed receipt never does). */
 function graphRow(r: CheckResponse, graph: GraphCoverage): CoverageRow {
   const base = { id: "graph" as const, name: "Link graph", covers: "Links between identifiers in community reports and on-chain transfers" };
-  if (!r.identifiers.some((i) => GRAPH_LOOKUP_TYPES.includes(i.type))) return { ...base, status: "not applicable" };
+  // The check's own scam trail (P5) answers the row until the graph panel is used; it covers more identifier types.
+  const trail = r.trail && r.trail.status !== "off" ? r.trail : undefined;
+  const types = trail ? TRAIL_TYPES : GRAPH_LOOKUP_TYPES;
+  if (!r.identifiers.some((i) => types.includes(i.type))) return { ...base, status: "not applicable" };
+  if (!graph && trail) {
+    if (trail.status === "unavailable") return { ...base, status: "unavailable", detail: [trail.backend, trail.reason].filter(Boolean).join(", ") };
+    return { ...base, status: "checked", when: `${trail.backend ?? "graph"}${trail.elapsedMs !== undefined ? `, ${trail.elapsedMs} ms` : ""}` };
+  }
   if (!graph) return { ...base, status: "not looked up (press Show links)" };
   if (graph.status === "unavailable") return { ...base, status: "unavailable", detail: graph.backend };
   return { ...base, status: "checked", when: `${graph.backend ?? "graph"}${graph.elapsedMs !== undefined ? `, ${graph.elapsedMs} ms` : ""}` };
+}
+
+/** The Link graph row for the signed receipt: only when the check ran its scam trail (older receipts have none). */
+export function receiptGraphRow(r: CheckResponse): { status: string; when: string } | undefined {
+  if (!r.trail || r.trail.status === "off") return undefined;
+  const row = graphRow(r, null);
+  return { status: row.status, when: row.when ?? row.detail ?? "" };
 }
 
 export function buildCoverage(r: CheckResponse, opts?: { graph: GraphCoverage }): Coverage {

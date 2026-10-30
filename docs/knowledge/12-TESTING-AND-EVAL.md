@@ -36,10 +36,11 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/receipts.test.ts` | 16 |
 | `web/src/lib/reports/reports.test.ts` | 29 |
 | `web/src/lib/reports/retention.test.ts` | 6 |
-| `web/src/lib/risk.test.ts` | 17 |
+| `web/src/lib/risk.test.ts` | 19 |
 | `web/src/lib/signals/context.test.ts` | 20 |
 | `web/src/lib/signals/signals.test.ts` | 24 |
 | `web/src/lib/style.test.ts` | 12 |
+| `web/src/lib/trail/trail.test.ts` | 9 |
 | `web/src/lib/transcribe.test.ts` | 17 |
 | `web/src/lib/ui.test.ts` | 48 |
 | `web/src/lib/usage-stats.test.ts` | 6 |

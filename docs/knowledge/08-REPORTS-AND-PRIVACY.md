@@ -25,6 +25,7 @@ Anyone can report the identifiers in a check, without an account and only after 
 - `delete_case_by_code` deletes the case (and so the excerpt); with "also remove my reports" it also deletes the reports and graph edges of the same submission. TigerGraph copies of those edges stay until a moderator removes them (`docs/MODERATION.md` section 4).
 - `submit_feedback` keeps one answer per network per identifier (`unique (identifier_hash, reporter_fingerprint_hash)`); a message without identifiers is keyed `rules:<sorted rule ids>`. `feedback_counts` returns counts and the reason codes of genuine answers, for display only.
 - `case_trail_summary` returns counts by category, channel, loss band and month for identifiers that already have 2 independent reporters, with synthetic and real cases counted apart; never excerpts, fingerprints or case ids.
+- `case_trail_cluster` returns the same counts for a whole scam trail, each case once (used by the check's scam trail).
 - `purge_expired_cases()` (monthly): expired cases, excerpts whose reports were removed, feedback older than 90 days.
 - Before the migration the routes answer 503 "Contributing is not available right now." and reads return nothing; checks are unaffected.
 - Routes: `POST /api/case` (returns the delete code once), `POST /api/case/delete`, `POST /api/feedback`; zod, body caps, own daily limits, no input echo. A test scans every response and the logger for the excerpt.
@@ -98,6 +99,7 @@ Database objects (generated from `web/db/*.sql`):
 | `submit_feedback` | function | `web/db/migrations/004_cases_and_feedback.sql` |
 | `feedback_counts` | function | `web/db/migrations/004_cases_and_feedback.sql` |
 | `case_trail_summary` | function | `web/db/migrations/004_cases_and_feedback.sql` |
+| `case_trail_cluster` | function | `web/db/migrations/004_cases_and_feedback.sql` |
 | `purge_expired_cases` | function | `web/db/migrations/004_cases_and_feedback.sql` |
 <!-- GENERATED:END db -->
 

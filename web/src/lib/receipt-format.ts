@@ -27,6 +27,9 @@ export const ReceiptBody = z.object({
   notices: z.array(z.string().max(400)),
   coverage: z.array(z.object({ source: z.string().max(80), status: z.string().max(40), when: z.string().max(60) })),
   identifiers: z.array(z.object({ type: z.string().max(20), display: z.string().max(80) })),
+  /** Link graph row from the check's scam trail (final round P5). Optional and additive: receipts issued before it
+   * have no such field and still verify, because canonical JSON leaves absent fields out of the signed bytes. */
+  graph: z.object({ status: z.string().max(60), when: z.string().max(80) }).optional(),
   textDigest: z.string().regex(/^[0-9a-f]{64}$/),
 });
 export type ReceiptBody = z.infer<typeof ReceiptBody>;

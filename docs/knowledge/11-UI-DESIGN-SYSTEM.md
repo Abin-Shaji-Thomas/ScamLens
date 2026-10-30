@@ -41,6 +41,9 @@ Grid box 100 / 100 / 91.7% of the window at 1280 / 1440 / 1920 px; no horizontal
 ### Home form and ?example=
 `web/src/components/ExampleCheckForm.tsx` (server) reads `?example=<rule_id>` and passes the validated example to `CheckForm`, which shows it in the box with "Example from the pattern library: <name>. Edit it or press Check." and the demo label; the page wraps it in `<Suspense>` with the empty form as fallback.
 
+### Scam trail
+`web/src/components/ScamTrail.tsx`: a section after the tiers, only when the check's trail found links: one sentence per identifier, "How many others got this and what happened" with small counts lines, the demo label when any count is synthetic, and the not-proof note with the backend and time. No colour carries meaning; it prints.
+
 ### What the levels mean
 Under the risk meter, `RiskBadge` has a `<details>` block (summary "What the levels mean", 44 px) listing Low signals, Elevated and High with the same sentences as the card, then the ceiling note from `RISK_CEILING_NOTE`. Closed by default, so the result stays short.
 

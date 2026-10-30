@@ -2,7 +2,7 @@
 // (base64 PKCS8 DER, one line). Missing or invalid key = feature off: no receipt, no crash.
 import { createHash, createHmac, createPrivateKey, createPublicKey, hkdfSync, sign, verify, type KeyObject } from "node:crypto";
 import type { CheckResponse } from "./api-schema";
-import { buildCoverage } from "./coverage";
+import { buildCoverage, receiptGraphRow } from "./coverage";
 import { maskIdentifier } from "./reports/mask";
 import { RECEIPT_VERSION, Receipt, ReceiptBody, signedBytes, type ReceiptKey } from "./receipt-format";
 
@@ -90,6 +90,7 @@ export function buildReceiptBody(r: CheckResponse, text: string, signer: Receipt
     notices: r.notices,
     coverage: buildCoverage(r).rows.map((c) => ({ source: c.name, status: c.status, when: c.when ?? "" })),
     identifiers: r.identifiers.map((i) => ({ type: i.type, display: maskIdentifier(i.type, i.value) })),
+    graph: receiptGraphRow(r),
     textDigest: textDigest(text, signer),
   });
 }

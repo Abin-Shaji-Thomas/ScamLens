@@ -7,6 +7,7 @@ import { Receipt } from "./receipt-format";
 import { ReportedTier } from "./reports/schema";
 import { Risk } from "./risk";
 import { AiStatus, Signal } from "./signals/types";
+import { Trail } from "./trail/schema";
 import { SourceResult } from "./verified/types";
 
 /** @deprecated use MAX_TEXT_CHARS from ./limits */
@@ -29,5 +30,7 @@ export const CheckResponse = z.object({
   checkedAt: z.string(),
   /** Signed receipt (receipt-format.ts); absent when RECEIPT_SIGNING_KEY is not configured. */
   receipt: Receipt.optional(),
+  /** Scam trail (links to other reported identifiers), counts only; absent when the check skipped it. */
+  trail: Trail.optional(),
 });
 export type CheckResponse = z.infer<typeof CheckResponse>;

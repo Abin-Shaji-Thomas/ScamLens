@@ -118,3 +118,18 @@ describe("G2: contested reports never raise the level to High", () => {
     expect(assessRisk({ verifiedMatches: 0, reportedIdentifiers: 0, contestedIdentifiers: 1, suspectedRules: 0, unavailableSources: 0 }).reportedMessage).toBeUndefined();
   });
 });
+
+describe("scam trail input (final round P5)", () => {
+  const base = { verifiedMatches: 0, reportedIdentifiers: 0, suspectedRules: 0, unavailableSources: 0 };
+  it("a link to an identifier with 2+ independent reporters lifts Low to Elevated, with the reason", () => {
+    const r = assessRisk({ ...base, trailLinkedReporters: 3 });
+    expect(r.level).toBe("elevated");
+    expect(r.reasons).toContain("Linked to an identifier reported by 3 independent people");
+  });
+  it("1 reporter does not lift, and the trail never makes High or lowers a level", () => {
+    expect(assessRisk({ ...base, trailLinkedReporters: 1 }).level).toBe("low");
+    expect(assessRisk({ ...base, suspectedRules: 3, trailLinkedReporters: 9 }).level).toBe("elevated");
+    expect(assessRisk({ ...base, verifiedMatches: 1, trailLinkedReporters: 0 }).level).toBe("high");
+    expect(assessRisk({ ...base, reportedIdentifiers: 1, suspectedRules: 1, trailLinkedReporters: 0 }).level).toBe("high");
+  });
+});

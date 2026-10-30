@@ -159,6 +159,43 @@ language sql stable security definer set search_path = '' as $$
   group by l.identifier_hash
 $$;
 
+-- The same counts for a whole scam trail (the identifiers in a check plus the ones linked to them), each case counted
+-- once however many of its identifiers are in the trail. Only identifiers with >= 2 independent reporters take part.
+create or replace function case_trail_cluster(p_hashes text[])
+returns table (cases int, reporters int, synthetic_cases int, real_cases int,
+               categories jsonb, channels jsonb, loss_bands jsonb, months jsonb, first_seen timestamptz, last_seen timestamptz)
+language sql stable security definer set search_path = '' as $$
+  with eligible as (
+    select r.identifier_hash
+    from public.reports r
+    where r.identifier_hash = any(p_hashes) and r.expires_at > now() and r.created_at > now() - interval '90 days'
+    group by r.identifier_hash
+    having count(distinct r.reporter_fingerprint_hash) >= 2
+  ), linked as (
+    select distinct c.case_id, r.reporter_fingerprint_hash, c.category, c.channel, c.loss_band, c.month, c.synthetic, c.created_at
+    from public.reports r
+    join eligible e on e.identifier_hash = r.identifier_hash
+    join public.cases c on c.submission_id = r.submission_id and c.expires_at > now()
+  ), per_case as (
+    select distinct case_id, category, channel, loss_band, month, synthetic, created_at from linked
+  ), dims as (
+    select d.dim, d.val, count(*)::int n
+    from per_case p
+    cross join lateral (values ('category', p.category), ('channel', p.channel), ('loss_band', p.loss_band), ('month', p.month)) d(dim, val)
+    group by d.dim, d.val
+  )
+  select (select count(*)::int from per_case),
+         (select count(distinct reporter_fingerprint_hash)::int from linked),
+         (select count(*)::int from per_case where synthetic),
+         (select count(*)::int from per_case where not synthetic),
+         coalesce((select jsonb_object_agg(val, n) from dims where dim = 'category'), '{}'::jsonb),
+         coalesce((select jsonb_object_agg(val, n) from dims where dim = 'channel'), '{}'::jsonb),
+         coalesce((select jsonb_object_agg(val, n) from dims where dim = 'loss_band'), '{}'::jsonb),
+         coalesce((select jsonb_object_agg(val, n) from dims where dim = 'month'), '{}'::jsonb),
+         (select min(created_at) from per_case),
+         (select max(created_at) from per_case)
+$$;
+
 -- Monthly (docs/MODERATION.md): expired cases, excerpts whose reports are gone (a moderator removed them), and
 -- feedback older than 90 days.
 create or replace function purge_expired_cases()
@@ -187,7 +224,7 @@ begin
     execute 'alter table cases enable row level security';
     execute 'alter table feedback enable row level security';
     execute 'revoke all on cases, feedback from anon, authenticated';
-    execute 'revoke execute on function submit_case(jsonb, text, text, uuid, text, text, text, text[], text, text, boolean, int), delete_case_by_code(text, boolean), submit_feedback(text[], text, text, text[], text[]), feedback_counts(text[]), case_trail_summary(text[]), purge_expired_cases() from public, anon, authenticated';
-    execute 'grant execute on function submit_case(jsonb, text, text, uuid, text, text, text, text[], text, text, boolean, int), delete_case_by_code(text, boolean), submit_feedback(text[], text, text, text[], text[]), feedback_counts(text[]), case_trail_summary(text[]), purge_expired_cases() to service_role';
+    execute 'revoke execute on function submit_case(jsonb, text, text, uuid, text, text, text, text[], text, text, boolean, int), delete_case_by_code(text, boolean), submit_feedback(text[], text, text, text[], text[]), feedback_counts(text[]), case_trail_summary(text[]), case_trail_cluster(text[]), purge_expired_cases() from public, anon, authenticated';
+    execute 'grant execute on function submit_case(jsonb, text, text, uuid, text, text, text, text[], text, text, boolean, int), delete_case_by_code(text, boolean), submit_feedback(text[], text, text, text[], text[]), feedback_counts(text[]), case_trail_summary(text[]), case_trail_cluster(text[]), purge_expired_cases() to service_role';
   end if;
 end $$;

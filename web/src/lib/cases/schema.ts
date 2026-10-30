@@ -78,3 +78,14 @@ export const FeedbackCount = z.object({
 export type FeedbackCount = z.infer<typeof FeedbackCount>;
 
 export const CASES_UNAVAILABLE = "Contributing is not available right now.";
+
+export const CATEGORY_LABEL: Record<string, string> = {
+  investment: "Investment",
+  task_job: "Task or job offer",
+  digital_arrest: "Digital arrest",
+  kyc_refund: "KYC or refund",
+  romance: "Romance",
+  lottery: "Lottery or prize",
+  impersonation: "Impersonation",
+  other: "Other",
+};
