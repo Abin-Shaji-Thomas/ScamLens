@@ -16,6 +16,9 @@ export const RISK_EXPLANATION: Record<RiskLevel, string> = {
   elevated: "Warning signs or community reports were found. That is not proof, but pause and verify the other person through an official channel before you pay.",
   low: "We found nothing in the sources we checked. This does not mean safe: new numbers, UPI IDs and wallets are not on any list yet.",
 };
+/** Why an unreported scam usually shows Elevated, not High (shown on the card under "What the levels mean"). */
+export const RISK_CEILING_NOTE =
+  "Warning patterns in the text can raise the level to Elevated, never to High. High needs a verified fact (an address or website on a checked list) or community reports from independent people together with warning signs, so a new scam that nobody has reported yet usually shows Elevated.";
 /** The large word on the card and the scale "Low signals · Elevated · High" (G4). The full label stays in RISK_LABEL. */
 export const RISK_SHORT: Record<RiskLevel, string> = { low: "Low signals", elevated: "Elevated", high: "High" };
 

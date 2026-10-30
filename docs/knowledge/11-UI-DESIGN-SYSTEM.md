@@ -41,6 +41,9 @@ Grid box 100 / 100 / 91.7% of the window at 1280 / 1440 / 1920 px; no horizontal
 ### Home form and ?example=
 `web/src/components/ExampleCheckForm.tsx` (server) reads `?example=<rule_id>` and passes the validated example to `CheckForm`, which shows it in the box with "Example from the pattern library: <name>. Edit it or press Check." and the demo label; the page wraps it in `<Suspense>` with the empty form as fallback.
 
+### What the levels mean
+Under the risk meter, `RiskBadge` has a `<details>` block (summary "What the levels mean", 44 px) listing Low signals, Elevated and High with the same sentences as the card, then the ceiling note from `RISK_CEILING_NOTE`. Closed by default, so the result stays short.
+
 ### One-time New line
 On the first result in a browser session, `RiskCard` shows one small line under the risk badge: "New: signed receipt, what was checked, and an 'I already paid' plan are below." (without "signed receipt" when the check returned none). `web/src/lib/new-line.ts` records a single flag (`scamlens:new-line-seen`, no text) in sessionStorage inside try/catch; with storage blocked it still appears at most once per page. Hidden in print. /about lists the flag under "Privacy: what is stored".
 

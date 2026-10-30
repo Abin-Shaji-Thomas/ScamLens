@@ -487,3 +487,20 @@ describe("Beyond the check band (H2b)", () => {
     expect(html.indexOf('aria-labelledby="beyond-title"')).toBeLessThan(html.indexOf('aria-labelledby="risk-card-title"'));
   });
 });
+
+describe("what the levels mean (final round P2)", () => {
+  it("the card explains all three levels with the same strings and says patterns alone stop at Elevated", async () => {
+    const { RISK_CEILING_NOTE, RISK_EXPLANATION, RISK_SHORT } = await import("./risk");
+    const r = await runCheck({ text: SAMPLES[0].text }, offline);
+    const html = renderToStaticMarkup(createElement(RiskCard, { result: r }));
+    const block = html.slice(html.indexOf("data-levels"), html.indexOf("</details>"));
+    expect(block).toContain("What the levels mean");
+    for (const l of ["low", "elevated", "high"] as const) {
+      expect(block).toContain(RISK_SHORT[l]);
+      expect(block).toContain(RISK_EXPLANATION[l].replace(/'/g, "&#x27;"));
+    }
+    expect(block).toContain(RISK_CEILING_NOTE);
+    expect(RISK_CEILING_NOTE).toMatch(/Elevated, never to High/);
+    expect(html).toMatch(/<summary class="[^"]*min-h-11[^"]*">What the levels mean<\/summary>/);
+  });
+});

@@ -1,4 +1,4 @@
-import { RISK_EXPLANATION, RISK_SHORT, type Risk, type RiskLevel } from "@/lib/risk";
+import { RISK_CEILING_NOTE, RISK_EXPLANATION, RISK_SHORT, type Risk, type RiskLevel } from "@/lib/risk";
 
 const ORDER: RiskLevel[] = ["low", "elevated", "high"];
 
@@ -32,6 +32,18 @@ export function RiskBadge({ risk }: { risk: Risk }) {
           <span key={l} className="meter__seg" data-filled={i < filled ? "true" : "false"} />
         ))}
       </div>
+      <details className="t-small mt-4" data-levels>
+        <summary className="inline-flex min-h-11 cursor-pointer items-center underline underline-offset-4">What the levels mean</summary>
+        <dl className="mt-2 flex flex-col gap-2 text-swiss-text">
+          {ORDER.map((l) => (
+            <div key={l}>
+              <dt className="font-semibold text-swiss-black">{RISK_SHORT[l]}</dt>
+              <dd>{RISK_EXPLANATION[l]}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="mt-2 text-swiss-text">{RISK_CEILING_NOTE}</p>
+      </details>
       {risk.reasons.length > 0 && (
         <ul className="t-small mt-6 flex flex-col gap-1 text-swiss-text">
           {risk.reasons.map((r, i) => (

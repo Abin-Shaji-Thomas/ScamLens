@@ -6,6 +6,8 @@ The risk level is decided by a few lines of fixed code, not by AI. One verified 
 
 ## Details
 
+On the card (final round P2) a collapsed "What the levels mean" block repeats the three `RISK_EXPLANATION` sentences and `RISK_CEILING_NOTE`: patterns can raise the level to Elevated, never to High; High needs a verified fact or independent community reports together with warning signs, so a new scam nobody has reported yet usually shows Elevated.
+
 | Inputs | Level |
 |---|---|
 | verified matches >= 1 | High |
