@@ -66,6 +66,7 @@ Routes (generated from `web/src/app`):
 - /api/report/contest (API route, `web/src/app/api/report/contest/route.ts`)
 - /api/report (API route, `web/src/app/api/report/route.ts`)
 - /api/transcribe (API route, `web/src/app/api/transcribe/route.ts`)
+- /api/usage-stats (API route, `web/src/app/api/usage-stats/route.ts`)
 - /api/verify-receipt (API route, `web/src/app/api/verify-receipt/route.ts`)
 - //icon (image, `web/src/app/icon.svg`)
 - //opengraph-image (image, `web/src/app/opengraph-image.tsx`)

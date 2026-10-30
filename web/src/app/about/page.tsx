@@ -20,6 +20,7 @@ import { DEFAULT_ETHERSCAN_RPS, EVM_CHAINS } from "@/lib/verified/etherscan";
 import { DOMAIN_LIST_BUDGET_BYTES, ETHERSCAN_MAX_ADDRESSES, MAX_ADDRESSES, MAX_DOMAINS, SCAMSNIFFER_DOMAINS_PROBED_BYTES } from "@/lib/verified/index";
 import { ofacList, scamSnifferList } from "@/lib/verified/lists";
 import { GraphStatsLine } from "@/components/GraphStatsLine";
+import { UsageStatsLine } from "@/components/UsageStatsLine";
 
 export const metadata: Metadata = {
   title: "About ScamLens",
@@ -227,6 +228,7 @@ export default function AboutPage() {
             framework we use needs them to start the app; scripts from any other site are blocked.
           </li>
         </ul>
+        <UsageStatsLine />
       </Section>
 
       <Section id="graph" title="Link graph" band>

@@ -15,6 +15,11 @@ Anyone can report the identifiers in a check, without an account and only after 
 - Identifier hash = HMAC-SHA256(pepper, "id:" + type + ":" + canonical value). Phone numbers are low-entropy, so a plain hash could be brute-forced; the pepper prevents that.
 - Graph edges store a shorter pseudonymous `reporter_key` (SHA-256 of the fingerprint, 16 hex characters) so graph links can require two different reporters without copying the fingerprint.
 
+### 7-day check total (finish round H5)
+- `GET /api/usage-stats` returns one number: the sum of the per-network `fp:<hash>:check` counters in `usage_counters` for today and the 6 days before (UTC), plus `days` and `asOf`. Denied calls were never counted, so it is checks that ran. The keys are read on the server only (`Db.usageRowsSince`, kept apart from the graph sync's `EXPORTABLE` tables) and never returned. Cached 5 minutes in memory and at the edge; 404 without a database or on a failed read.
+- /about shows it under "Privacy: what is stored": "Checks run in the last 7 days: N (includes our own testing). ScamLens does not track who runs them." The number includes our own test and smoke runs.
+- No migration: the server's service-role client already reads the table (RLS blocks only anon and authenticated).
+
 ### Masking
 `maskIdentifier`: UPI and email keep 2 characters, the last one and the domain (`zz***d@okdemo`); phones keep 2 and 2 digits (`+91 98******10`); wallets keep 6 and 4; Telegram keeps 2 and 2.
 

@@ -717,3 +717,14 @@ Screenshots: `docs/screens/finish-example-375.png`, `docs/screens/finish-result-
 | Seeded data | PASS | every Q1/Q2/Q3 edge is a real link of the view; highlighted links = path edges (Q1 4, Q3 3) |
 | Browser-safe | PASS | edges.ts has no server imports; GraphPanel imports only types from view.ts |
 
+## H5 - 7-day usage total
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Route | PASS | GET /api/usage-stats -> {checks, days: 7, asOf}; connection(); 404 + no-store on no db or failure |
+| Sum | PASS | only `fp:<hash>:check` keys, today and the 6 days before (UTC); other routes, global:llm, older and future days excluded (tests, including the real table in PGlite with a denied call) |
+| No keys out | PASS | response keys are exactly asOf, checks, days (test) |
+| Cost | PASS | 5-minute cache (test: 1 read per 5 minutes) and s-maxage=300 |
+| /about line | PASS | the brief's sentence, in the privacy section, omitted on failure |
+| Live read | not verified yet | depends on the service-role read of usage_counters on Supabase; checked in H7 |
+

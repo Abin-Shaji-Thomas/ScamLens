@@ -12,6 +12,15 @@ export type ExportTable = keyof typeof EXPORTABLE;
 export interface Db {
   call<T>(fn: string, args: Record<string, unknown>): Promise<T[]>;
   selectAll<T>(table: ExportTable): Promise<T[]>;
+  /** Usage counter rows from `sinceDay` (YYYY-MM-DD, UTC) on, for the 7-day check total only. Kept apart from
+   * EXPORTABLE: the keys hold fingerprint-derived hashes and never leave the server. */
+  usageRowsSince(sinceDay: string): Promise<UsageRow[]>;
+}
+
+export interface UsageRow {
+  key: string;
+  day: string;
+  count: number;
 }
 
 /** Anything with a node-postgres-style query(), e.g. PGlite. Used for local runs and tests. */
@@ -35,6 +44,9 @@ export function sqlDb(runner: SqlRunner): Db {
     async selectAll<T>(table: ExportTable) {
       return (await runner.query<T>(`select ${EXPORTABLE[table]} from ${table}`)).rows;
     },
+    async usageRowsSince(sinceDay: string) {
+      return (await runner.query<UsageRow>("select key, to_char(day, 'YYYY-MM-DD') as day, count from usage_counters where day >= $1::date", [sinceDay])).rows;
+    },
   };
 }
 
@@ -55,6 +67,15 @@ export function supabaseDb(url: string, serviceRoleKey: string): Db {
         const { data, error } = await client.from(table).select(EXPORTABLE[table]).range(from, from + PAGE - 1);
         if (error) throw new Error(`database read ${table} failed`);
         out.push(...((data ?? []) as T[]));
+        if (!data || data.length < PAGE) return out;
+      }
+    },
+    async usageRowsSince(sinceDay: string) {
+      const out: UsageRow[] = [];
+      for (let from = 0; ; from += PAGE) {
+        const { data, error } = await client.from("usage_counters").select("key,day,count").gte("day", sinceDay).range(from, from + PAGE - 1);
+        if (error) throw new Error("database read usage_counters failed");
+        out.push(...((data ?? []) as UsageRow[]));
         if (!data || data.length < PAGE) return out;
       }
     },
