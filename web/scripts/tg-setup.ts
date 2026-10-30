@@ -109,6 +109,7 @@ async function main() {
     }
     console.log(`5. parity TigerGraph vs Postgres: ${same}/${cases.length} queries SAME`);
     for (const d of diffs) console.log(`   DIFFERENT ${d}`);
+    const rowsBy: Partial<Record<"q1" | "q2" | "q3", unknown[][]>> = {};
     for (const k of ["q1", "q2", "q3"] as const) {
       const c = cases.filter((x) => x.kind === k);
       if (!c.length) continue;
@@ -118,8 +119,26 @@ async function main() {
       const withRows = results.filter((r) => (r as unknown[]).length > 0);
       const sample = withRows[0] ?? [];
       console.log(`   ${k}: ${withRows.length} of ${c.length} case(s) return rows in TigerGraph; first: ${JSON.stringify(sample).slice(0, 220)}`);
+      rowsBy[k] = results as unknown[][];
     }
-    if (diffs.length) process.exitCode = 1;
+    // Dataset requirements (final round P4): Q1 and Q2 non-empty for at least two cases, Q3 at least two clusters,
+    // and no result path through an exchange-style address (the hub filter must drop it).
+    const exchanges = new Set((await db.selectAll<{ address_hash: string }>("exchange_addresses")).map((e) => e.address_hash));
+    const viaExchange = [
+      ...(rowsBy.q1 ?? []).flat().filter((r) => exchanges.has((r as { wallet_hash: string }).wallet_hash)),
+      // A Q2 case may start AT an exchange (parity asks every wallet); "through" means after the first node.
+      ...(rowsBy.q2 ?? []).flat().filter((r) => (r as { path: string[] }).path.slice(1).some((h) => exchanges.has(h))),
+      ...(rowsBy.q3 ?? []).flat().filter((r) => exchanges.has((r as { wallet_hash: string }).wallet_hash)),
+    ].length;
+    const nonEmpty = (k: "q1" | "q2" | "q3") => (rowsBy[k] ?? []).filter((r) => r.length > 0).length;
+    const checks = [
+      [`Q1 non-empty for >= 2 cases (${nonEmpty("q1")})`, nonEmpty("q1") >= 2],
+      [`Q2 non-empty for >= 2 cases (${nonEmpty("q2")})`, nonEmpty("q2") >= 2],
+      [`Q3 >= 2 clusters (${(rowsBy.q3 ?? []).flat().length})`, (rowsBy.q3 ?? []).flat().length >= 2],
+      [`no path through the ${exchanges.size} exchange-style address(es) (${viaExchange} found)`, exchanges.size > 0 && viaExchange === 0],
+    ] as const;
+    for (const [label, ok] of checks) console.log(`   dataset check ${ok ? "PASS" : "FAIL"}: ${label}`);
+    if (diffs.length || checks.some(([, ok]) => !ok)) process.exitCode = 1;
   }
 }
 

@@ -64,6 +64,10 @@ The response also carries `elapsedMs`, so the graph note shows how long TigerGra
 
 One-time global migration: graphs created before round 1 lack `Report.reporter_key`. Adding it is a GLOBAL schema change, which the graph-scoped token (`TG_SECRET`) is not allowed to make. `tg-setup.ts` therefore reads the schema first (`GET /gsql/v1/schema/graphs/<graph>`): if the attribute exists it prints `migration 001 already applied` and goes on; if it is missing it stops with exit code 2 and "HUMAN STEP REQUIRED", printing `graph/migrations/001_report_reporter_key.gsql` to paste into the Savanna GSQL editor (`USE GLOBAL`, then a global schema change job that adds `reporter_key STRING DEFAULT ""`), after which you re-run `tg-setup.ts`. The owner applied it on 2026-10-30.
 
+## Indian synthetic dataset (final round, 2026-10-30)
+
+`web/scripts/seed-india-cases.ts --apply` adds 56 labelled synthetic cases in 10 campaigns (`docs/DATASET.md`) through the normal report path. `tg-setup.ts --load` then loaded 104 vertices and 119 edges and printed `parity TigerGraph vs Postgres: 63/63 queries SAME`, plus the dataset checks: Q1 non-empty for 4 cases, Q2 for 8, Q3 3 clusters, and no path through either exchange-style address (the hub filter drops them; a Q2 case that starts at an exchange is not a path through it). `--remove` deletes only that dataset's rows.
+
 ## Verified on a live Savanna workspace (2026-10-30)
 
 After the owner applied migration 001 by hand, `npx tsx scripts/tg-setup.ts` printed `migration 001 already applied (Report.reporter_key exists)` (no "Access Denied"), created and installed Q1-Q4, accepted 22 vertices / 21 edges and ended with `parity TigerGraph vs Postgres: 19/19 queries SAME` (Q1: 1 of 2 UPI cases returns rows; Q2: 4 of 7 wallets have a path to a flagged demo address; Q3: 1 cluster of 3 handles). The app's graph note says `Graph backend: tigergraph`.

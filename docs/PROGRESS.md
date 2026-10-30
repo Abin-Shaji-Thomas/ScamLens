@@ -836,3 +836,16 @@ Root cause of the earlier "thin headings" report: 056ab4b put Segoe UI before He
 | Excerpt never returned | PASS | responses of all three routes and every log line scanned; only the migration mentions the column (test) |
 | Limits | PASS | USAGE_CASE_PER_DAY 5, USAGE_FEEDBACK_PER_DAY 30, 429 with Retry-After (test) |
 | Live Supabase | HUMAN STEP | run `web/db/migrations/004_cases_and_feedback.sql` in the Supabase SQL editor |
+
+## P4 - Indian synthetic dataset and TigerGraph
+
+| Check | Result | Evidence |
+|---|---|---|
+| Dataset | PASS | 56 cases, 10 campaigns (9/10/8/5/3/5/5/3/5/3), synthetic identifiers only, documentation IPs (test) |
+| Sources | PASS | 9 public pages opened 2026-10-30 and paraphrased in docs/DATASET.md; PIB pages (403) and the BE(A)WARE PDF (unreadable) not cited |
+| Dry run | PASS | plan: 56 cases, 104 reports, 36 identifiers, 5 payments, 1 flagged, 1 exchange, 2 contested |
+| --apply (live) | PASS, partial | reports and links written; 0 case rows (migration 004 not run: HUMAN STEP, then --apply again) |
+| TigerGraph | PASS | `--load`: 104 vertices, 119 edges; `parity TigerGraph vs Postgres: 63/63 queries SAME`; dataset checks Q1 4, Q2 8, Q3 3 clusters, 0 paths through 2 exchanges |
+| Idempotent | PASS | second run same row counts, no second contest (test) |
+| --remove | PASS (local) | removes only this dataset's rows; earlier demo data unchanged (test); not run on live |
+
