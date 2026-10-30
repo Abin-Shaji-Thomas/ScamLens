@@ -61,7 +61,11 @@ export function EvidencePackButton({ result, demo }: { result: CheckResponse; de
       </div>
       {result.receipt && (
         <p className="t-small mt-3 text-swiss-text print:hidden">
-          Receipt code {receiptCode(result.receipt)}. Anyone can check the receipt file at <a href="/verify">/verify</a>.
+          Receipt code {receiptCode(result.receipt)}. Anyone can check the receipt file at{" "}
+          <a href="/verify" className="tap">
+            /verify
+          </a>
+          .
         </p>
       )}
       {state === "shown" && (

@@ -160,3 +160,11 @@ describe("receipt routes", () => {
     for (const s of SAMPLES) expect(receiptFor(await runCheck({ text: s.text }, offline), s.text, env, "local")).toBeTruthy();
   });
 });
+
+describe("evidence pack receipt line (browser fix)", () => {
+  it("the /verify link inside the sentence has a 44px tap area", async () => {
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync(new URL("../components/EvidencePackButton.tsx", import.meta.url), "utf8");
+    expect(src).toMatch(/<a href="\/verify" className="tap">/);
+  });
+});
