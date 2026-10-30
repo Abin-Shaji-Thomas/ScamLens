@@ -571,3 +571,9 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | Criterion | Result | Evidence |
 |---|---|---|
 | Hidden on samples | PASS (already) | RiskCard renders the form only when the card is not a demo; ui.test.ts +4: samples 1-3 with demo -> no "Report these identifiers"; same text as a non-demo -> offered |
+
+## G5.4 - smoke-live warm-up
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Warm-up | PASS (code) | polls /api/health up to 60 s, then one harmless /api/check (60 s timeout, one retry); commented that it uses 1 of the 40 daily checks; not counted as an expectation. Live run in G7 |

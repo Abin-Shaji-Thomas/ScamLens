@@ -46,7 +46,7 @@ node -e "require('fs').readFileSync('.env.local','utf8').split(/\r?\n/).forEach(
 1. Push to `main` (fast-forward only, never force).
 2. Vercel builds `web/` (root directory = `web`).
 3. `curl.exe -s https://scam-lens-two.vercel.app/api/health` must show `"build"` = `git rev-parse --short HEAD`. `"graph":"tigergraph"` means TigerGraph is configured (`TG_HOST` and `TG_SECRET` set), not that the workspace is awake: health makes no network calls. Whether TigerGraph actually answered shows under the graph ("Graph backend: tigergraph (N ms)" or "postgres (TigerGraph unavailable)") and in the coverage ledger's Link graph row.
-4. Run `npx tsx scripts/smoke-live.ts https://scam-lens-two.vercel.app` and `npx tsx scripts/check-headers.ts https://scam-lens-two.vercel.app`. The first smoke run right after a deploy can time out on a cold start (seen 2026-10-30); run it again before concluding anything.
+4. Run `npx tsx scripts/smoke-live.ts https://scam-lens-two.vercel.app` and `npx tsx scripts/check-headers.ts https://scam-lens-two.vercel.app`. The script warms up first (polls /api/health for up to 60 s, then one harmless check with a 60 s timeout and one retry; this uses 1 of the 40 daily checks), because the first requests after a deploy can hit a cold start (seen 2026-10-30).
 
 ### Before a demo
 - Resume the TigerGraph workspace (Savanna has no auto-start), then run sample 1 and press "Show links" until the note says `Graph backend: tigergraph`. `npx tsx scripts/tg-setup.ts` re-installs the queries, reloads the data and must end with `N/N queries SAME`; it never makes global schema changes (a missing migration stops it with "HUMAN STEP REQUIRED").

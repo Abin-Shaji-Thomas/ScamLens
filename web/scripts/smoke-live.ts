@@ -60,12 +60,37 @@ const PER_SAMPLE: Record<string, (r: CheckResponse) => Expect[]> = {
   ],
 };
 
+/**
+ * Warm-up, not counted as an expectation: right after a deploy the first requests can hit a cold start (seen on
+ * 2026-10-30: two samples timed out, the re-run passed). Poll /api/health for up to 60 s, then send one harmless
+ * check (60 s timeout, one retry). The warm-up check uses 1 of the network's 40 daily checks.
+ */
+async function warmUp(base: string): Promise<void> {
+  const t0 = Date.now();
+  for (;;) {
+    const ok = await fetch(`${base}/api/health`, { signal: AbortSignal.timeout(15000) }).then((r) => r.ok, () => false);
+    if (ok || Date.now() - t0 > 60_000) break;
+    await new Promise((r) => setTimeout(r, 5000));
+  }
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    const ok = await fetch(`${base}/api/check`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "Warm-up: meeting moved to 4 pm." }),
+      signal: AbortSignal.timeout(60_000),
+    }).then((r) => r.ok, () => false);
+    console.log(`      warm-up check ${attempt}: ${ok ? "ok" : "no answer"} (${Math.round((Date.now() - t0) / 1000)} s)`);
+    if (ok) return;
+  }
+}
+
 async function main() {
   const base = (process.argv[2] ?? "").replace(/\/+$/, "");
   if (!/^https?:\/\//.test(base)) {
     console.error("usage: npx tsx scripts/smoke-live.ts <base-url>");
     process.exit(2);
   }
+  await warmUp(base);
   const results: Expect[] = [];
   const add = (scope: string, xs: Expect[]) => {
     for (const x of xs) {

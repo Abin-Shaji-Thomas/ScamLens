@@ -18,7 +18,7 @@ What ScamLens cannot do yet, ranked by how much it matters, and what could come 
 | MED | TigerGraph workspace does not auto-start (HTTP 500 "Auto start is not enabled"); live graph answers from Postgres until a person resumes it | `web/scripts/tg-setup.ts`, `docs/HUMAN_TASKS.md` |
 | FIXED | Windows rendered headings at weight 400 (Helvetica aliased to Arial); the stack now puts Segoe UI before Helvetica and the h1 uses Segoe UI Light | `web/src/app/globals.css` |
 | LOW | Graph drawing is small inside a large canvas | `web/src/components/GraphPanel.tsx` |
-| LOW | First smoke run after a deploy can time out (cold start) | `web/scripts/smoke-live.ts` |
+| FIXED | First smoke run after a deploy could time out (cold start); smoke-live now warms up first | `web/scripts/smoke-live.ts` |
 | LOW | UPI, phone and Telegram identifiers have no verified source (by nature) | `web/src/lib/verified/index.ts` |
 
 | FIXED | Flaky PGlite tests under parallel load (explicit 30 s timeouts on the 8 PGlite suites, TigerGraph finish round) | `web/src/test-support/pglite.ts` |
