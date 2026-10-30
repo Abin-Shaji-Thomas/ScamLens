@@ -11,6 +11,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | test file | it / it.each declarations |
 |---|---|
 | `web/src/lib/about.test.ts` | 7 |
+| `web/src/lib/cases/cases.test.ts` | 15 |
 | `web/src/lib/complaint-draft.test.ts` | 4 |
 | `web/src/lib/contrast.test.ts` | 8 |
 | `web/src/lib/coverage.test.ts` | 11 |
@@ -30,6 +31,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/new-line.test.ts` | 6 |
 | `web/src/lib/pattern-example.test.ts` | 6 |
 | `web/src/lib/patterns.test.ts` | 6 |
+| `web/src/lib/privacy-copy.test.ts` | 3 |
 | `web/src/lib/receipts.test.ts` | 16 |
 | `web/src/lib/reports/reports.test.ts` | 29 |
 | `web/src/lib/reports/retention.test.ts` | 6 |

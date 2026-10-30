@@ -75,6 +75,7 @@ Check a running server: `npx tsx scripts/check-headers.ts <base-url>` prints PAS
 3. Check: `select * from increment_usage('test:manual', 5);` returns `allowed = true, remaining = 4`; then `delete from usage_counters where key = 'test:manual';`.
 4. All of `web/db/migrations/002_contest_policy.sql` -> Run (round 2: contested reports stay visible and labelled). Idempotent. Check: `select count(*) from contests;` runs without error. Before it is run, the code falls back to the old reading function and refuses new contests. Future schema changes go into `web/db/migrations/NNN_name.sql`, run in number order after `schema.sql`.
 4b. All of `web/db/migrations/003_contest_retention.sql` -> Run (contest retention: `purge_old_contests()`). Idempotent. Then once a month `select * from purge_old_contests();` (`docs/MODERATION.md` section 5). Both migrations were run on the live project on 2026-10-30.
+4c. All of `web/db/migrations/004_cases_and_feedback.sql` -> Run (final round: contributed cases and feedback). Idempotent. Check: `select count(*) from cases;` runs without error. Before it is run, contributing says "Contributing is not available right now." and checks work as before. Then once a month `select * from purge_expired_cases();`.
 5. Demo data was seeded once already. **Do not re-run** `scripts/graph-demo.ts --supabase` on the live project.
 6. Contest moderation (uphold / dismiss / remove): `docs/MODERATION.md`.
 

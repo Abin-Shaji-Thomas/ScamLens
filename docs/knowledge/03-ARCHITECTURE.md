@@ -59,7 +59,10 @@ Routes (generated from `web/src/app`):
 <!-- GENERATED:START routes -->
 - /.well-known/scamlens-receipt-key.json (API route, `web/src/app/.well-known/scamlens-receipt-key.json/route.ts`)
 - /about (page, `web/src/app/about/page.tsx`)
+- /api/case/delete (API route, `web/src/app/api/case/delete/route.ts`)
+- /api/case (API route, `web/src/app/api/case/route.ts`)
 - /api/check (API route, `web/src/app/api/check/route.ts`)
+- /api/feedback (API route, `web/src/app/api/feedback/route.ts`)
 - /api/graph (API route, `web/src/app/api/graph/route.ts`)
 - /api/graph/stats (API route, `web/src/app/api/graph/stats/route.ts`)
 - /api/health (API route, `web/src/app/api/health/route.ts`)

@@ -26,7 +26,10 @@
   "08-REPORTS-AND-PRIVACY.md": [
     "web/src/lib/reports/",
     "web/db/",
-    "web/src/app/api/report/"
+    "web/src/app/api/report/",
+    "web/src/lib/cases/",
+    "web/db/migrations/004_cases_and_feedback.sql",
+    "web/src/lib/privacy-copy.ts"
   ],
   "09-GRAPH.md": [
     "graph/",

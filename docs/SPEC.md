@@ -146,3 +146,8 @@ Do Step 0 and the Step 1 audit now. Report the findings, then wait for my "next"
 - Built: source `goplus_phishing` ("GoPlus phishing sites"), up to 5 domains per check, only the domain is sent. Listed = Verified match (counts toward High); not listed = no_match, worded "does not list", never "safe"; any failure = unavailable.
 - The domain notice now reads "Website domains are checked only against GoPlus's phishing-site list (ScamSniffer's domain list is too large for this deployment). Not being listed does not mean the site is safe." The 2026-10-29 decision not to load ScamSniffer's domain list stands.
 
+# COMMUNITY CASES AND FEEDBACK (2026-10-30, branch final)
+- Owner decision: no accounts; contributions optional; the ordinary check is never stored. Promise: "Your check is never stored. If you choose to contribute a case, we store structured facts and, only if you tick it, a redacted excerpt you reviewed, visible only to the moderator, deleted with your delete code or after 90 days."
+- Migration 004 adds cases and feedback; a case goes through submit_report, so the 2-independent-reporter rule applies unchanged. Feedback is display only and never changes a level.
+- Delete codes: 128 random bits shown once; only an HMAC with the pepper is stored. No delete code, no excerpt.
+

@@ -20,6 +20,8 @@ What ScamLens cannot do yet, ranked by how much it matters, and what could come 
 | LOW | Graph drawing is small inside a large canvas | `web/src/components/GraphPanel.tsx` |
 | FIXED | First smoke run after a deploy could time out (cold start); smoke-live now warms up first | `web/scripts/smoke-live.ts` |
 | LOW | UPI, phone and Telegram identifiers have no verified source (by nature) | `web/src/lib/verified/index.ts` |
+| HUMAN | Migration 004 (cases and feedback) must be run in the Supabase SQL editor; until then contributing says it is unavailable | `web/db/migrations/004_cases_and_feedback.sql` |
+| LOW | Removing a case's reports with its delete code leaves the TigerGraph copies of its links until a moderator removes them | `docs/MODERATION.md` |
 | LOW | Website domains are checked against one list only (GoPlus phishing sites, live); ScamSniffer's domain list is too large to load. Domain check built in the finish round after a probe showed GoPlus answers 1 for a known phishing domain | `web/src/lib/verified/goplus.ts` |
 
 | FIXED | Flaky PGlite tests under parallel load (explicit 30 s timeouts on the 8 PGlite suites, TigerGraph finish round) | `web/src/test-support/pglite.ts` |

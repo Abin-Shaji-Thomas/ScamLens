@@ -99,7 +99,26 @@ Authorization: Bearer <token for TG_SECRET>
 
 Then run `npx tsx scripts/tg-setup.ts --check` and expect `N/N queries SAME`.
 
+## 4b. Contributed cases and feedback (migration 004)
+Requests (deletion, corrections, contests) arrive by email at the project address in `web/src/lib/contact.ts`.
+
+List recent cases (no excerpt):
+```sql
+select case_id, category, channel, loss_band, month, rule_ids, synthetic, created_at, expires_at, excerpt_redacted is not null as has_excerpt
+from cases order by created_at desc limit 50;
+```
+Read one excerpt (redacted text, moderator only): `select excerpt_redacted from cases where case_id = '<id>';`
+
+Remove a case on request (when the person lost the delete code), keeping its reports:
+```sql
+delete from cases where case_id = '<id>';
+```
+To remove its reports and links as well, first note its `submission_id`, then `delete from graph_edges where submission_id = '<sub>'; delete from reports where submission_id = '<sub>';` and follow section 4 for TigerGraph.
+
+Read feedback for one identifier hash: `select verdict, reasons, rule_ids, created_at from feedback where identifier_hash = '<hash>';` (one row per network; no free text).
+
 ## 5. Housekeeping (monthly)
+Run `select * from purge_expired_cases();` (expired cases, excerpts whose reports are gone, feedback older than 90 days) after migration 004.
 
 Contest reasons are kept only while you need them. After migration `web/db/migrations/003_contest_retention.sql` has been run once, run this on the first day of each month:
 

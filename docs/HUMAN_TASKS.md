@@ -2,6 +2,9 @@
 
 Things the automated runs cannot do (no dashboard access, no logins). The app keeps working without them; each item says what happens until it is done. State as of the finish round (2026-10-30): the Supabase SQL is run, TigerGraph setup is done (`19/19 queries SAME`), and AI stays off by the owner's decision. Numbers marked in this file are checked against the code by `npm run docs:check`.
 
+## 0. Run migration 004 (once, new in the final round)
+In the Supabase SQL editor run all of `web/db/migrations/004_cases_and_feedback.sql` (idempotent), then `select count(*) from cases;`. Until then the "add it to the map" panel says "Contributing is not available right now." and nothing else changes.
+
 ## 1. Before a demo: wake TigerGraph
 Savanna has no auto-start, so an idle workspace suspends. Shortly before a demo or judging: TigerGraph Savanna -> Workspaces -> ScamLens -> **Resume**. Then on the live site run sample 1 and press "Show links for upi ..." until the note says `Graph backend: tigergraph (N ms)`, and open /about: the "Link graph" section should end with "... counted by TigerGraph."
 Until then: lookups answer from Postgres, labelled `postgres (TigerGraph unavailable)`.
@@ -12,11 +15,11 @@ If `npx tsx scripts/tg-setup.ts` ever stops with "HUMAN STEP REQUIRED", paste th
 2. `cd web`, then `npx tsx scripts/smoke-live.ts https://scam-lens-two.vercel.app`: it warms up, then expects `ALL PASS` with <!-- FACT:smoke_expectations -->39<!-- /FACT --> expectations (receipts on). It uses 4 of your network's daily checks.
 3. `npx tsx scripts/check-headers.ts https://scam-lens-two.vercel.app`: expect `ALL PASS (48 checks)`.
 
-## 3. Monthly: clean up old contests
-In the Supabase SQL editor run `select * from purge_old_contests();` (see `docs/MODERATION.md` section 5). Until it runs, old contest reasons are simply kept.
+## 3. Monthly: clean up old contests and cases
+In the Supabase SQL editor run `select * from purge_old_contests();` and, after migration 004, `select * from purge_expired_cases();` (see `docs/MODERATION.md` section 5). Until it runs, old contest reasons are simply kept.
 
 ## 4. Only if the database is ever recreated
-Run `web/db/schema.sql`, `web/db/supabase-grants.sql` and then the migrations in order (<!-- FACT:db_migrations -->`002_contest_policy.sql`, `003_contest_retention.sql`<!-- /FACT -->, all in `web/db/migrations/`) in the Supabase SQL editor. All are idempotent. Check: `select * from increment_usage('test:manual', 5);` returns `allowed = true, remaining = 4`, then `delete from usage_counters where key = 'test:manual';`.
+Run `web/db/schema.sql`, `web/db/supabase-grants.sql` and then the migrations in order (<!-- FACT:db_migrations -->`002_contest_policy.sql`, `003_contest_retention.sql`, `004_cases_and_feedback.sql`<!-- /FACT -->, all in `web/db/migrations/`) in the Supabase SQL editor. All are idempotent. Check: `select * from increment_usage('test:manual', 5);` returns `allowed = true, remaining = 4`, then `delete from usage_counters where key = 'test:manual';`.
 
 ## 5. Checks only a person can do
 Most of `docs/UI_CHECKLIST.md` was verified in headless Edge on 2026-10-30. Still needed, on the live URL, ideally on a phone and a Mac too:

@@ -20,6 +20,15 @@ Anyone can report the identifiers in a check, without an account and only after 
 - /about shows it under "Privacy: what is stored": "Checks run in the last 7 days: N (includes our own testing). ScamLens does not track who runs them." The number includes our own test and smoke runs.
 - No migration: the server's service-role client already reads the table (RLS blocks only anon and authenticated).
 
+### Contributed cases and feedback (final round P3, migration 004)
+- `submit_case` calls `submit_report` (same reports, same co_reported links, same daily cap) and adds one `cases` row: category, channel, loss band, server-computed month, rule ids (validated against `RULES`), `synthetic`, the optional excerpt and the delete-code HMAC. The excerpt is redacted by `redactExcerpt` in the browser (the person sees the exact text) and again on the server; it is stored only with a second tick.
+- `delete_case_by_code` deletes the case (and so the excerpt); with "also remove my reports" it also deletes the reports and graph edges of the same submission. TigerGraph copies of those edges stay until a moderator removes them (`docs/MODERATION.md` section 4).
+- `submit_feedback` keeps one answer per network per identifier (`unique (identifier_hash, reporter_fingerprint_hash)`); a message without identifiers is keyed `rules:<sorted rule ids>`. `feedback_counts` returns counts and the reason codes of genuine answers, for display only.
+- `case_trail_summary` returns counts by category, channel, loss band and month for identifiers that already have 2 independent reporters, with synthetic and real cases counted apart; never excerpts, fingerprints or case ids.
+- `purge_expired_cases()` (monthly): expired cases, excerpts whose reports were removed, feedback older than 90 days.
+- Before the migration the routes answer 503 "Contributing is not available right now." and reads return nothing; checks are unaffected.
+- Routes: `POST /api/case` (returns the delete code once), `POST /api/case/delete`, `POST /api/feedback`; zod, body caps, own daily limits, no input echo. A test scans every response and the logger for the excerpt.
+
 ### Masking
 `maskIdentifier`: UPI and email keep 2 characters, the last one and the domain (`zz***d@okdemo`); phones keep 2 and 2 digits (`+91 98******10`); wallets keep 6 and 4; Telegram keeps 2 and 2.
 
@@ -32,6 +41,8 @@ Anyone can report the identifiers in a check, without an account and only after 
 Contesting needs the full identifier (the person must know it). The reason (10 to 500 characters) is stored only for the moderator and never shown on the site. The entry stays visible, labelled "Contested, under review", and stops counting toward High. A moderator upholds (removes the reports) or dismisses (clears the label) using the SQL in `docs/MODERATION.md`. Each network can contest at most <!-- FACT:contests_per_day -->3<!-- /FACT --> entries per day.
 
 ### What is and is not stored
+Your check is never stored. If you choose to contribute a case, we store structured facts and, only if you tick it, a redacted excerpt you reviewed, visible only to the moderator, deleted with your delete code or after 90 days. The full inventory is in [docs/PRIVACY.md](../PRIVACY.md).
+
 | Stored | Not stored |
 |---|---|
 | identifier hash, masked display, type | the chat or any quote |
@@ -39,6 +50,9 @@ Contesting needs the full identifier (the person must know it). The reason (10 t
 | reporter fingerprint hash | names, accounts, the User-Agent |
 | contest reason (moderator only) | screenshots and transcripts |
 | daily usage counts per hashed network key | the identifiers in a check that was not reported |
+| contributed case: category, channel, loss band, month, rule ids, delete-code hash | the delete code itself |
+| optional redacted excerpt (moderator only, max 500) | any excerpt the person did not tick, or unredacted text |
+| feedback: verdict, fixed reason codes, rule ids | free-text feedback |
 
 Database objects (generated from `web/db/*.sql`):
 
@@ -74,9 +88,24 @@ Database objects (generated from `web/db/*.sql`):
 | `contest_identifier_v2` | function | `web/db/migrations/002_contest_policy.sql` |
 | `reported_counts_v2` | function | `web/db/migrations/002_contest_policy.sql` |
 | `purge_old_contests` | function | `web/db/migrations/003_contest_retention.sql` |
+| `cases` | table | `web/db/migrations/004_cases_and_feedback.sql` |
+| `cases_submission` | index | `web/db/migrations/004_cases_and_feedback.sql` |
+| `cases_delete_hash` | index | `web/db/migrations/004_cases_and_feedback.sql` |
+| `cases_expires` | index | `web/db/migrations/004_cases_and_feedback.sql` |
+| `feedback` | table | `web/db/migrations/004_cases_and_feedback.sql` |
+| `submit_case` | function | `web/db/migrations/004_cases_and_feedback.sql` |
+| `delete_case_by_code` | function | `web/db/migrations/004_cases_and_feedback.sql` |
+| `submit_feedback` | function | `web/db/migrations/004_cases_and_feedback.sql` |
+| `feedback_counts` | function | `web/db/migrations/004_cases_and_feedback.sql` |
+| `case_trail_summary` | function | `web/db/migrations/004_cases_and_feedback.sql` |
+| `purge_expired_cases` | function | `web/db/migrations/004_cases_and_feedback.sql` |
 <!-- GENERATED:END db -->
 
 ## Where in the code
+
+- `web/db/migrations/004_cases_and_feedback.sql`: cases, feedback and their functions.
+- `web/src/lib/cases/`: `redact.ts`, `delete-code.ts`, `schema.ts`, `service.ts`, `routes.ts` (route bodies).
+- `web/src/lib/privacy-copy.ts`: the storage promise.
 
 - `web/src/lib/reports/service.ts`: submit, lookup, contest.
 - `web/src/lib/reports/privacy.ts`: hashing and fingerprints.
