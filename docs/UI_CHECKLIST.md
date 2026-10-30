@@ -10,7 +10,7 @@ The **Verified** column records what the 2026-10-30 run checked in headless Micr
 |---|---|---|---|
 | 1 | No horizontal scroll at 375, 768, 1280, 1440, 1920 px on `/`, samples 1-3, `/about`, `/nope` | DevTools device mode; drag sideways | yes: `scrollWidth <= innerWidth` everywhere |
 | 2 | The page uses the width: content is ~90% of the window at 1280/1440/1920 (capped at 1760 px) | look at the margins on a wide screen | yes: grid box 100 / 100 / 91.7% |
-| 3 | Header: "ScamLens" (bold) left, "About" (grey-blue) right | look | yes (screenshots) |
+| 3 | Header: "ScamLens" (bold) left; "Patterns", "Verify a receipt", "About" right (grey-blue; the current page black and underlined, aria-current); 44 px tap areas; at 375 px the links wrap onto a second row without overflow | look at 375 and 1440 px | render tests; browser check in H2 |
 | 4 | Hero title is very large, regular weight (solid Arial, not a thin face) and spans about three quarters of the width | look | yes: `ArialMT` weight 400 on Windows (`CSS.getPlatformFontsForNode`, finish round 2026-10-30); other OSes: person |
 | 5 | Form: label in small uppercase letters, text box with a 2px black line on top and a light line below, black "CHECK" and outline "UPLOAD A SCREENSHOT INSTEAD" buttons; right column with a black rule, "TRY A SAMPLE:", three sample links and the two privacy notes | look at >= 1024 px; below that they stack | yes |
 | 6 | Risk header: "RISK CARD", the level as a huge word ("High" in dark red, others black), one sentence, the row "Low signals · Elevated · High" with the current level bold and underlined, and a 3-part meter (1, 2 or 3 filled) | samples 1, 2, 3 | yes: sample 1 High/3, sample 2 High/3, sample 3 Low signals/1 |

@@ -626,3 +626,12 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | Overflow and tap | PASS | overflow false, smallest tap target 44 px at all five widths on both pages; console [] |
 | Test note | NOTE | the first comparison showed 429s: this machine had used its 40 daily checks on the local server; the comparison ran again with local-only `USAGE_CHECK_PER_DAY=1000` (not committed) |
 | Tests | PASS | style.test.ts: new rule (Arial-first stack, only 400/600, no light weight, `font-synthesis: none`); ui.test.ts .t-404 and step numerals now 400 |
+
+## H2a - Header links
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Links and tap areas | PASS | NavLinks: /patterns, /verify, /about with min-h-11 min-w-11; brand at left; flex-wrap |
+| aria-current | PASS | the current path gets aria-current="page" (render test with /verify) |
+| Footer unchanged | PASS | footer still links /about, /patterns, /verify |
+| 375 px browser check | see H2 browser pass | |

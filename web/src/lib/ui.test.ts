@@ -445,3 +445,25 @@ describe("report form is never offered on the synthetic samples (G5.2)", () => {
     expect(renderToStaticMarkup(createElement(RiskCard, { result: r, demo: false }))).toContain("Report these identifiers");
   });
 });
+
+describe("header links (H2a)", () => {
+  it("ScamLens at left; Patterns, Verify a receipt and About at right, each with a 44 px tap area", async () => {
+    const { NavLinks } = await import("../components/NavLinks");
+    const html = renderToStaticMarkup(createElement(NavLinks, { current: null }));
+    const links = [...html.matchAll(/<a ([^>]*)>([^<]+)<\/a>/g)].map((m) => [m[1].match(/href="([^"]+)"/)?.[1], m[2], m[1].match(/class="([^"]*)"/)?.[1] ?? ""]);
+    expect(links.map(([h, t]) => [h, t])).toEqual([["/patterns", "Patterns"], ["/verify", "Verify a receipt"], ["/about", "About"]]);
+    for (const [, , cls] of links) expect(cls).toMatch(/min-h-11 min-w-11/);
+    expect(html).not.toContain("aria-current");
+    expect(html).toMatch(/<ul class="flex flex-wrap/); // wraps instead of overflowing at 375 px
+  });
+  it("marks the current page with aria-current", async () => {
+    const { NavLinks } = await import("../components/NavLinks");
+    const html = renderToStaticMarkup(createElement(NavLinks, { current: "/verify" }));
+    expect(html).toMatch(/<a aria-current="page"[^>]*href="\/verify"|<a [^>]*href="\/verify"[^>]*aria-current="page"/);
+    expect(html.match(/aria-current/g)).toHaveLength(1);
+  });
+  it("the footer keeps its links", () => {
+    const footer = renderToStaticMarkup(createElement(SiteFooter));
+    for (const h of ["/about", "/patterns", "/verify"]) expect(footer).toContain(`href="${h}"`);
+  });
+});

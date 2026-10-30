@@ -35,7 +35,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/signals/signals.test.ts` | 21 |
 | `web/src/lib/style.test.ts` | 12 |
 | `web/src/lib/transcribe.test.ts` | 17 |
-| `web/src/lib/ui.test.ts` | 42 |
+| `web/src/lib/ui.test.ts` | 45 |
 | `web/src/lib/usage.test.ts` | 18 |
 | `web/src/lib/verified/verified.test.ts` | 30 |
 <!-- GENERATED:END tests -->

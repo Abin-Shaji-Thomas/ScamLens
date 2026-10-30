@@ -35,6 +35,9 @@ The interface follows Minimalism & Swiss Style: a 12-column grid that fills the 
 ### Measured (2026-10-30, headless Edge)
 Grid box 100 / 100 / 91.7% of the window at 1280 / 1440 / 1920 px; no horizontal overflow at 375-1920 px; smallest tap target 44 px; print is black on white.
 
+### Header
+`web/src/components/SiteHeader.tsx` with `web/src/components/NavLinks.tsx`: the brand at left; Patterns, Verify a receipt and About at right in `--swiss-text`, the current page black and underlined (`aria-current="page"`), each a 44 px tap area; the links wrap onto a second row on narrow screens.
+
 ### Link graph canvas
 White background, 1px grey links, 2.5px alert links on evidence paths only, black filled (checked) and hollow (others) circles, black 12 px labels below each circle on a white halo. Zoomed to fit with 40 px padding; 300 px tall on phones, 360-480 px otherwise. Screenshots: `docs/screens/graph-fit-375.png`, `graph-fit-768.png`, `graph-fit-1440.png`.
 
