@@ -26,6 +26,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/health.test.ts` | 6 |
 | `web/src/lib/identifiers.test.ts` | 30 |
 | `web/src/lib/launch.test.ts` | 4 |
+| `web/src/lib/pattern-example.test.ts` | 6 |
 | `web/src/lib/patterns.test.ts` | 6 |
 | `web/src/lib/receipts.test.ts` | 16 |
 | `web/src/lib/reports/reports.test.ts` | 28 |

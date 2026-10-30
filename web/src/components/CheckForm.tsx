@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CheckResponse, MAX_INPUT_CHARS } from "@/lib/api-schema";
+import type { PatternExample } from "@/lib/pattern-example";
 import { SAMPLE_WATERMARK, SAMPLES } from "@/lib/samples";
 import { SCREENSHOT_OFF } from "@/lib/screenshot-copy";
 import { BeyondTheCheck } from "./BeyondTheCheck";
@@ -10,11 +11,13 @@ import { ScreenshotInput, ScreenshotNote, ScreenshotTrigger } from "./Screenshot
 
 /**
  * `screenshots` comes from the server (visionConfigured, the same check /api/health reports as "vision"), so the
- * upload control and its privacy note appear only when a vision model is configured.
+ * upload control and its privacy note appear only when a vision model is configured. `example` (from ?example= on the
+ * home page) pre-fills the box with a pattern's invented example; the check still waits for the Check button.
  */
-export function CheckForm({ screenshots = false }: { screenshots?: boolean }) {
-  const [text, setText] = useState("");
-  const [demo, setDemo] = useState(false);
+export function CheckForm({ screenshots = false, example = null }: { screenshots?: boolean; example?: PatternExample | null }) {
+  const [text, setText] = useState(example?.text ?? "");
+  const [demo, setDemo] = useState(example !== null);
+  const [fromExample, setFromExample] = useState(example !== null);
   const [result, setResult] = useState<CheckResponse | null>(null);
   const [checkedText, setCheckedText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -70,12 +73,18 @@ export function CheckForm({ screenshots = false }: { screenshots?: boolean }) {
                 onChange={(e) => {
                   setText(e.target.value);
                   setDemo(false);
+                  setFromExample(false);
                 }}
                 maxLength={MAX_INPUT_CHARS}
                 rows={6}
                 placeholder="Paste the message here"
                 className="textarea mt-4"
               />
+              {fromExample && example && (
+                <p className="t-small mt-3 text-swiss-text" data-example={example.ruleId}>
+                  Example from the pattern library: {example.name}. Edit it or press Check.
+                </p>
+              )}
               {demo && <p className="t-small mt-3 text-swiss-text">{SAMPLE_WATERMARK}</p>}
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <button type="submit" disabled={loading || text.trim().length === 0} className="button">
@@ -97,6 +106,7 @@ export function CheckForm({ screenshots = false }: { screenshots?: boolean }) {
                 onCheck={(t) => {
                   setText(t);
                   setDemo(false);
+                  setFromExample(false);
                   void submit(t);
                 }}
               />
@@ -113,6 +123,7 @@ export function CheckForm({ screenshots = false }: { screenshots?: boolean }) {
                     onClick={() => {
                       setText(s.text);
                       setDemo(true);
+                      setFromExample(false);
                       setResult(null);
                     }}
                   >

@@ -39,7 +39,7 @@ Four features that set ScamLens apart from list-only checkers: a coverage ledger
 - **Limits:** a valid receipt proves what ScamLens reported, not that the chat or the person is genuine. Rotating the key makes older receipts fail as "wrong key". Browsers without WebCrypto Ed25519 send the receipt (never the text, unless the user adds it) to the server for checking.
 
 ### 4. Pattern library (/patterns)
-- **What:** a static page that explains each of the <!-- FACT:rule_count -->18<!-- /FACT --> rules: a plain name, what it looks like, why such messages use it, what to do, an "Illustrative example", when it is not a signal, and how it counts. The intro says "These are patterns, not verdicts." Every Suspected finding links to its rule's anchor (`/patterns#<rule id>`), and the footer links to the page.
+- **What:** a static page that explains each of the <!-- FACT:rule_count -->18<!-- /FACT --> rules: a plain name, what it looks like, why such messages use it, what to do, an "Illustrative example", when it is not a signal, and how it counts. The intro says "These are patterns, not verdicts." Every Suspected finding links to its rule's anchor (`/patterns#<rule id>`), and the header and footer link to the page. A "Check a message" button sits under the intro, and each example has a "Try this example" link to `/?example=<rule id>` (finish round): the home page accepts only a rule id that exists in `rules.ts` and `pattern-guide.ts`, fills the box with that example, marks it "Example from the pattern library: <name>. Edit it or press Check." plus the demo label, and waits for Check; any other value gives an empty box.
 - **Why:** people learn the tactics, not just one result, and can see exactly why a phrase was flagged and when it would not be.
 - **How it is built:** the rule list, order and guards come from `web/src/lib/signals/rules.ts` (the same source as the engine); "When it is not a signal" is generated from each rule's guards (negation, corroboration) plus the warning-context rule; `web/src/lib/signals/pattern-guide.ts` adds only the plain-language text, keyed by rule id.
 - **Limits:** the explanations are hand-written; a test makes sure every rule has one and that each example really triggers its own rule, but it cannot judge the wording.
@@ -47,6 +47,7 @@ Four features that set ScamLens apart from list-only checkers: a coverage ledger
 ## Where in the code
 
 - `web/src/app/patterns/page.tsx`, `web/src/lib/signals/pattern-guide.ts`: the pattern library.
+- `web/src/lib/pattern-example.ts`: `patternExample` (validates `?example=`) and `exampleHref`.
 - `web/src/lib/receipts.ts`, `web/src/lib/receipt-format.ts`: receipts.
 - `web/src/app/verify/page.tsx`, `web/src/components/VerifyReceipt.tsx`, `web/src/app/api/verify-receipt/route.ts`: verification.
 - `web/src/app/.well-known/scamlens-receipt-key.json/route.ts`: the public key.
@@ -61,7 +62,7 @@ Use only the Swiss tokens; keep every feature driven by real run data or by `rul
 
 ## How it is tested
 
-`web/src/lib/coverage.test.ts`: every status renders (checked with the list date, unavailable with its reason, not applicable, skipped by the rate limit); UPI-only, TRON and domain "Not checked" lines; no AI row while AI is off; no "clean"/"safe"; no hard-coded dates; "Why?" links on every not-applicable row and under Not checked, none on checked rows. `web/src/lib/receipts.test.ts`: the Share proof step renders with a receipt (sentence, button, /verify link, code) and is absent without one.
+`web/src/lib/coverage.test.ts`: every status renders (checked with the list date, unavailable with its reason, not applicable, skipped by the rate limit); UPI-only, TRON and domain "Not checked" lines; no AI row while AI is off; no "clean"/"safe"; no hard-coded dates; "Why?" links on every not-applicable row and under Not checked, none on checked rows. `web/src/lib/pattern-example.test.ts`: every rule id is accepted with its own example; missing, repeated, unknown and inherited keys (`constructor`, `__proto__`) are rejected; the home page pre-fills and labels a valid example without running the check and stays empty otherwise; /patterns has "Check a message" and one "Try this example" link per rule. `web/src/lib/receipts.test.ts`: the Share proof step renders with a receipt (sentence, button, /verify link, code) and is absent without one.
 
 ## Known limits
 

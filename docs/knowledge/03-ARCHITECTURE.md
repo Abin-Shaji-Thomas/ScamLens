@@ -2,13 +2,13 @@
 
 ## In plain words
 
-ScamLens is one Next.js app on Vercel. The pages are mostly static; a handful of small server routes (listed below, generated from `web/src/app`) do the work. Reports and counters live in Supabase (Postgres). The link graph lives in TigerGraph, with the same queries in Postgres as a fallback. Sanctions and blacklist data are snapshots stored in the repo; GoPlus, Etherscan and TronGrid are called live. If anything outside the app fails, the card says so instead of guessing.
+ScamLens is one Next.js app on Vercel. The pages are mostly static (the home page is a partial prerender: a static shell, with the form streamed per request because it reads `?example=`); a handful of small server routes (listed below, generated from `web/src/app`) do the work. Reports and counters live in Supabase (Postgres). The link graph lives in TigerGraph, with the same queries in Postgres as a fallback. Sanctions and blacklist data are snapshots stored in the repo; GoPlus, Etherscan and TronGrid are called live. If anything outside the app fails, the card says so instead of guessing.
 
 ## Details
 
 ```
                        +-------------------------- Vercel (Next.js 16) ---------------------------+
-  browser  -- HTTPS -> | static pages: /, /about, 404           server routes (Node runtime):     |
+  browser  -- HTTPS -> | pages: / (partial prerender), /about,  server routes (Node runtime):     |
   (no keys)            | client components (CheckForm, ...)     /api/check      /api/graph        |
                        |                                        /api/report     /api/report/contest|
                        |                                        /api/transcribe /api/health       |
@@ -28,7 +28,7 @@ ScamLens is one Next.js app on Vercel. The pages are mostly static; a handful of
 ### What runs where
 | Part | Runs | Holds secrets? |
 |---|---|---|
-| Pages and components | browser (after a static render) | no |
+| Pages and components | browser (after a static render; the home form streams per request) | no |
 | `/api/*` routes | Vercel serverless functions (Node) | yes, via `process.env` only |
 | OFAC and ScamSniffer lists | JSON files bundled with the app, refreshed by `web/scripts/sync-lists.ts` | no |
 | Reports, counters, contests | Supabase Postgres, reached with the service-role key | key on the server only |
@@ -73,6 +73,8 @@ Routes (generated from `web/src/app`):
 - /patterns (page, `web/src/app/patterns/page.tsx`)
 - /verify (page, `web/src/app/verify/page.tsx`)
 <!-- GENERATED:END routes -->
+
+The home page (`web/src/app/page.tsx`) is a partial prerender: a static shell with the empty form as the `<Suspense>` fallback; `web/src/components/ExampleCheckForm.tsx` reads `?example=<rule_id>` through `web/src/lib/pattern-example.ts` and pre-fills the box, never auto-submitting.
 
 ## How to change it safely
 

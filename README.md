@@ -4,6 +4,8 @@
 
 **Signed receipts:** every check offers a "Share proof" step to download a signed receipt (Ed25519) that anyone can verify at `/verify`; it holds no raw text. Off unless `RECEIPT_SIGNING_KEY` is set ([docs/DEPLOY.md](docs/DEPLOY.md) section 2a).
 
+**Pattern library:** `/patterns` explains each of the <!-- FACT:rule_count -->18<!-- /FACT --> rules; "Try this example" opens the check with that rule's invented example in the box, ready for you to press Check.
+
 **AI status:** the Suspected tier uses fixed pattern rules; AI assistance is optional and currently off (no key is configured, so screenshot reading is off too and the page asks you to paste the text).
 
 **Live:** https://scam-lens-two.vercel.app · Hacker House Goa 2026 (Crypto x AI track, team ArcReap) · [About, sources and privacy](https://scam-lens-two.vercel.app/about)

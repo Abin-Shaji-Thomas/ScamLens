@@ -650,3 +650,13 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | Share proof step | PASS | h3 "Share proof", the brief's sentence, Download signed receipt (button--outline), Open Verify (44 px), receipt code; only when result.receipt (render tests with and without) |
 | Download moved | PASS | the button left the evidence pack button row; the old receipt sentence is replaced by the step |
 | Why? links | PASS | /about#sources (anchor exists) after each not-applicable status and under Not checked; none on checked rows; kept out of the uppercase eyebrow |
+
+## H2d - Pattern links and ?example=
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Check a message | PASS | `.button` link to / under the /patterns intro, before the first rule (render test) |
+| Try this example | PASS | one link per rule (18) to /?example=<rule_id>, 44 px |
+| Server validation | PASS | `patternExample`: only ids in RULES with a guide entry; empty, unknown, case-changed, repeated and inherited keys rejected (tests) |
+| Pre-fill, no auto-submit | PASS | textarea holds the example, note and demo label shown, Check enabled, no result rendered (test) |
+| Prerender kept | PASS | the build first failed (searchParams outside Suspense under cache components); fixed with `<Suspense>` around `ExampleCheckForm`, the empty form as fallback; build lists `/` as partial prerender (shell static, form streamed); smoke and header checks re-run in H7 |

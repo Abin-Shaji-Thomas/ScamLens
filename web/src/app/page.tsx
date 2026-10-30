@@ -1,7 +1,11 @@
+import { Suspense } from "react";
 import { CheckForm } from "@/components/CheckForm";
+import { ExampleCheckForm, type HomeSearchParams } from "@/components/ExampleCheckForm";
 import { visionConfigured } from "@/lib/transcribe";
 
-export default function Home() {
+export default function Home({ searchParams }: { searchParams: HomeSearchParams }) {
+  // Evaluated on the server when the page is built; a new key in Vercel takes effect on the next deploy.
+  const screenshots = visionConfigured(process.env);
   return (
     <main>
       <section aria-labelledby="page-title">
@@ -14,8 +18,10 @@ export default function Home() {
           </p>
         </div>
       </section>
-      {/* Evaluated on the server when the page is built; a new key in Vercel takes effect on the next deploy. */}
-      <CheckForm screenshots={visionConfigured(process.env)} />
+      {/* The prerendered shell carries the empty form; ?example= streams in the pre-filled one. */}
+      <Suspense fallback={<CheckForm screenshots={screenshots} />}>
+        <ExampleCheckForm searchParams={searchParams} screenshots={screenshots} />
+      </Suspense>
     </main>
   );
 }

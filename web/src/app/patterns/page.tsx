@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { exampleHref } from "@/lib/pattern-example";
 import { PATTERN_GUIDE } from "@/lib/signals/pattern-guide";
 import { RULES } from "@/lib/signals/rules";
 import type { Rule } from "@/lib/signals/types";
@@ -39,6 +40,11 @@ export default function PatternsPage() {
             These are patterns, not verdicts. ScamLens looks for {RULES.length} fixed patterns in the text you paste; each one is a
             warning sign that often appears in scam messages, and none of them proves anything about a person on its own.
           </p>
+          <p className="col-span-full mt-8">
+            <Link href="/" className="button" data-check-link>
+              Check a message
+            </Link>
+          </p>
         </div>
       </section>
       {RULES.map((rule, i) => {
@@ -73,6 +79,11 @@ export default function PatternsPage() {
                 <div>
                   <dt className="font-semibold">Illustrative example</dt>
                   <dd className="mt-1">&ldquo;{g.example}&rdquo;</dd>
+                  <dd className="mt-1">
+                    <Link href={exampleHref(rule.id)} className="inline-flex min-h-11 items-center" data-try={rule.id}>
+                      Try this example
+                    </Link>
+                  </dd>
                 </div>
                 <div>
                   <dt className="font-semibold">When it is not a signal</dt>

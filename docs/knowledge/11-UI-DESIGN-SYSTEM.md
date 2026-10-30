@@ -38,6 +38,9 @@ Grid box 100 / 100 / 91.7% of the window at 1280 / 1440 / 1920 px; no horizontal
 ### Header
 `web/src/components/SiteHeader.tsx` with `web/src/components/NavLinks.tsx`: the brand at left; Patterns, Verify a receipt and About at right in `--swiss-text`, the current page black and underlined (`aria-current="page"`), each a 44 px tap area; the links wrap onto a second row on narrow screens.
 
+### Home form and ?example=
+`web/src/components/ExampleCheckForm.tsx` (server) reads `?example=<rule_id>` and passes the validated example to `CheckForm`, which shows it in the box with "Example from the pattern library: <name>. Edit it or press Check." and the demo label; the page wraps it in `<Suspense>` with the empty form as fallback.
+
 ### Beyond the check
 `web/src/components/BeyondTheCheck.tsx`: three `.card` entries (title, one sentence, a link) pointing to /patterns (the count comes from `RULES.length`), /verify and /about. Shown under the form before a check and after the result once there is one, so it never pushes the answer down; hidden in print.
 

@@ -158,8 +158,8 @@ describe("Swiss grid layout (server-rendered)", () => {
   const render = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el);
   const tags = (html: string, cls: RegExp) => [...html.matchAll(/<(\w+)[^>]*class="([^"]*)"/g)].filter((m) => cls.test(m[2]));
 
-  it("hero: h1 spans columns 1-9 and the lead 1-6 at >= 1024px, inside a 12-column .grid", () => {
-    const html = render(createElement(Home));
+  it("hero: h1 spans columns 1-9 and the lead 1-6 at >= 1024px, inside a 12-column .grid", async () => {
+    const html = render(await Home({ searchParams: Promise.resolve({}) }));
     expect(html).toMatch(/<div class="grid"><h1 id="page-title" class="t-title col-span-full lg:col-span-9">/);
     expect(html).toMatch(/<p class="lead col-span-full mt-6 lg:col-span-6">/);
   });
@@ -386,10 +386,10 @@ describe("AI off (no key): rules only, screenshot reading hidden, no AI claims",
     try {
       delete process.env.OPENAI_API_KEY;
       delete process.env.OPENAI_MODEL;
-      expect(strip(render(createElement(Home)))).toContain("Screenshot reading is off");
+      expect(strip(render(await Home({ searchParams: Promise.resolve({}) })))).toContain("Screenshot reading is off");
       process.env.OPENAI_API_KEY = "sk-test";
       process.env.OPENAI_MODEL = "test-model";
-      expect(strip(render(createElement(Home)))).toContain("Upload a screenshot instead");
+      expect(strip(render(await Home({ searchParams: Promise.resolve({}) })))).toContain("Upload a screenshot instead");
     } finally {
       if (saved.k === undefined) delete process.env.OPENAI_API_KEY; else process.env.OPENAI_API_KEY = saved.k;
       if (saved.m === undefined) delete process.env.OPENAI_MODEL; else process.env.OPENAI_MODEL = saved.m;
