@@ -496,3 +496,12 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | Schema check before any migration | PASS | `decideMigration` in `web/src/lib/graph/migrations.ts`: present -> skip; missing -> exit 2, "HUMAN STEP REQUIRED" with the file's GSQL; no global call (test asserts tg-setup no longer sends migrations) |
 | Error detail, masked | PASS | client errors carry the response body (800 chars max), secret and bearer token masked (tests with a mocked fetch) |
 | Live tg-setup | PASS | first run: queries created, install `FAILED: fetch failed` (dropped long request; `--check` then showed `19/19 queries SAME`, so the install had completed); added install retries; full re-run: `migration 001 already applied (Report.reporter_key exists)`, `Query installed successfully: q1...q4`, `22 vertices, 21 edges`, `parity TigerGraph vs Postgres: 19/19 queries SAME`, exit 0; "Access Denied" count 0 |
+
+## G2 - Q2 investigation (read-only on live data)
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Does any demo data produce a Q2 path? | YES | read-only Postgres read of the synced payload: 7 wallets, 2 flagged (synthetic), 5 PAID edges; `Q2 on every wallet (Postgres): 4 of 7 have a path` (ex, w2 [2 hops], w3, w4); TigerGraph `q2: 4 of 7 case(s) return rows`; nothing written to Supabase, graph-demo not re-run |
+| Why it looked empty | FOUND | tg-setup printed only the first case (the collection wallet, no path); it now prints how many cases return rows and the first non-empty one |
+| UI never implies a Q2 path that was not found | PASS | GraphPanel lists only the paths returned; no Q2 line when none |
+| Human seeding option | NOT NEEDED | a labelled demo path already exists; the demo doc says which wallet to paste |

@@ -112,8 +112,12 @@ async function main() {
     for (const k of ["q1", "q2", "q3"] as const) {
       const c = cases.filter((x) => x.kind === k);
       if (!c.length) continue;
-      const sample = await findLinks(c[0], deps, tgb);
-      console.log(`   ${k} sample from TigerGraph (${c.length} case(s)): ${JSON.stringify(sample).slice(0, 260)}`);
+      // Count every case, and show the first one that returns rows (the first case alone can be empty while
+      // others have paths, which read as "Q2 finds nothing").
+      const results = await Promise.all(c.map((q) => findLinks(q, deps, tgb)));
+      const withRows = results.filter((r) => (r as unknown[]).length > 0);
+      const sample = withRows[0] ?? [];
+      console.log(`   ${k}: ${withRows.length} of ${c.length} case(s) return rows in TigerGraph; first: ${JSON.stringify(sample).slice(0, 220)}`);
     }
     if (diffs.length) process.exitCode = 1;
   }

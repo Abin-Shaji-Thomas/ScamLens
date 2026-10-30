@@ -62,7 +62,7 @@ One-time global migration: graphs created before round 1 lack `Report.reporter_k
 
 ## Verified on a live Savanna workspace (2026-10-30)
 
-After the owner applied migration 001 by hand, `npx tsx scripts/tg-setup.ts` printed `migration 001 already applied (Report.reporter_key exists)` (no "Access Denied"), created and installed Q1-Q4, accepted 22 vertices / 21 edges and ended with `parity TigerGraph vs Postgres: 19/19 queries SAME` (Q1: 2 cases; Q2: `[]` for all 7 wallets; Q3: 1 cluster of 3 handles). The app's graph note says `Graph backend: tigergraph`.
+After the owner applied migration 001 by hand, `npx tsx scripts/tg-setup.ts` printed `migration 001 already applied (Report.reporter_key exists)` (no "Access Denied"), created and installed Q1-Q4, accepted 22 vertices / 21 edges and ended with `parity TigerGraph vs Postgres: 19/19 queries SAME` (Q1: 1 of 2 UPI cases returns rows; Q2: 4 of 7 wallets have a path to a flagged demo address; Q3: 1 cluster of 3 handles). The app's graph note says `Graph backend: tigergraph`.
 
 ## Verified on a live Savanna workspace (2026-10-29)
 
