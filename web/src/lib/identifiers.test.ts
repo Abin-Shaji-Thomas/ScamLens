@@ -227,3 +227,24 @@ describe("slice invariant (randomized)", () => {
     }
   });
 });
+
+describe("EIP-55 spec vectors beyond the 'Normal' set (final round P2)", () => {
+  // https://eips.ethereum.org/EIPS/eip-55 "Test Cases": the all-caps and all-lower vectors are valid checksums whose
+  // encoding happens to be single-case, so they cannot be told apart from unchecked input: accepted as "format".
+  it.each([
+    "0x52908400098527886E0F7030069857D2E4169EE7",
+    "0x8617E340B3D01FA5F11F306F4090FD50E238070D",
+    "0xde709f2102306220921060314715629080e2fb77",
+    "0x27b1fdb04752bbc536007a920d24acb045561c26",
+  ])("accepts %s as format and keeps the spec spelling", (addr) => {
+    expect(only(addr)).toMatchObject({ type: "evm", value: addr, check: "format" });
+  });
+  it("rejects 0x5aAeb6053F3E94C9b9A09f33669435E7EF1BeAed (the spec vector with one letter's case flipped)", () => {
+    expect(types("0x5aAeb6053F3E94C9b9A09f33669435E7EF1BeAed")).toEqual([]);
+    expect(only("0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed").check).toBe("checksum");
+  });
+  it("rejects an Indian number starting with 5 and a 9-digit number", () => {
+    expect(types("+91 58765 43210")).toEqual([]);
+    expect(types("+91 98765 4321")).toEqual([]);
+  });
+});
