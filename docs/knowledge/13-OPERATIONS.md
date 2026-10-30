@@ -45,7 +45,7 @@ node -e "require('fs').readFileSync('.env.local','utf8').split(/\r?\n/).forEach(
 ### Deploy
 1. Push to `main` (fast-forward only, never force).
 2. Vercel builds `web/` (root directory = `web`).
-3. `curl.exe -s https://scam-lens-two.vercel.app/api/health` must show `"build"` = `git rev-parse --short HEAD`.
+3. `curl.exe -s https://scam-lens-two.vercel.app/api/health` must show `"build"` = `git rev-parse --short HEAD`. `"graph":"tigergraph"` means TigerGraph is configured (`TG_HOST` and `TG_SECRET` set), not that the workspace is awake: health makes no network calls. Whether TigerGraph actually answered shows under the graph ("Graph backend: tigergraph (N ms)" or "postgres (TigerGraph unavailable)") and in the coverage ledger's Link graph row.
 4. Run `npx tsx scripts/smoke-live.ts https://scam-lens-two.vercel.app` and `npx tsx scripts/check-headers.ts https://scam-lens-two.vercel.app`. The first smoke run right after a deploy can time out on a cold start (seen 2026-10-30); run it again before concluding anything.
 
 ### Before a demo

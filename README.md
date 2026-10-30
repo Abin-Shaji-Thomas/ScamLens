@@ -63,7 +63,8 @@ Minimalism & Swiss Style: a 12-column grid that fills the window up to 1760 px (
 
  POST /api/graph  -> TigerGraph Savanna (Q1-Q4 over REST)  --fallback-->  Postgres recursive CTEs (same answers)
  POST /api/report -> submit_report() in SQL (rate limit, one fingerprint per identifier) -> mirrored to TigerGraph
- GET  /api/health -> booleans / short statuses only, plus "build" (deployed commit, 7 chars, or "local")
+ GET  /api/health -> booleans / short statuses only, plus "build" (deployed commit, 7 chars, or "local");
+                     "graph":"tigergraph" means configured, not awake (health makes no network calls)
 ```
 
 ```

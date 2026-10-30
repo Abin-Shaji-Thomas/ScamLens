@@ -549,3 +549,10 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | Route | PASS | `GET /api/graph/stats`: graph limit, TigerGraph then Postgres, 5-minute cache, counts only, 404 when nothing answers |
 | Tests | PASS | `stats.test.ts` (7): success, Postgres fallback, failure 404 and empty line, success response and cache header, cache window, 429 with no graph query; ui.test.ts /about now lists 9 sections (deliberate: new section) |
 | /about static | see build | `/about` remains ○ (static) in the build route list |
+
+## G4e - Health wording
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Shape unchanged | PASS | no code change; health.test.ts unchanged |
+| Documented | PASS | README routes block, DEPLOY section 6, knowledge 10 and 13: "graph":"tigergraph" means configured, not awake |
