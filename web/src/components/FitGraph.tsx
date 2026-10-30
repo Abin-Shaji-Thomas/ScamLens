@@ -13,7 +13,7 @@ const ALERT = "#b00020"; // only the evidence-path link
 const WHITE = "#ffffff";
 const R_FOCUS = 6;
 const R_NODE = 4.5;
-const FONT = '"Helvetica Neue", "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+const FONT = 'Arial, "Helvetica Neue", Helvetica, "Liberation Sans", Roboto, sans-serif';
 
 type Node = GraphView["nodes"][number];
 type Link = GraphView["links"][number];

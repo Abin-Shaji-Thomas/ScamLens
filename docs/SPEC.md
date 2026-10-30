@@ -135,3 +135,8 @@ Do Step 0 and the Step 1 audit now. Report the findings, then wait for my "next"
 - `/api/health` keeps its shape; `"graph":"tigergraph"` means configured, not awake.
 - Font stack: "Helvetica Neue", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, so Windows uses Segoe UI Light for weight 300.
 - PGlite suites run with explicit 30 s timeouts (start-up under parallel load); smoke-live warms up before counting expectations.
+
+# TYPOGRAPHY: Arial-first stack, regular headings, identical on every OS, matching the owner's localhost look (2026-10-30, branch finish)
+- Font stack: Arial, "Helvetica Neue", Helvetica, "Liberation Sans", Roboto, sans-serif. System fonts only, no web fonts. This replaces the Segoe UI ordering of the TigerGraph finish round.
+- Two weights only: 400 for all text and headings (title, risk word, 404, section headings, step numerals) and 600 for small bold labels, finding titles and the brand. No weight 300 anywhere; `font-synthesis: none`.
+- Sizes, line heights, grid and colour tokens are unchanged. Verified in headless Edge against a reference built from the pre-056ab4b stack: identical font files, sizes, widths and line counts at 375, 768, 1280, 1440 and 1920 px.

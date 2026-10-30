@@ -346,7 +346,7 @@ describe("Swiss /about and 404 (server-rendered)", () => {
     expect(strip(html)).toContain("Page not found");
     expect(html).toMatch(/<a [^>]*href="\/"[^>]*>Go to the check<\/a>/);
     const css = readFileSync(join(import.meta.dirname, "..", "app", "globals.css"), "utf8");
-    expect(cssRules(css).find((r) => r.selector === ".t-404")?.body).toMatch(/font-size: clamp\(6rem, 20vw, 16rem\);[\s\S]*font-weight: 300;/);
+    expect(cssRules(css).find((r) => r.selector === ".t-404")?.body).toMatch(/font-size: clamp\(6rem, 20vw, 16rem\);[\s\S]*font-weight: 400;/); // finish round: regular, never light
   });
 });
 
@@ -355,7 +355,7 @@ describe("Swiss fixes found in the browser", () => {
   const rule = (sel: string) => cssRules(css).find((r) => r.selector === sel)?.body ?? "";
   it("step numerals do not split a step's sentence into grid cells (a <strong> inside a step stays inline)", () => {
     expect(rule(".steps > li")).not.toContain("display: grid");
-    expect(rule(".steps > li::before")).toMatch(/position: absolute;[\s\S]*font-size: 2rem;[\s\S]*font-weight: 300;/);
+    expect(rule(".steps > li::before")).toMatch(/position: absolute;[\s\S]*font-size: 2rem;[\s\S]*font-weight: 400;/); // finish round: regular numerals
   });
   it("links inside sentences get a 44px tap area without a visible gap", () => {
     expect(rule(".tap")).toMatch(/padding: max\(0px, calc\(\(44px - 1\.1em\) \/ 2\)\) 0\.25rem;\s*margin-inline: -0\.25rem;/);

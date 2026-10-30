@@ -17,7 +17,7 @@
   --swiss-clay: #7a4f32; /* accent text, link hover, hover rule on paper */
   --swiss-alert: #b00020; /* only the word "High" (and its meter) and the graph's evidence-path link */
   --swiss-black-hover: #1f2937;
-  --font: "Helvetica Neue", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font: Arial, "Helvetica Neue", Helvetica, "Liberation Sans", Roboto, sans-serif;
   color-scheme: only light;
 }
 
@@ -49,6 +49,8 @@
     background: var(--swiss-white);
     color: var(--swiss-black);
     font-family: var(--font);
+    /* Never fake a weight: Arial and its fallbacks have real regular and bold faces. */
+    font-synthesis: none;
     font-size: 1.125rem;
     line-height: 1.6;
     font-weight: 400;
@@ -94,11 +96,12 @@
 }
 
 @layer components {
-  /* Type scale. Weight 300 only at 28px and above; smaller headings use 400. Never below 14px. */
+  /* Type scale. Two weights only: 400 for all text and headings (large headings are regular, never light) and
+     600 for small bold labels, finding titles, the brand and buttons. Never below 14px. */
   .t-title {
     font-size: clamp(2.5rem, 6vw, 6rem);
     line-height: 1.05;
-    font-weight: 300;
+    font-weight: 400;
     letter-spacing: -0.01em;
   }
   .t-h2 {
@@ -117,13 +120,13 @@
   .t-risk {
     font-size: clamp(3rem, 8vw, 8rem);
     line-height: 1;
-    font-weight: 300;
+    font-weight: 400;
     letter-spacing: -0.01em;
   }
   .t-404 {
     font-size: clamp(6rem, 20vw, 16rem);
     line-height: 0.9;
-    font-weight: 300;
+    font-weight: 400;
     letter-spacing: -0.02em;
   }
   .lead {
@@ -184,7 +187,7 @@
     top: 0;
     font-size: 2rem;
     line-height: 1;
-    font-weight: 300;
+    font-weight: 400;
   }
   /* label / value pairs (on-chain facts) */
   .facts {

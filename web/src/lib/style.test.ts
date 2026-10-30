@@ -61,7 +61,18 @@ describe("Swiss style rules", () => {
   });
   it("system font stack only: no next/font, no web font imports", () => {
     expect(offenders(/next\/font|fonts\.googleapis|@font-face/)).toEqual([]);
-    expect(readFileSync(CSS_PATH, "utf8")).toContain('--font: "Helvetica Neue", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;');
+    expect(readFileSync(CSS_PATH, "utf8")).toContain('--font: Arial, "Helvetica Neue", Helvetica, "Liberation Sans", Roboto, sans-serif;');
+  });
+  it("typography: Arial-first stack, two weights only (400 regular, 600 bold), no light weight anywhere", () => {
+    const css = readFileSync(CSS_PATH, "utf8");
+    const rules = cssRules(css);
+    const weight = (sel: string) => rules.find((r) => r.selector === sel)?.body.match(/font-weight:\s*(\d+)/)?.[1];
+    for (const sel of [".t-title", ".t-risk", ".t-404", ".t-h2", ".steps > li::before"]) expect(weight(sel), sel).toBe("400");
+    expect(weight(".button")).toBeUndefined(); // buttons inherit 400 and are uppercase by CSS
+    const weights = [...css.matchAll(/font-weight:\s*(\d+)/g)].map((m) => m[1]);
+    expect(new Set(weights)).toEqual(new Set(["400", "600"]));
+    expect(css).toMatch(/font-synthesis:\s*none/); // never a faked bold or light
+    expect(offenders(/font-weight:\s*[1-3]00|(?<![\w-])font-(?:thin|extralight|light)(?![\w-])/)).toEqual([]);
   });
   it("motion: transitions are 200ms and only on color, background-color or border-color; no keyframe animation", () => {
     const bad: string[] = [];

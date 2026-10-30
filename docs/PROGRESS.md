@@ -600,3 +600,29 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | Live graph (TigerGraph awake) | PASS | `/api/graph`: `backend: 'tigergraph', elapsedMs: 609, nodes: 5, paths: 2`; `/api/graph/stats`: `{"backend":"tigergraph","vertices":22,"edges":21}` |
 | Live browser | PASS | sample 1 High; hint "This UPI ID is linked to 4 other identifiers in community reports. Show links to see how." + "A link is not proof of wrongdoing." + demo label; note "Graph backend: tigergraph (654 ms)" (375 px: 614 ms); ledger "not looked up (press Show links)" -> "checked · tigergraph, 654 ms"; graph margins 466/42/477/29 at 1440 and 30/46/39/31 at 375, overflow false; /about "Right now the graph holds 22 vertices (identifiers and reports) and 21 links, counted by TigerGraph."; console [] |
 | Screenshots | PASS | `docs/screens/live-graph-1440.png`, `live-graph-375.png`, `live-hint-1440.png`, `live-about-graph-1440.png` |
+
+# Finish round (branch finish, 2026-10-30)
+
+## H0 - Baseline and look reference
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Identity, branch, remote | PASS | `Abin-Shaji-Thomas` / `abinshajiabin2006@gmail.com`; HEAD = origin/main = ccfffa6; branch `finish` |
+| Gate | PASS | `Tests 435 passed (435)`, typecheck 0, lint 0, build 0, docs:check PASS |
+| Live health | PASS | `"build":"ccfffa6"` = HEAD, `"graph":"tigergraph"`, `"receipts":true` |
+| Old servers | DONE | a server on port 3000 (the owner's older localhost) was stopped; local production build on 3400 |
+| Look reference (pre-056ab4b stack injected, 1440 px) | RECORDED | h1 `ArialMT` w300 86.4px 2 lines width 1001; h2 `ArialMT` w400 24px; lead `ArialMT` w400 18px; eyebrow `ArialMT` w400 14px; button `ArialMT` w400 14px; brand `Arial-BoldMT` w600 18px; risk word `ArialMT` w300 115.2px. Screenshots `docs/screens/finish-ref-home-1440.png`, `finish-ref-sample1-1440.png` |
+| Live today (same elements) | RECORDED | h1 and risk word `SegoeUI-Light`; h2, lead, eyebrow, button `SegoeUI`; brand `SegoeUI-Semibold`; same sizes and widths (button 115 vs 122 px, brand 80 vs 90 px) |
+| Other local vs live differences | ONE, timing only | /, /about, /patterns, /verify: text, header/footer links and computed styles identical. Sample 1: the linked-identifier hint appeared live after 3.4 s and locally after 13.1 s (slower first TigerGraph call from this machine); not a product difference |
+| h1 wrap with Arial | NOTE | `["Evidence-linked scam","check for India."]` at 1280-1680 px; `["Evidence-linked scam check","for India."]` only at 1920 px. The owner's description of "scam check / for India." at 1440 matches today's Segoe UI Light layout, not Arial at today's sizes |
+
+## H1 - Production looks like the owner's localhost
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Stack and weights | PASS | `--font: Arial, "Helvetica Neue", Helvetica, "Liberation Sans", Roboto, sans-serif`; `.t-title`, `.t-risk`, `.t-404`, step numerals 300 -> 400 (`.t-h2` already 400); 600 rules unchanged; `font-synthesis: none` on the body; the graph canvas font uses the same stack |
+| Reference vs new (5 widths x / and sample 1) | PASS | 75 values compared (font file, size, width, line count, h1 wrap): `differences: 0`; h1 `ArialMT` w400, risk word `ArialMT` w400 (48 / 61.44 / 102.4 / 115.2 / 128 px), brand `Arial-BoldMT` w600 |
+| font-synthesis changes nothing | PASS | the reference had no `font-synthesis` and the font files match |
+| Overflow and tap | PASS | overflow false, smallest tap target 44 px at all five widths on both pages; console [] |
+| Test note | NOTE | the first comparison showed 429s: this machine had used its 40 daily checks on the local server; the comparison ran again with local-only `USAGE_CHECK_PER_DAY=1000` (not committed) |
+| Tests | PASS | style.test.ts: new rule (Arial-first stack, only 400/600, no light weight, `font-synthesis: none`); ui.test.ts .t-404 and step numerals now 400 |

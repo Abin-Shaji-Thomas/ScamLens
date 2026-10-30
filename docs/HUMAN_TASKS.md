@@ -26,7 +26,7 @@ Most of `docs/UI_CHECKLIST.md` was verified in headless Edge on 2026-10-30. Stil
 2. Screen reader (NVDA or VoiceOver): "Result ready: ..." is announced; the 01/02/03 and 404 numerals are not read.
 3. DevTools -> Network -> Offline, press Check: "Error. ..." appears in black, with no stack trace.
 4. With TigerGraph suspended, press "Show links ...": "The graph database is waking up..." appears after about 3 s.
-5. On macOS or iOS, check that the big headings render in a light weight (Helvetica Neue Light). On Windows they use Segoe UI Light (measured in headless Edge on 2026-10-30).
+5. On macOS, iOS, Android and Linux, check that the headings look like Windows: solid regular Arial (or its metric-compatible fallback), not a thin face.
 6. "I already paid" -> COPY COMPLAINT DRAFT in a real browser: the draft lands on the clipboard (headless Edge blocks the clipboard, so only the on-page fallback was verified).
 
 ## Later / optional

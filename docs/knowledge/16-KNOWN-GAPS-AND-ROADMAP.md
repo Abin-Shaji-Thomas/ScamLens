@@ -16,7 +16,7 @@ What ScamLens cannot do yet, ranked by how much it matters, and what could come 
 | MED | Screenshot upload was offered with no vision key (fixed in J2: hidden, driven by the health check's `vision` flag) | `web/src/components/CheckForm.tsx` |
 | MED | Whether the live Supabase has migration 002 applied: UNKNOWN | `docs/HUMAN_TASKS.md` |
 | LOW | TigerGraph setup done (19/19 SAME, 2026-10-30), but Savanna has no auto-start: an idle workspace suspends and the graph answers from Postgres (labelled) until a person resumes it | `docs/HUMAN_TASKS.md` item 3 |
-| FIXED | Windows rendered headings at weight 400 (Helvetica aliased to Arial); the stack now puts Segoe UI before Helvetica and the h1 uses Segoe UI Light | `web/src/app/globals.css` |
+| DESIGN | Headings are regular-weight Arial on every OS (finish round); the earlier thin Segoe UI Light headings on Windows were removed on purpose | `web/src/app/globals.css` |
 | LOW | Graph drawing is small inside a large canvas | `web/src/components/GraphPanel.tsx` |
 | FIXED | First smoke run after a deploy could time out (cold start); smoke-live now warms up first | `web/scripts/smoke-live.ts` |
 | LOW | UPI, phone and Telegram identifiers have no verified source (by nature) | `web/src/lib/verified/index.ts` |

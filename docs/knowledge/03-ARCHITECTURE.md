@@ -45,6 +45,8 @@ ScamLens is one Next.js app on Vercel. The pages are mostly static; a handful of
 
 ## Where in the code
 
+- `web/src/app/globals.css`: all styles and tokens, including the Arial-first font stack (see [11-UI-DESIGN-SYSTEM.md](11-UI-DESIGN-SYSTEM.md)).
+
 - `web/src/app/`: pages and API routes (list below).
 - `web/src/lib/verified/`: sources.
 - `web/src/lib/reports/`: reports and the database client.

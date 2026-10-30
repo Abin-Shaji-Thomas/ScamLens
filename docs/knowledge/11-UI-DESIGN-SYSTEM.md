@@ -2,7 +2,7 @@
 
 ## In plain words
 
-The interface follows Minimalism & Swiss Style: a 12-column grid that fills the window up to 1760 px, large light headings, lots of white space, 2 px black rules instead of boxes, and ten fixed colours. Colour never carries meaning on its own: the risk level is a word, a bold underlined position and a meter. Grey and tan never colour text, because they are too faint to read.
+The interface follows Minimalism & Swiss Style: a 12-column grid that fills the window up to 1760 px, large regular-weight headings, lots of white space, 2 px black rules instead of boxes, and ten fixed colours. Colour never carries meaning on its own: the risk level is a word, a bold underlined position and a meter. Grey and tan never colour text, because they are too faint to read.
 
 ## Details
 
@@ -21,16 +21,16 @@ The interface follows Minimalism & Swiss Style: a 12-column grid that fills the 
 | `--swiss-black-hover` | #1f2937 | button hover | white on it 14.68 |
 
 ### Type
-- Font stack: `"Helvetica Neue", "Segoe UI", Roboto, Helvetica, Arial, sans-serif` (system fonts only; no web fonts). "Segoe UI" comes before Helvetica because Windows maps "Helvetica" to Arial, which has no light face; with this order Windows renders the h1 in Segoe UI Light (measured 2026-10-30 with `CSS.getPlatformFontsForNode`).
-- h1 `.t-title`: weight 300, `clamp(2.5rem, 6vw, 6rem)` / 1.05. Risk word `.t-risk`: `clamp(3rem, 8vw, 8rem)`. 404 numeral `.t-404`: `clamp(6rem, 20vw, 16rem)`.
-- Section headings `.t-h2`: 1.5rem, weight 400 (weight 300 only at 28 px and above). Body 1.125rem / 1.6. Small `.t-small`: 0.875rem / 1.5, never below 14 px. `.eyebrow`: 0.875rem, 0.1em tracking, uppercase by CSS only.
+- Font stack: `Arial, "Helvetica Neue", Helvetica, "Liberation Sans", Roboto, sans-serif` (system fonts only; no web fonts). Arial comes first so Windows, macOS and iOS draw the same solid letterforms; Linux and Android use metric-compatible fallbacks. `font-synthesis: none` on the body: no faked weights. Measured 2026-10-30 (finish round): every element renders `ArialMT` / `Arial-BoldMT`.
+- h1 `.t-title`: weight 400, `clamp(2.5rem, 6vw, 6rem)` / 1.05. Risk word `.t-risk`: `clamp(3rem, 8vw, 8rem)`. 404 numeral `.t-404`: `clamp(6rem, 20vw, 16rem)`.
+- Section headings `.t-h2`: 1.5rem, weight 400. Two weights only: 400 for all text and headings, 600 for small bold labels, finding titles, the brand and buttons' labels where set; no light weight. Body 1.125rem / 1.6. Small `.t-small`: 0.875rem / 1.5, never below 14 px. `.eyebrow`: 0.875rem, 0.1em tracking, uppercase by CSS only.
 - Reading text is capped at 65ch.
 
 ### Grid
 `.grid`: 12 columns, gap `clamp(1rem, 2vw, 2rem)`, max 110rem, padding `clamp(3rem, 6vw, 6rem) clamp(1.25rem, 4vw, 3rem)`; one column below 768 px. Every top-level part of a page is a full-width `<section>` holding one `.grid`, so a `.band` background is full-bleed.
 
 ### Components
-`.card` (2px black top rule, hover tan on white, clay on a band), `.button` (black, square, 44 px minimum, uppercase by CSS), `.button--outline`, `.btn-link` (underlined, 44 px tap height), `.textarea` (2px black top rule, 1px light rule below), `.field` (1px black underline), `.meter` / `.meter__seg`, `.steps` (large light numerals), `.tap` (44 px tap area for links inside sentences). Focus: `outline: 2px solid var(--swiss-black); outline-offset: 3px` on every interactive element. Motion: 200 ms colour transitions only, none under reduced motion. No shadows, gradients, rounded corners or dark mode.
+`.card` (2px black top rule, hover tan on white, clay on a band), `.button` (black, square, 44 px minimum, uppercase by CSS), `.button--outline`, `.btn-link` (underlined, 44 px tap height), `.textarea` (2px black top rule, 1px light rule below), `.field` (1px black underline), `.meter` / `.meter__seg`, `.steps` (large regular numerals), `.tap` (44 px tap area for links inside sentences). Focus: `outline: 2px solid var(--swiss-black); outline-offset: 3px` on every interactive element. Motion: 200 ms colour transitions only, none under reduced motion. No shadows, gradients, rounded corners or dark mode.
 
 ### Measured (2026-10-30, headless Edge)
 Grid box 100 / 100 / 91.7% of the window at 1280 / 1440 / 1920 px; no horizontal overflow at 375-1920 px; smallest tap target 44 px; print is black on white.
