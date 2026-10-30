@@ -20,6 +20,11 @@ Four features that set ScamLens apart from list-only checkers: a coverage ledger
 - **How it is built:** `buildCoverage(result)` uses only the check result: source rows, their statuses and reasons, list dates (`dataAsOf`), check times and identifier types. Nothing is typed per run; no date is hard-coded (a test checks the source for dates). It never uses the words "clean" or "safe".
 - **Limits:** "checked" means the source answered, not that it found nothing; the finding itself is in the Verified tier. What each source covers is a fixed sentence in `web/src/lib/coverage.ts` that must be kept in line with `web/src/lib/verified/index.ts`.
 
+### 1b. Linked-identifier hints (TigerGraph finish round)
+- **What:** under the Reported entries, "This UPI ID is linked to N other identifiers in community reports. Show links to see how." for up to 3 reported identifiers that have links in the graph, with "A link is not proof of wrongdoing." and the demo label when synthetic.
+- **Why:** the graph's value is visible without pressing anything, while the card itself never waits for it.
+- **Limits:** background lookups use the daily graph limit; failures and limits show nothing, so absence of a hint is not evidence either way.
+
 ### 2. "I already paid" mode
 - **What:** inside "What to do now", an "I already paid" button opens an ordered plan: call 1930 now; tell the bank or UPI app and ask to hold or reverse the payment (note the complaint number); file at cybercrime.gov.in; keep every chat, screenshot, transaction ID, wallet address and phone number; for crypto, note the transaction hash and destination address (an exchange holding it may be able to act, nothing is guaranteed); never pay a "recovery fee" or "tax to withdraw"; tell someone you trust and change passwords if OTPs or logins were shared. It ends with "No step can promise to get your money back. Not legal advice." Optional fields (amount, date and time, payment method, transaction ID) and a "Copy complaint draft" button follow.
 - **Why:** people who already paid need the right order of steps fast, and a complaint that lists the identifiers correctly.

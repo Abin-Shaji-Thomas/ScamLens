@@ -531,3 +531,12 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | Optional graph argument | PASS | `buildCoverage(result, { graph })`; GraphPanel reports each lookup via `onLookup`; RiskCard keeps it per `checkedAt` |
 | Statuses | PASS | coverage.test.ts +3: not looked up, checked ("tigergraph, 412 ms"), fallback label with ms, unavailable, not applicable (phone only); never clean/safe |
 | Receipt unchanged | PASS | `buildCoverage(r)` without the argument has no graph row (row ids asserted); receipts.test.ts still passes |
+
+## G4c - Linked-identifier hints
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Targets | PASS | at most 3 identifiers of type upi/evm/tron/telegram with a Reported entry; none when reports are unavailable |
+| Background, sequential, non-blocking | PASS | `runLinkHints` awaits one lookup at a time (test asserts one active call); the card renders with no hint first (SSR test) |
+| With links / no links / failure | PASS | `link-hints.test.ts`: sentence "This UPI ID is linked to 2 other identifiers in community reports. Show links to see how.", not-proof note, demo label; no links -> empty; 500 -> skipped; 429 -> stop; network error -> nothing; no banned words |
+| Bug found by a test | FIXED | `hints?.at === result.checkedAt` was true when both were undefined; LinkHints and RiskCard now check the object first |

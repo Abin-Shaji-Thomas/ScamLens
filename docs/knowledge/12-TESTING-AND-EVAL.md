@@ -19,6 +19,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/evidence-pack.test.ts` | 4 |
 | `web/src/lib/f1-safety.test.ts` | 19 |
 | `web/src/lib/graph/drawing.test.ts` | 2 |
+| `web/src/lib/graph/link-hints.test.ts` | 5 |
 | `web/src/lib/graph/migrations.test.ts` | 6 |
 | `web/src/lib/graph/tigergraph.test.ts` | 15 |
 | `web/src/lib/health.test.ts` | 6 |

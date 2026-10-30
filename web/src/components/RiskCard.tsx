@@ -8,6 +8,7 @@ import { TIERS } from "@/lib/tiers";
 import { CoverageLedger } from "./CoverageLedger";
 import { EvidencePackButton } from "./EvidencePackButton";
 import { GraphPanel } from "./GraphPanel";
+import { LinkHints } from "./LinkHints";
 import { ReportedList } from "./ReportedList";
 import { ReportForm } from "./ReportForm";
 import { RiskBadge } from "./RiskBadge";
@@ -37,7 +38,7 @@ function Identifiers({ ids }: { ids: CheckResponse["identifiers"] }) {
 export function RiskCard({ result, demo = false, text = "" }: { result: CheckResponse | null; demo?: boolean; text?: string }) {
   // The last link-graph lookup for THIS result (keyed by checkedAt, so a new check starts at "not looked up").
   const [lookup, setLookup] = useState<{ at: string; g: GraphCoverage } | null>(null);
-  const graph = result && lookup?.at === result.checkedAt ? lookup.g : null;
+  const graph = result && lookup && lookup.at === result.checkedAt ? lookup.g : null;
   const [verified, reported, suspected] = TIERS;
   return (
     <>
@@ -83,6 +84,7 @@ export function RiskCard({ result, demo = false, text = "" }: { result: CheckRes
               <div className="flex flex-col gap-6">
                 {result.risk.reportedMessage && <p className="text-swiss-text">{result.risk.reportedMessage}</p>}
                 <ReportedList tier={result.reported} identifiers={result.identifiers} />
+                <LinkHints result={result} />
               </div>
             ) : undefined}
           </TierSection>

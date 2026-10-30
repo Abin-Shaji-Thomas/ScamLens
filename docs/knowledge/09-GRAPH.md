@@ -30,6 +30,8 @@ Queries (`graph/queries.gsql`, mirrored in `web/db/schema.sql`):
 
 Hub filter: no query links people through an exchange address or a node with more than <!-- FACT:hub_max -->25<!-- /FACT --> distinct counterparties (`GRAPH_HUB_MAX`), computed at query time.
 
+Linked-identifier hints: after a result is shown, the Reported tier looks up, in the background and one at a time, the graph for at most 3 identifiers (UPI ID, wallet, TRON wallet or Telegram handle) that have a Reported entry. It shows one plain sentence per identifier only when links exist, for example "This UPI ID is linked to 2 other identifiers in community reports. Show links to see how.", followed by "A link is not proof of wrongdoing." and the demo label when the data is synthetic. Any failure shows nothing, and a rate limit (429) stops further lookups; each lookup counts against the daily graph limit. Code: `web/src/lib/graph/link-hints.ts`, `web/src/components/LinkHints.tsx`.
+
 Timing: `/api/graph` returns optional `elapsedMs` (whole milliseconds the answering backend took). The note under the graph reads "Graph backend: tigergraph (N ms)" for a direct answer; the fallback keeps its plain label "postgres (TigerGraph unavailable)".
 
 Fallback and parity: `web/src/lib/graph/index.ts` picks TigerGraph when `TG_HOST` and `TG_SECRET` are set, and falls back to the Postgres functions on any error, labelling the view "postgres (TigerGraph unavailable)". `npx tsx scripts/tg-setup.ts` runs every Q1, Q2 and Q4 case plus Q3 on both backends and prints `N/N queries SAME`.
