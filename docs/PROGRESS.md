@@ -466,3 +466,16 @@ Full matrix and scenario table: `docs/knowledge/18-RELEASE-READINESS.md`.
 | smoke-live | PASS | `ALL PASS (39 expectations)`; receipts verify for all three samples (codes icPmIKap2eEM, P4bfYH1_s6tN, 8DPUAodT-Dbr) |
 | check-headers | PASS | `ALL PASS (48 checks)` |
 | Live browser | PASS | 6 screenshots `docs/screens/live-*.png` (replacing the UI round's set); console empty on /, /about, /patterns, /verify; sample check High 3/3; I already paid: 7 steps, 0 requests; receipt download -> /verify valid in the browser, tampered rejected |
+
+# TigerGraph finish round (branch tg-finish, 2026-10-30)
+
+Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace is Running; the owner applied the global `reporter_key` change by hand and `tg-setup.ts` then reported `parity TigerGraph vs Postgres: 19/19 queries SAME`; the live site shows "Graph backend: tigergraph". AI stays off.
+
+## G0 - Baseline
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Identity, branch | PASS | `Abin-Shaji-Thomas` / `abinshajiabin2006@gmail.com`; `tg-finish` from main 89ad467; main ahead 0, behind 0 |
+| Live health | PASS | `{"ok":true,...,"graph":"tigergraph","usageStore":"supabase","llm":false,"vision":false,"etherscan":true,"build":"89ad467","receipts":true}` = HEAD |
+| Baseline suites | FLAKY | first run `Tests 6 failed | 400 passed (406)` (six PGlite tests at 5.7-6.7 s > 5000 ms default); rerun `Tests 406 passed (406)`; typecheck 0, lint 0, build 0, docs:check PASS. Fixed next (G5.3 moved forward) |
+| WORKING_RULES | PASS | narrow TigerGraph permission added; dashboards stay human-only |
