@@ -515,3 +515,11 @@ Owner facts: Supabase migrations 002 and 003 are run; the TigerGraph workspace i
 | Browser (sample 1 -> Show links, local, backend tigergraph) | PASS | first measurement after a resize showed margins 0 at 375 and 768 (clipped) -> added refit on resize; then resize: 375 margins 58/41/71/26, 768 226/41/237/27, 1440 509/42/517/28; fresh 375: 30/46/38/31; overflow false everywhere; console [] |
 | Q2 path text in the UI | PASS | pasted demo wallet 0x9377...32d8: `Q2 Funds moved 0x9377***32d8 -> 0xc846***38Ba -> 0x1DD0***9A07 (2 hops) to an address flagged by synthetic flag (demo).` (matches the demo doc) |
 | Tests | PASS | `drawing.test.ts` (canvas height, label size, padding); ui.test.ts graph pin now reads FitGraph.tsx (same assertions; values that changed on purpose: 160 warm-up ticks, label halo order) plus fit-on-stop and refit-on-resize |
+
+## G4a - Graph timing
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| `elapsedMs` in /api/graph | PASS | optional integer in the `GraphView` zod schema, set for direct and fallback answers, absent when unavailable |
+| Note | PASS | `graphBackendLabel`: "tigergraph (N ms)"; fallback keeps "postgres (TigerGraph unavailable)" |
+| Tests | PASS | tigergraph.test.ts +2 (direct answer with timing and label, non-integer rejected; unavailable without timing and the route's response validates) and the fallback test checks its label |

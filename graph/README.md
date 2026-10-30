@@ -44,6 +44,8 @@ Postgres (Supabase) is the source of truth, and TigerGraph holds the same links 
 
 `web/src/lib/graph/tigergraph.ts` calls the installed queries with `GET /restpp/query/{graph}/{query}`. It authenticates with a token from `POST /gsql/v1/tokens`, falling back to the `GSQL-Secret` header. It then maps the results to exactly the same row shapes as the Postgres version. If TigerGraph fails or times out, the graph view answers from Postgres and labels itself "postgres (TigerGraph unavailable)", so the demo never breaks silently.
 
+The response also carries `elapsedMs`, so the graph note shows how long TigerGraph took ("Graph backend: tigergraph (N ms)").
+
 ## Proving the two backends agree
 
 `npx tsx scripts/tg-setup.ts` runs every Q1/Q2/Q4 case for every UPI and wallet, plus Q3, on **both** TigerGraph and Postgres, against the same Supabase data. It prints `N/N queries SAME`, or the exact differences. The Postgres SQL is itself checked against an independent in-memory implementation in the unit tests.

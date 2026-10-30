@@ -20,6 +20,12 @@ function subscribeReducedMotion(onChange: () => void) {
 }
 type Link = GraphView["links"][number];
 
+/** "tigergraph (12 ms)" for a direct answer; the fallback keeps its plain label "postgres (TigerGraph unavailable)". */
+export function graphBackendLabel(v: Pick<GraphView, "backend" | "elapsedMs">): string {
+  const name = v.backend ?? "none";
+  return v.elapsedMs !== undefined && !/unavailable/.test(name) ? `${name} (${v.elapsedMs} ms)` : name;
+}
+
 export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
   const linkable = identifiers.filter((i) => i.type === "upi" || i.type === "evm").slice(0, MAX_GRAPH_LOOKUPS);
   const [view, setView] = useState<GraphView | null>(null);
@@ -109,7 +115,7 @@ export function GraphPanel({ identifiers }: { identifiers: Identifier[] }) {
             ))}
           </ul>
           <p className="t-small mt-4 text-swiss-text">
-            Graph backend: {view.backend}. Links come from community reports and on-chain transfers; a link is not proof of
+            Graph backend: {graphBackendLabel(view)}. Links come from community reports and on-chain transfers; a link is not proof of
             wrongdoing. Exchange and high-traffic addresses are excluded so unrelated people are not linked.
           </p>
         </>

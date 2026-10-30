@@ -6,8 +6,11 @@ import { tgConfig } from "./index";
 import { seedSynthetic, SEED_IDS, type Scenario } from "./seed";
 import { buildFullPayload, PayloadBuilder, reportEvidence } from "./tg-sync";
 import { mapResult, queryParams, tigerGraphBackend } from "./tigergraph";
-import { buildGraphView } from "./view";
+import { buildGraphView, GraphView } from "./view";
 import type { GraphBackend } from "./types";
+import { postgresBackend } from "./postgres";
+import { graphBackendLabel } from "../../components/GraphPanel";
+import { POST as graphRoute } from "../../app/api/graph/route";
 
 // PGlite suite: each localDb() starts Postgres in WebAssembly (about 1 s alone, about 8 s when six start in parallel
 // under vitest's workers), so the default 5 s limit was flaky. Explicit timeouts; no assertion is relaxed.
@@ -138,5 +141,25 @@ describe("loader payload from Postgres (synthetic seed)", () => {
     expect(v.status).toBe("ok");
     expect(v.backend).toBe("postgres (TigerGraph unavailable)");
     expect(v.paths.filter((x) => x.query === "Q1")).toHaveLength(2);
+    // G4a: the fallback still reports its own time, and the note keeps the plain fallback label
+    expect(Number.isInteger(v.elapsedMs)).toBe(true);
+    expect(graphBackendLabel(v)).toBe("postgres (TigerGraph unavailable)");
+  });
+  it("G4a: a direct answer carries elapsedMs (integer ms) and the note reads 'tigergraph (N ms)'", async () => {
+    const pg = postgresBackend(db);
+    const fake: GraphBackend = { name: "tigergraph", run: (q, deps) => pg.run(q, deps) };
+    const v = await buildGraphView({ type: "upi", value: SEED_IDS.u1 }, { REPORT_HASH_PEPPER: PEPPER }, db, fake);
+    expect(v.status).toBe("ok");
+    expect(v.elapsedMs).toBeGreaterThanOrEqual(0);
+    expect(GraphView.parse(v).elapsedMs).toBe(v.elapsedMs);
+    expect(graphBackendLabel(v)).toBe(`tigergraph (${v.elapsedMs} ms)`);
+    expect(GraphView.safeParse({ ...v, elapsedMs: 1.5 }).success).toBe(false); // whole milliseconds only
+  });
+  it("G4a: unavailable views have no timing, and the route's response validates against the schema", async () => {
+    const off = await buildGraphView({ type: "upi", value: SEED_IDS.u1 }, {}, null, null);
+    expect(off).toMatchObject({ status: "unavailable" });
+    expect(off.elapsedMs).toBeUndefined();
+    const res = await graphRoute(new Request("http://x/api/graph", { method: "POST", headers: { "Content-Type": "application/json", "x-forwarded-for": "203.0.113.77" }, body: JSON.stringify({ type: "upi", value: SEED_IDS.u1 }) }));
+    expect(GraphView.safeParse(await res.json()).success).toBe(true);
   });
 });

@@ -17,6 +17,8 @@ export const GraphView = z.object({
   nodes: z.array(z.object({ id: z.string(), label: z.string(), type: z.string(), focus: z.boolean() })),
   links: z.array(z.object({ source: z.string(), target: z.string(), relation: z.string(), evidence: z.string() })),
   paths: z.array(z.object({ query: z.string(), text: z.string(), evidence: z.array(z.string()) })),
+  /** Time the answering backend took for this view, in whole milliseconds (absent when nothing was queried). */
+  elapsedMs: z.number().int().nonnegative().optional(),
   /** True when any node is part of the seeded synthetic scenario: the UI must label it "Illustrative demo data". */
   synthetic: z.boolean().default(false),
 });
@@ -82,13 +84,18 @@ export async function buildGraphView(
   if (!id) return { status: "unavailable", reason: "invalid identifier", ...EMPTY };
   const hash = identifierHash(pepper, id.type, id.value);
 
+  const t0 = performance.now();
+  const ms = () => Math.round(performance.now() - t0);
   try {
-    return { status: "ok", backend: backend.name, ...(await viewFrom(backend, id, hash, env, db)) };
+    const v = await viewFrom(backend, id, hash, env, db);
+    return { status: "ok", backend: backend.name, elapsedMs: ms(), ...v };
   } catch {
     // TigerGraph outage: answer from the Postgres copy of the same links, and say so.
     if (backend.name === "tigergraph" && db) {
       try {
-        return { status: "ok", backend: "postgres (TigerGraph unavailable)", ...(await viewFrom(postgresBackend(db), id, hash, env, db)) };
+        const t1 = performance.now();
+        const v = await viewFrom(postgresBackend(db), id, hash, env, db);
+        return { status: "ok", backend: "postgres (TigerGraph unavailable)", elapsedMs: Math.round(performance.now() - t1), ...v };
       } catch {
         /* fall through */
       }
