@@ -809,3 +809,15 @@ Reference: localhost:3000 did not answer, so `0f00ca8` (the commit before 056ab4
 | live CSS | `--font: Arial, "Helvetica Neue", Helvetica, "Liberation Sans", Roboto, sans-serif`; font-weight declarations only 400, 600, bolder, inherit, initial; no 300 |
 
 Root cause of the earlier "thin headings" report: 056ab4b put Segoe UI before Helvetica with weight 300, which drew Segoe UI Light on Windows; e0add7c (finish round) restored the Arial-first stack at 400. Nothing else differs, so no code change in P1. Screenshots: `docs/screens/look-ref-home-1440.png`, `look-ref-home-375.png`, `look-ref-sample1-1440.png`.
+
+## P2 - Identifier and scenario correctness
+
+| Check | Result | Evidence |
+|---|---|---|
+| EIP-55 | PASS | spec page opened: the "Normal" vector is `0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed` (lowercase f); accepted as checksum; the brief's `...E7EF1BeAed` is that vector with one case flipped and is rejected; all-caps and all-lowercase spec vectors accepted as "format" (new tests) |
+| TRON, BTC, bech32 | PASS | existing official vectors; last-character and one-character flips rejected |
+| UPI vs email, phone, Telegram, domains | PASS | dot after @ = email; +91 and 6-9 start, 10 digits (5-start and 9 digits rejected, new test); @name 5-32 and t.me; registrable ICANN hostnames only |
+| 12 QA scenarios | PASS | identifiers 12/12, levels 12/12 offline and on the server; 1 BUG fixed (task_earn word order), 5 differences BY DESIGN (`eval/qa-scenarios.md`) |
+| eval | PASS | 83 cases (p01-p03 appended), precision 100.0%, recall 100.0%, FP 0, FN 0 |
+| ReDoS | PASS | worst 4.9 ms, 0 cases >= 200 ms |
+| Levels explained on the card | PASS | "What the levels mean" with the three sentences and RISK_CEILING_NOTE (render test) |

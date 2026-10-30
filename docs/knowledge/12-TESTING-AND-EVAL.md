@@ -2,7 +2,7 @@
 
 ## In plain words
 
-Every change must pass the unit tests, the type checker, the linter, a production build and the docs check. Database code is tested against real Postgres SQL running inside the test (PGlite). The pattern rules are also measured on <!-- FACT:eval_cases -->80<!-- /FACT --> hand-written synthetic chats; that "eval" tells us how the rules behave on examples we wrote, not how they behave on real scams in the wild.
+Every change must pass the unit tests, the type checker, the linter, a production build and the docs check. Database code is tested against real Postgres SQL running inside the test (PGlite). The pattern rules are also measured on <!-- FACT:eval_cases -->83<!-- /FACT --> hand-written synthetic chats; that "eval" tells us how the rules behave on examples we wrote, not how they behave on real scams in the wild.
 
 ## Details
 
@@ -15,7 +15,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/contrast.test.ts` | 8 |
 | `web/src/lib/coverage.test.ts` | 11 |
 | `web/src/lib/docs.test.ts` | 9 |
-| `web/src/lib/eval-data.test.ts` | 7 |
+| `web/src/lib/eval-data.test.ts` | 8 |
 | `web/src/lib/evidence-pack.test.ts` | 4 |
 | `web/src/lib/f1-safety.test.ts` | 19 |
 | `web/src/lib/graph/drawing.test.ts` | 2 |
@@ -25,7 +25,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/graph/stats.test.ts` | 6 |
 | `web/src/lib/graph/tigergraph.test.ts` | 15 |
 | `web/src/lib/health.test.ts` | 6 |
-| `web/src/lib/identifiers.test.ts` | 30 |
+| `web/src/lib/identifiers.test.ts` | 33 |
 | `web/src/lib/launch.test.ts` | 4 |
 | `web/src/lib/new-line.test.ts` | 6 |
 | `web/src/lib/pattern-example.test.ts` | 6 |
@@ -35,10 +35,10 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/reports/retention.test.ts` | 6 |
 | `web/src/lib/risk.test.ts` | 17 |
 | `web/src/lib/signals/context.test.ts` | 20 |
-| `web/src/lib/signals/signals.test.ts` | 21 |
+| `web/src/lib/signals/signals.test.ts` | 24 |
 | `web/src/lib/style.test.ts` | 12 |
 | `web/src/lib/transcribe.test.ts` | 17 |
-| `web/src/lib/ui.test.ts` | 47 |
+| `web/src/lib/ui.test.ts` | 48 |
 | `web/src/lib/usage-stats.test.ts` | 6 |
 | `web/src/lib/usage.test.ts` | 18 |
 | `web/src/lib/verified/verified.test.ts` | 32 |
@@ -67,15 +67,15 @@ Current results (generated from `eval/RESULTS.md`):
 <!-- GENERATED:START eval -->
 | metric (rules only) | value |
 |---|---|
-| cases | 80 |
+| cases | 83 |
 | accuracy | 100.0% |
 | precision | 100.0% |
 | recall | 100.0% |
 | false positives | 0 |
 | false negatives | 0 |
 | false positive cases | none |
-| run date | 2026-10-30T11:00:56.056Z |
-| commit | 02d8955 |
+| run date | 2026-10-30T11:31:16.025Z |
+| commit | 4f59f59 (with uncommitted changes) |
 <!-- GENERATED:END eval -->
 
 ### What the eval is NOT

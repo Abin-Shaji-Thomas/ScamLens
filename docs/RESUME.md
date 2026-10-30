@@ -1,5 +1,5 @@
 # Resume point
 
-Done through: P1 (look parity verified; no code change needed).
-Next: P2 (identifier and scenario correctness).
+Done through: P2 (identifier and scenario correctness).
+Next: P3 (community data layer, migration 004).
 Pending human steps: none new.

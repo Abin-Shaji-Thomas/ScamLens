@@ -1,0 +1,77 @@
+{
+  "description": "Synthetic QA scenarios (final round P2). Long, realistic messages modelled on commonly reported Indian scam types and on genuine messages. Every identifier is synthetic: demo UPI handles (zzdemo.*@okdemo), demo Telegram handles (@zzdemo_*), reserved domains (example.com/org/net), wallets from eval/synthetic-wallets.json (random keys, discarded), the repo's OFAC sample wallet (public sanctions data, already used by sample 2) and the EIP-55 test vectors. 'expected' holds the hypotheses written before running; eval/qa-scenarios.md records the results. Illustrative demo data.",
+  "scenarios": [
+    {
+      "id": "q01",
+      "name": "digital arrest",
+      "text": "Good afternoon, this is Inspector Sharma from the Mumbai Cyber Crime cell. A parcel booked in your name has been seized with 140 grams of MDMA and five fake passports. A case has been registered against you and you are now under digital arrest. Stay on this video call and do not disconnect or tell anyone in your family. To prove your innocence you must transfer your savings to the RBI verification account immediately. Pay to zzdemo.verify@okdemo within 1 hour or a team will come to arrest you.",
+      "expected": { "identifiers": ["upi"], "counted": ["authority_impersonation", "digital_arrest", "urgency_deadline"], "level": "elevated", "note": "no reports for this demo UPI offline: patterns alone reach at most Elevated" }
+    },
+    {
+      "id": "q02",
+      "name": "crypto investment group with 2 wallets",
+      "text": "Welcome to the VIP profit club! Our mentor guarantees 3% daily returns with zero risk. Yesterday members withdrew 2.4 lakh, see the screenshots. Start small with just 5,000 to test. Deposit USDT to 0x9f7Cd547aD19b153ee39b8C7467747a096234551 or, if that one is busy, to 0xbFFfbEF7e4684DE2c50Cc3c5682C0B4c30622249. Join our Telegram group @zzdemo_vip_profits for daily signals.",
+      "expected": { "identifiers": ["evm", "evm", "telegram"], "counted": ["guaranteed_returns", "fake_profit_proof", "small_amount_first"], "level": "elevated", "note": "random wallets are on no list; move_platform needs corroboration and should count here because others fire" }
+    },
+    {
+      "id": "q03",
+      "name": "sanctioned wallet",
+      "text": "Hi, for the OTC deal please send the USDT to 0x252a8bd2319d8a555b872990601221b3a2053bce today. My partner confirmed the rate.",
+      "expected": { "identifiers": ["evm"], "counted": [], "level": "high", "note": "OFAC snapshot match on the local list is a verified match, offline too" }
+    },
+    {
+      "id": "q04",
+      "name": "checksum lab",
+      "text": "Testing addresses: good 0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed, case-flipped 0x5aAeb6053F3E94C9b9A09f33669435E7EF1BeAed, lowercase 0xfb6916095ca1df60bb79ce92ce3ea74c37c5d359, TRON TNPeeaaFB7K9cmo4uQpcU32zGK8G1NYqeL, broken TRON TNPeeaaFB7K9cmo4uQpcU32zGK8G1NYqeM, BTC 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa and broken 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNb, bech32 bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3.",
+      "expected": { "identifiers": ["evm:checksum", "evm:format", "tron:checksum", "btc:checksum", "btc:checksum"], "counted": [], "level": "low", "note": "the case-flipped EVM, the broken TRON and the broken BTC are rejected" }
+    },
+    {
+      "id": "q05",
+      "name": "genuine bank advisory",
+      "text": "Dear customer, the bank will never ask for your OTP, PIN or password by call, SMS or email. Do not share them with anyone. If you receive such a request, report it at your nearest branch or call the number on the back of your card.",
+      "expected": { "identifiers": [], "counted": [], "level": "low", "note": "warning context and negation: shown, not counted" }
+    },
+    {
+      "id": "q06",
+      "name": "genuine delivery OTP",
+      "text": "Your order 4471 is out for delivery today. Share OTP 5521 with the delivery partner only at the time of delivery. Track it in the app.",
+      "expected": { "identifiers": [], "counted": [], "level": "low", "note": "a delivery OTP shared in person; known limitation if otp_pin_request fires" }
+    },
+    {
+      "id": "q07",
+      "name": "genuine friend asking for UPI and a disclaimer",
+      "text": "Hey, can you send me 300 for the movie tickets? My UPI is zzdemo.friend@okdemo. Past returns do not guarantee future returns, as my mutual fund app keeps saying, so I am not investing this month.",
+      "expected": { "identifiers": ["upi"], "counted": [], "level": "low", "note": "adjacent negation on guarantee; a plain payment request is not a pattern" }
+    },
+    {
+      "id": "q08",
+      "name": "news article followed by a real scam",
+      "text": "News: City police warned residents about fake KYC messages that say your account will be blocked, and said such messages often ask people to share the OTP. Hello sir, your KYC has expired and your account will be blocked today. Update your KYC now at https://kyc-update.example.net and share the OTP you receive to complete it.",
+      "expected": { "identifiers": ["domain"], "counted": ["fake_kyc", "otp_pin_request", "urgency_deadline"], "level": "elevated", "note": "the news sentence is warning context; the second part asks and counts" }
+    },
+    {
+      "id": "q09",
+      "name": "spaced, emoji and Hinglish obfuscation",
+      "text": "Sir aapka K.Y.C expire ho gaya hai 🔥 account aaj block ho jayega 🔥 turant O T P bhejo warna account band. Ghar baithe roz 2000 kamao, bas pehle 500 bhejo.",
+      "expected": { "identifiers": [], "counted": ["fake_kyc", "otp_pin_request", "task_earn", "urgency_deadline"], "level": "elevated", "note": "normaliser joins spaced letters" }
+    },
+    {
+      "id": "q10",
+      "name": "Telegram task scam, fake KYC link, electricity threat and P2P bank-freeze (four short messages)",
+      "text": "1) Earn 3,000 a day just by liking videos! Complete simple tasks and get paid. Join @zzdemo_task_hr on Telegram, first pay a 999 joining fee. 2) Your bank KYC is pending, your account will be suspended in 24 hours. Click https://bank-kyc.example.org to update. 3) Dear consumer, your electricity connection will be disconnected tonight at 9:30 pm because the previous month bill was not updated. Call our electricity officer immediately. 4) Bro I bought USDT from you on P2P, now my bank account is frozen because the money came from a fraud complaint. Send me the money back to zzdemo.p2p@okdemo or I will file a case.",
+      "expected": { "identifiers": ["telegram", "domain", "upi"], "counted": ["task_earn", "fake_kyc", "utility_disconnection", "urgency_deadline"], "level": "elevated", "note": "P2P bank-freeze threat has no dedicated rule: known gap, documented" }
+    },
+    {
+      "id": "q11",
+      "name": "remote access customer care",
+      "text": "This is customer care. To process your refund of 4,999 please install AnyDesk and share the 9-digit code. Then open your banking app and enter the amount we tell you. Do this within 10 minutes or the refund will lapse.",
+      "expected": { "identifiers": [], "counted": ["remote_access_app", "fake_refund", "urgency_deadline"], "level": "elevated", "note": "refund plus remote access" }
+    },
+    {
+      "id": "q12",
+      "name": "everything at once",
+      "text": "URGENT from Delhi Police headquarters: you are under digital arrest for money laundering. Do not tell anyone. Share your 12-word wallet recovery phrase and your OTP now. Pay the clearance fee to zzdemo.clearance@okdemo or send USDT to 0x252a8bd2319d8a555b872990601221b3a2053bce within 30 minutes. Also install AnyDesk so our officer can verify. Visit https://police-verify.example.com and message @zzdemo_officer_desk on Telegram. Call +91 98765 43210.",
+      "expected": { "identifiers": ["upi", "evm", "domain", "telegram", "phone"], "counted": ["authority_impersonation", "digital_arrest", "seed_phrase_request", "otp_pin_request", "remote_access_app", "urgency_deadline"], "level": "high", "note": "the OFAC wallet makes it High" }
+    }
+  ]
+}
