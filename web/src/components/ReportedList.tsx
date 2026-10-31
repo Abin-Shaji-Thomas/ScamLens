@@ -6,6 +6,7 @@ import type { Identifier } from "@/lib/extract/types";
 import { maskIdentifier } from "@/lib/reports/mask";
 import type { ReportedTier } from "@/lib/reports/schema";
 import { CONTESTED_LABEL, CONTESTED_NOTE } from "@/lib/tiers";
+import { ContactHelp } from "./ContactHelp";
 import { REASON_LABEL, type FeedbackCount } from "@/lib/cases/schema";
 
 /** Inline contest form. The reason is sent as plain JSON and never rendered back. */
@@ -60,6 +61,7 @@ function Contest({ id }: { id: Identifier }) {
           Cancel
         </button>
       </div>
+      <ContactHelp />
     </form>
   );
 }

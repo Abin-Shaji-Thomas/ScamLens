@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import type { CheckResponse } from "@/lib/api-schema";
 import { caseBody, excerptPreview, type CaseForm } from "@/lib/cases/client";
 import { CASE_CHANNELS, CASES_UNAVAILABLE, CATEGORY_LABEL, CHANNEL_LABEL, LOSS_BANDS, LOSS_LABEL } from "@/lib/cases/schema";
+import { ContactHelp } from "./ContactHelp";
 import { REPORT_CATEGORIES } from "@/lib/reports/schema";
 
 /**
@@ -144,6 +145,7 @@ export function ContributePanel({ result, text }: { result: CheckResponse; text:
           Cancel
         </button>
       </div>
+      <ContactHelp />
       {state.kind === "error" && (
         <p className="mt-4" role="status">
           {state.msg}

@@ -333,10 +333,10 @@ describe("Swiss /about and 404 (server-rendered)", () => {
     expect(html).toMatch(/<h1 id="about-title" class="t-title col-span-full mt-4 lg:col-span-9">About ScamLens<\/h1>/);
     const sections = [...html.matchAll(/<section id="([\w-]+)" aria-labelledby="[\w-]+-h"( class="band")?>/g)].map((m) => [m[1], Boolean(m[2])]);
     // G4d added the "Link graph" section before "Demo data"; the final round added "scam-types" (bands still alternate).
-    expect(sections.map(([id]) => id)).toEqual(["emergency", "what", "tiers", "reports", "contest", "scam-types", "sources", "privacy", "graph", "demo"]);
+    expect(sections.map(([id]) => id)).toEqual(["emergency", "what", "tiers", "reports", "contest", "scam-types", "sources", "privacy", "graph", "demo", "contact"]);
     sections.forEach(([, band], i) => expect(band).toBe(i % 2 === 1)); // white, paper, white, paper...
-    expect(html.match(/<h2 id="[\w-]+-h" class="t-h2 col-span-full lg:col-span-4">/g)).toHaveLength(10);
-    expect(html.match(/class="col-span-full mt-6 flex flex-col gap-4 lg:col-span-7 lg:col-start-5 lg:mt-0"/g)).toHaveLength(10);
+    expect(html.match(/<h2 id="[\w-]+-h" class="t-h2 col-span-full lg:col-span-4">/g)).toHaveLength(11);
+    expect(html.match(/class="col-span-full mt-6 flex flex-col gap-4 lg:col-span-7 lg:col-start-5 lg:mt-0"/g)).toHaveLength(11);
     expect(html).toMatch(/<ul class="flex flex-col divide-y divide-swiss-rule border-y border-swiss-rule"><li class="py-4">/);
   });
 

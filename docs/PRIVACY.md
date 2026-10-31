@@ -22,7 +22,7 @@ ScamLens has no accounts and no login. This page lists everything it keeps, why,
 ## Deleting
 
 - **A case you contributed:** use the delete code shown once when you saved it, on `/privacy` ("Delete a case"). It removes the case and the excerpt at once. Tick "also remove my reports" to remove the reports and links written by the same contribution too.
-- **Anything else** (a report you made, an entry about you, a contest): write to the project email in `web/src/lib/contact.ts` (shown in the site footer and on `/about#contact`). Requests are handled by hand in the database (`docs/MODERATION.md`). Never include passwords, OTPs or full card or account numbers in an email.
+- **Anything else** (a report you made, an entry about you, a contest): write to <!-- FACT:contact_email -->scamlenspvt@gmail.com<!-- /FACT --> (also in the site footer and on `/about#contact`). Requests are handled by hand in the database (`docs/MODERATION.md`). Never include passwords, OTPs or full card or account numbers in an email.
 
 ## What moderators can see
 

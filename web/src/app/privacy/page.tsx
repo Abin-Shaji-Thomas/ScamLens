@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DeleteCaseForm } from "@/components/DeleteCaseForm";
+import { CONTACT_EMAIL, CONTACT_MAILTO } from "@/lib/contact";
 import { STORAGE_PROMISE } from "@/lib/privacy-copy";
 
 export const metadata: Metadata = {
@@ -57,6 +58,10 @@ export default function PrivacyPage() {
           </h2>
           <div className="col-span-full mt-6 flex flex-col gap-4 lg:col-span-7 lg:col-start-5 lg:mt-0">
             <p>Enter the delete code you got when you added the case. It deletes the case and its excerpt at once.</p>
+            <p data-privacy-contact>
+              Questions, deletion or contest requests: <a href={CONTACT_MAILTO} className="tap">{CONTACT_EMAIL}</a>. Never send passwords, OTPs or full
+              card or account numbers by email.
+            </p>
             <DeleteCaseForm />
           </div>
         </div>

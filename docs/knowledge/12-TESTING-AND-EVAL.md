@@ -13,6 +13,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/about.test.ts` | 7 |
 | `web/src/lib/cases/cases.test.ts` | 15 |
 | `web/src/lib/complaint-draft.test.ts` | 4 |
+| `web/src/lib/contact.test.ts` | 8 |
 | `web/src/lib/contrast.test.ts` | 8 |
 | `web/src/lib/coverage.test.ts` | 11 |
 | `web/src/lib/docs.test.ts` | 9 |

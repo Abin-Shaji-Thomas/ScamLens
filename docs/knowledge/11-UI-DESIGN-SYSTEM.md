@@ -44,6 +44,9 @@ The box label and placeholder read "Paste a message, or describe what happened",
 ### Result panels: Was this right?, add it to the map
 `FeedbackPanel` (scam / genuine / not sure, fixed reasons, no free text) and `ContributePanel` (consent, scam type, channel, optional loss band, optional excerpt with a redacted preview and a second tick; the delete code is shown once with a copy button and a link to /privacy#delete) sit beside "Report these identifiers". All three are hidden on synthetic samples and in print. Reported entries add "N reported, M marked genuine (reasons)" (`feedbackLine`), for information only.
 
+### Footer and contact
+The footer shows About, Patterns, Verify a receipt and Privacy (hidden in print), then Contact (mailto, printed as the address) and the X handle (the only link that opens a new tab, `rel="noopener noreferrer"`), all 44 px. Values come from `web/src/lib/contact.ts` only; `/about#contact` and the contribute and contest panels (`ContactHelp`) point to them. No X script or widget is embedded.
+
 ### /privacy
 `web/src/app/privacy/page.tsx`: the storage promise, the data inventory (mirrors docs/PRIVACY.md) and `DeleteCaseForm` at `#delete`. Linked from the footer and the contribution panel.
 

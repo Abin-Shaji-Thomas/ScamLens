@@ -156,6 +156,14 @@ Open the live URL. Each sample is one click under **Try a sample** and is labell
 
 Sample 2 uses a real address from the OFAC SDN list so the Verified tier can be shown live; the chat around it is invented. Replay from a terminal: `cd web && npx tsx scripts/smoke-live.ts https://scam-lens-two.vercel.app`.
 
+## Contact
+
+- Email: <!-- FACT:contact_email -->scamlenspvt@gmail.com<!-- /FACT --> (corrections, report or contest requests, deletion requests, feedback)
+- X: <!-- FACT:x_handle -->@scamlens<!-- /FACT --> (<!-- FACT:x_url -->https://x.com/scamlens<!-- /FACT -->)
+- Security issues: [SECURITY.md](SECURITY.md) (GitHub private vulnerability reporting first).
+
+ScamLens cannot recover money. If you lost money, call 1930 now and tell your bank.
+
 ## Known gaps
 
 - **Not a complete scam database** and not a safety guarantee. UPI IDs, phone numbers, Telegram handles and emails have no verified source here; they can only be Reported or Suspected. Website domains are checked against GoPlus's phishing-site list only.

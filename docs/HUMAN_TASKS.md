@@ -31,6 +31,9 @@ Most of `docs/UI_CHECKLIST.md` was verified in headless Edge on 2026-10-30. Stil
 6. In a real browser: "I already paid" -> COPY COMPLAINT DRAFT, and "Download signed receipt" under Share proof, both land (headless Edge blocks the clipboard and downloads, so only the on-page parts were verified).
 7. Pick any of the <!-- FACT:rule_count -->18<!-- /FACT --> patterns on /patterns, press "Try this example", then Check: the result lists that pattern under Suspected.
 
+## 6. Weekly: read the project mailbox
+Check <!-- FACT:contact_email -->scamlenspvt@gmail.com<!-- /FACT --> (and <!-- FACT:x_handle -->@scamlens<!-- /FACT --> on X) once a week for deletion, correction and contest requests; handle them with `docs/MODERATION.md`. No response time is promised on the site.
+
 ## Later / optional
 - **Vercel settings** (one visit): Function Region = Mumbai (`bom1`); remove `SUPABASE_ANON_KEY` (unused).
 - **Add an AI key, if ever wanted** (not needed; ScamLens is rules-only by decision): set `OPENAI_API_KEY` and `OPENAI_MODEL` (and `OPENAI_VISION_MODEL`, `OPENAI_BASE_URL` if needed) in `web/.env.local` and in Vercel, then redeploy. The AI pass and screenshot reading switch on (`/api/health` shows `"llm": true`). Then run `npx tsx scripts/smoke-transcribe.ts <your-own-synthetic-screenshot.png> --show` (must print `PASS`) and `npm run eval` in both modes before claiming any benefit.

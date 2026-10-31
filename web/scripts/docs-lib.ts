@@ -10,6 +10,7 @@ import { usageLimits } from "../src/lib/usage";
 import { EVM_CHAINS } from "../src/lib/verified/etherscan";
 import { ETHERSCAN_MAX_ADDRESSES, MAX_ADDRESSES } from "../src/lib/verified/index";
 import { smokeExpectationCount } from "./smoke-expectations";
+import { CONTACT_EMAIL, X_HANDLE, X_URL } from "../src/lib/contact";
 
 export const WEB = join(import.meta.dirname, "..");
 export const ROOT = join(WEB, "..");
@@ -197,6 +198,10 @@ export function facts(): Record<string, string> {
     smoke_expectations: String(smokeExpectationCount(true)),
     db_migrations: migrationList(join(WEB, "db", "migrations"), ".sql"),
     graph_migrations: migrationList(join(ROOT, "graph", "migrations"), ".gsql"),
+    // Public contact, only from web/src/lib/contact.ts (docs never type it by hand).
+    contact_email: CONTACT_EMAIL,
+    x_url: X_URL,
+    x_handle: X_HANDLE,
   };
 }
 
@@ -278,7 +283,10 @@ export function manifestProblems(manifest: Record<string, string[]>, changed: st
 // ---------- docs outside the knowledge base ----------
 
 /** Repo docs that also carry FACT markers and generated blocks (no six-section template). Paths from the repo root. */
-export const EXTRA_DOCS = ["README.md", "docs/DEPLOY.md", "docs/HUMAN_TASKS.md", "docs/UI_CHECKLIST.md"];
+export const EXTRA_DOCS = [
+  "README.md", "SECURITY.md", "docs/DEPLOY.md", "docs/HUMAN_TASKS.md", "docs/UI_CHECKLIST.md", "docs/PRIVACY.md", "docs/DATASET.md",
+  "docs/MODERATION.md", "docs/CONTRIBUTING.md",
+];
 export const loadExtraDocs = (): Doc[] => EXTRA_DOCS.map((name) => ({ name, text: read(join(ROOT, name)) }));
 
 /** Facts, generated blocks and relative links in the extra docs (links resolve from each doc's own folder). */

@@ -46,11 +46,14 @@ describe("/about", () => {
     expect(text).toMatch(/7 days delayed/);
   });
 
-  it("every link is an existing app route or an https URL", () => {
+  it("every link is an existing app route, an https URL, or the project mailto from contact.ts", async () => {
+    const { CONTACT_MAILTO } = await import("./contact");
     const hrefs = [...renderToStaticMarkup(createElement("div", null, createElement(AboutPage), createElement(SiteFooter))).matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
     expect(hrefs).toContain("/about");
     for (const h of hrefs) {
-      if (h.startsWith("/")) expect(existsSync(join(APP, h === "/" ? "" : h.slice(1), "page.tsx")), h).toBe(true);
+      const path = h.split("#")[0];
+      if (h.startsWith("/")) expect(existsSync(join(APP, path === "/" ? "" : path.slice(1), "page.tsx")), h).toBe(true);
+      else if (h.startsWith("mailto:")) expect(h).toBe(CONTACT_MAILTO);
       else expect(h).toMatch(/^https:\/\//);
     }
   });

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
+import { X_HANDLE } from "@/lib/contact";
 
 const TITLE = "ScamLens";
 const DESCRIPTION = "Evidence-linked scam check for India: verified, reported and suspected signals, each with its source.";
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
   openGraph: { title: TITLE, description: DESCRIPTION, siteName: TITLE, type: "website", locale: "en_IN" },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, site: X_HANDLE, creator: X_HANDLE },
 };
 
 // System font stack only (no web fonts): fast, private and no extra requests.

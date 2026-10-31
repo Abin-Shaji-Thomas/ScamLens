@@ -22,6 +22,7 @@ import { ofacList, scamSnifferList } from "@/lib/verified/lists";
 import { GraphStatsLine } from "@/components/GraphStatsLine";
 import { SCAM_TYPES } from "@/lib/scam-types";
 import { STORAGE_PROMISE } from "@/lib/privacy-copy";
+import { CONTACT_EMAIL, CONTACT_MAILTO, X_HANDLE, X_URL } from "@/lib/contact";
 import { UsageStatsLine } from "@/components/UsageStatsLine";
 
 export const metadata: Metadata = {
@@ -280,6 +281,18 @@ export default function AboutPage() {
           &quot;Illustrative demo data&quot;. One sample uses a wallet that really is on the OFAC list, so the Verified tier
           can be shown with live data; the chat around it is made up.
         </p>
+      </Section>
+
+      <Section id="contact" title="Contact">
+        <p>
+          Write to <a href={CONTACT_MAILTO} className="tap">{CONTACT_EMAIL}</a> or reach{" "}
+          <A href={X_URL}>{X_HANDLE} on X</A> for corrections, report or contest requests, deletion requests, and feedback. Requests
+          are handled by hand.
+        </p>
+        <p className="font-semibold text-swiss-black" data-no-recovery>
+          ScamLens cannot recover money. If you lost money, call 1930 now and tell your bank.
+        </p>
+        <p className="t-small text-swiss-text">Never send passwords, OTPs or full card or account numbers by email.</p>
       </Section>
     </main>
   );

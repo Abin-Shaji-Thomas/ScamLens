@@ -100,7 +100,7 @@ Authorization: Bearer <token for TG_SECRET>
 Then run `npx tsx scripts/tg-setup.ts --check` and expect `N/N queries SAME`.
 
 ## 4b. Contributed cases and feedback (migration 004)
-Requests (deletion, corrections, contests) arrive by email at the project address in `web/src/lib/contact.ts`.
+Requests (deletion, corrections, contests) arrive by email at <!-- FACT:contact_email -->scamlenspvt@gmail.com<!-- /FACT -->. Check the sender asks only about data they can name; never ask for or accept passwords, OTPs or card numbers.
 
 List recent cases (no excerpt):
 ```sql
