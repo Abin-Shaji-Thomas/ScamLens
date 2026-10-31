@@ -6,7 +6,6 @@ export const USAGE_STATS_DAYS = 7;
 export const UsageStats = z.object({
   checks: z.number().int().nonnegative(),
   days: z.literal(USAGE_STATS_DAYS),
-  asOf: z.string(),
 });
 export type UsageStats = z.infer<typeof UsageStats>;
 

@@ -46,9 +46,9 @@ describe("GET /api/usage-stats (H5)", () => {
     await sqlUsageStore(db).consume("fp:0a1b:check", 10);
     const ok = await usageStatsResponse({ db, now: () => new Date() });
     expect(ok.status).toBe(200);
-    expect(ok.headers.get("Cache-Control")).toBe("public, max-age=300, s-maxage=300");
+    expect(ok.headers.get("Cache-Control")).toBe("public, max-age=600, s-maxage=600");
     const body = await ok.json();
-    expect(Object.keys(body).sort()).toEqual(["asOf", "checks", "days"]);
+    expect(Object.keys(body).sort()).toEqual(["checks", "days"]); // only {checks, days}
     expect(JSON.stringify(body)).not.toContain("fp:");
 
     resetUsageStatsCacheForTests();
@@ -60,13 +60,13 @@ describe("GET /api/usage-stats (H5)", () => {
     expect(r.headers.get("Cache-Control")).toBe("no-store");
   });
 
-  it("caches for 5 minutes, so a busy /about costs at most one read per instance per 5 minutes", async () => {
+  it("caches for 10 minutes, so a busy /about costs at most one read per instance per 10 minutes", async () => {
     let reads = 0;
     const db = { usageRowsSince: async () => (reads++, [row("fp:aa:check", "2026-10-30", 4)]) } as unknown as Db;
     let t = NOW.getTime();
     const deps = { db, now: () => new Date(t) };
     expect((await usageStats(deps))?.checks).toBe(4);
-    t += 4 * 60_000;
+    t += 9 * 60_000;
     await usageStats(deps);
     expect(reads).toBe(1);
     t += 2 * 60_000;
@@ -75,7 +75,7 @@ describe("GET /api/usage-stats (H5)", () => {
   });
 
   it("the /about sentence, and the page places the line in the privacy section", () => {
-    expect(usageStatsSentence({ checks: 1234, days: 7, asOf: NOW.toISOString() })).toBe(
+    expect(usageStatsSentence({ checks: 1234, days: 7 })).toBe(
       "Checks run in the last 7 days: 1,234 (includes our own testing). ScamLens does not track who runs them.",
     );
     const about = readFileSync(new URL("../app/about/page.tsx", import.meta.url), "utf8");

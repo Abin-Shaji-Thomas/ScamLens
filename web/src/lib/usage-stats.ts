@@ -5,7 +5,7 @@ import { USAGE_STATS_DAYS, type UsageStats } from "./usage-stats-schema";
 
 export { UsageStats, usageStatsSentence, USAGE_STATS_DAYS } from "./usage-stats-schema";
 
-export const USAGE_STATS_CACHE_MS = 5 * 60 * 1000;
+export const USAGE_STATS_CACHE_MS = 10 * 60 * 1000;
 const CHECK_KEY = /^fp:[0-9a-f]+:check$/; // per-fingerprint check counters; "global:llm" and other routes are excluded
 
 const utcDay = (d: Date) => d.toISOString().slice(0, 10);
@@ -29,14 +29,14 @@ export interface UsageStatsDeps {
 let cache: { at: number; value: UsageStats | null } | null = null;
 export const resetUsageStatsCacheForTests = () => (cache = null);
 
-/** Null when there is no database or the read fails. Cached for 5 minutes (including a null). */
+/** Null when there is no database or the read fails. Cached for 10 minutes (including a null). */
 export async function usageStats(deps: UsageStatsDeps): Promise<UsageStats | null> {
   const now = deps.now?.() ?? new Date();
   if (cache && now.getTime() - cache.at < USAGE_STATS_CACHE_MS) return cache.value;
   let value: UsageStats | null = null;
   if (deps.db) {
     try {
-      value = { checks: sumChecks(await deps.db.usageRowsSince(windowStart(now)), now), days: USAGE_STATS_DAYS, asOf: now.toISOString() };
+      value = { checks: sumChecks(await deps.db.usageRowsSince(windowStart(now)), now), days: USAGE_STATS_DAYS };
     } catch {
       value = null;
     }
@@ -49,5 +49,5 @@ export async function usageStats(deps: UsageStatsDeps): Promise<UsageStats | nul
 export async function usageStatsResponse(deps: UsageStatsDeps): Promise<Response> {
   const stats = await usageStats(deps);
   if (!stats) return Response.json({ ok: false, error: "Usage statistics are not available right now." }, { status: 404, headers: { "Cache-Control": "no-store" } });
-  return Response.json(stats, { headers: { "Cache-Control": "public, max-age=300, s-maxage=300" } });
+  return Response.json(stats, { headers: { "Cache-Control": "public, max-age=600, s-maxage=600" } });
 }
