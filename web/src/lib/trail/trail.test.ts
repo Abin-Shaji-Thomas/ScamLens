@@ -1,5 +1,5 @@
 import { generateKeyPairSync } from "node:crypto";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { localDb } from "../../test-support/pglite";
 import { runCheck, type RunDeps } from "../check";
 import { buildCoverage } from "../coverage";
@@ -45,6 +45,22 @@ beforeAll(async () => {
 });
 
 describe("scam trail in the check (P5)", () => {
+  beforeEach(() => resetTrailCacheForTests());
+
+  it("a hanging TigerGraph (suspended workspace) falls back to Postgres inside the deadline, then is skipped for a minute", async () => {
+    let calls = 0;
+    const hanging: GraphBackend = { name: "tigergraph", run: () => (calls++, new Promise(() => {})) };
+    const t0 = Date.now();
+    const first = await runScamTrail(extractIdentifiers("zzdemo.taskpay@okdemo"), { env, db, backend: hanging, tgTimeoutMs: 100 });
+    expect(first).toMatchObject({ status: "ok", backend: "postgres (TigerGraph unavailable)" });
+    expect(first.entries[0].linked).toBeGreaterThan(0);
+    expect(Date.now() - t0).toBeLessThan(2_500);
+    const before = calls;
+    const second = await runScamTrail(extractIdentifiers("zzdemo.taskpay@okdemo"), { env, db, backend: hanging, tgTimeoutMs: 100 });
+    expect(second.backend).toBe("postgres (TigerGraph unavailable)");
+    expect(calls).toBe(before); // cooling down: TigerGraph not asked again
+  });
+
   it("picks wallets first, then other graph types, at most 5", () => {
     const ids = extractIdentifiers("a@okdemo b.c@okdemo @zzdemo_one1 @zzdemo_two2 zzdemo.x@okdemo 0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359 TNPeeaaFB7K9cmo4uQpcU32zGK8G1NYqeL");
     const picked = pickTrailIdentifiers(ids);
@@ -87,8 +103,8 @@ describe("scam trail in the check (P5)", () => {
     expect(withPatterns.risk.level).toBe("elevated"); // patterns + trail, but no verified fact or own reports: not High
   });
 
-  it("timeout: unavailable with a notice, never clean, and the Link graph row says so", async () => {
-    const r = await runCheck({ text: "pay zzdemo.newlink@okdemo" }, deps({ trail: { backend: never, timeoutMs: 50 } }));
+  it("timeout: when both TigerGraph and the fallback hang, unavailable with a notice, never clean", async () => {
+    const r = await runCheck({ text: "pay zzdemo.newlink@okdemo" }, deps({ trail: { backend: never, fallback: never, timeoutMs: 80 } }));
     expect(r.trail).toMatchObject({ status: "unavailable", reason: "timed out", entries: [] });
     expect(r.notices).toContain(TRAIL_UNAVAILABLE_NOTICE);
     expect(r.risk.level).toBe("low"); // no lift without the trail, and nothing claims the identifier is clean

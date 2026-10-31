@@ -901,3 +901,7 @@ Root cause of the earlier "thin headings" report: 056ab4b put Segoe UI before He
 
 Recorded in docs/knowledge/18-RELEASE-READINESS.md ("Final gate"): tests 548 x3, gate clean, eval 83 cases 0 FP / 0 FN, QA 12/12, 35 page rows clean, keyboard, print, 200% zoom PASS; TigerGraph suspended on 2026-10-31 (fallback verified, live TigerGraph not verified today).
 
+## P9 - Live check finding and fix
+
+Live at 175ccf0 with TigerGraph suspended: smoke 39/39, headers 48/48, header and footer contact links correct on 5 pages at 375 and 1440, examples, panels, /about numbers and contact PASS; but the scam trail showed "tigergraph, timed out" (unavailable, with the notice) instead of the Postgres fallback. Cause: a suspended workspace hangs for the full 2.5 s. Fix: TigerGraph gets at most 1.2 s, then Postgres answers, labelled; a 60 s cool-down skips TigerGraph after a failure (tests: hanging backend falls back inside the deadline; cool-down skips it).
+

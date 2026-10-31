@@ -107,7 +107,7 @@ flowchart TB
 |---|---|---|
 | A verified source (timeout, error, bad answer) | that row says "unavailable" with the reason; "result is incomplete" | the source counted as "no match" |
 | The reports database | "Reports database unavailable ... This is not a clean result." | "No known reports" |
-| TigerGraph | the trail and the graph answer from Postgres, labelled "postgres (TigerGraph unavailable)" | silent switch |
+| TigerGraph (error, or a suspended workspace that hangs) | the trail and the graph answer from Postgres, labelled "postgres (TigerGraph unavailable)"; the trail gives TigerGraph at most 1.2 s and then skips it for 60 s | silent switch |
 | The trail deadline (2.5 s) | notice "The scam trail ... could not be checked this time" and the Link graph row "unavailable" | a lowered level |
 | Migration 004 missing | "Contributing is not available right now."; trail counts come from reports | lost checks |
 | Daily limit reached | HTTP 429 with Retry-After and a plain sentence | any external call |

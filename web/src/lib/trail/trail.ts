@@ -15,10 +15,18 @@ export interface TrailDeps {
   env: Record<string, string | undefined>;
   db: Db | null;
   timeoutMs?: number;
+  /** Time TigerGraph gets before the Postgres fallback takes over (default: half the deadline, at most 1.2 s). */
+  tgTimeoutMs?: number;
   /** Tests: a backend to use instead of TigerGraph (the Postgres fallback still applies on failure). */
   backend?: GraphBackend;
+  /** Tests: the fallback instead of the Postgres copy. */
+  fallback?: GraphBackend;
   now?: () => number;
 }
+
+/** After a TigerGraph failure the next checks go straight to Postgres for this long (a suspended workspace hangs). */
+export const TG_COOLDOWN_MS = 60_000;
+let tgDownUntil = 0;
 
 type CountRow = { identifier_hash: string; reporters: number; contested?: boolean; synthetic: boolean; categories: string[]; first_reported: string | Date; last_reported: string | Date };
 type ClusterRow = { cases: number; reporters: number; synthetic_cases: number; real_cases: number; categories: Record<string, number>; channels: Record<string, number>; loss_bands: Record<string, number>; months: Record<string, number>; first_seen: string | Date | null; last_seen: string | Date | null };
@@ -56,6 +64,7 @@ let flaggedCache: { at: number; set: Set<string> } | null = null;
 export const resetTrailCacheForTests = () => {
   flaggedCache = null;
   tgShared = null;
+  tgDownUntil = 0;
 };
 
 // One TigerGraph client per server instance, so its token is fetched once, not on every check.
@@ -91,21 +100,32 @@ export async function runScamTrail(ids: Identifier[], deps: TrailDeps): Promise<
   const clock = deps.now ?? (() => performance.now());
   const t0 = clock();
   const tg = tgConfig(deps.env);
-  const primary = deps.backend ?? (tg ? sharedTigerGraph(tg, deps.timeoutMs ?? TRAIL_TIMEOUT_MS) : postgresBackend(db));
-  let backendName: string = primary.name;
+  const deadline = deps.timeoutMs ?? TRAIL_TIMEOUT_MS;
+  // TigerGraph gets part of the deadline, so the Postgres copy still has time to answer when it hangs.
+  const tgTimeout = deps.tgTimeoutMs ?? Math.min(1_200, Math.floor(deadline / 2));
+  const fallback = deps.fallback ?? postgresBackend(db);
+  const tgCandidate = deps.backend ?? (tg ? sharedTigerGraph(tg, tgTimeout) : null);
+  const cooling = tgCandidate?.name === "tigergraph" && Date.now() < tgDownUntil;
+  const primary = cooling || !tgCandidate ? fallback : tgCandidate;
+  let backendName: string = cooling ? "postgres (TigerGraph unavailable)" : primary.name;
   const N = hubMax(deps.env);
   const work = async (): Promise<Trail> => {
     const hashed = picked.map((i) => ({ id: i, hash: identifierHash(pepper, i.type, i.value) }));
     // In parallel with the graph queries. If it fails, only the "reaches a verified address" sentence is lost.
     const flaggedP = flaggedSet(db, Date.now()).catch(() => new Set<string>());
-    const neighbourhood = (b: GraphBackend) => mapLimit(hashed, TRAIL_CONCURRENCY, (h) => b.run({ kind: "q4", hash: h.hash, depth: 2, idType: h.id.type }, N));
+    const neighbourhood = (b: GraphBackend, limit?: number) =>
+      mapLimit(hashed, TRAIL_CONCURRENCY, (h) => {
+        const run = b.run({ kind: "q4", hash: h.hash, depth: 2, idType: h.id.type }, N);
+        return limit ? withTimeout(run, limit) : run;
+      });
     let edges: Q4Edge[][];
     try {
-      edges = await neighbourhood(primary);
+      edges = await neighbourhood(primary, primary === fallback ? undefined : tgTimeout);
     } catch (e) {
-      if (primary.name !== "tigergraph") throw e;
+      if (primary === fallback || primary.name !== "tigergraph") throw e;
+      tgDownUntil = Date.now() + TG_COOLDOWN_MS;
       backendName = "postgres (TigerGraph unavailable)";
-      edges = await neighbourhood(postgresBackend(db));
+      edges = await neighbourhood(fallback);
     }
     const mine = new Set(hashed.map((h) => h.hash));
     const neighbours = hashed.map((h, i) => new Set(edges[i].flatMap((e) => [e.src, e.dst]).filter((x) => x !== h.hash)));
@@ -129,7 +149,7 @@ export async function runScamTrail(ids: Identifier[], deps: TrailDeps): Promise<
     return { status: "ok", backend: backendName, entries, summary };
   };
   try {
-    const t = await withTimeout(work(), deps.timeoutMs ?? TRAIL_TIMEOUT_MS);
+    const t = await withTimeout(work(), deadline);
     return { ...t, elapsedMs: Math.max(0, Math.round(clock() - t0)) };
   } catch (e) {
     return { status: "unavailable", backend: backendName, reason: e instanceof Error && /timed out/.test(e.message) ? "timed out" : "graph query failed", entries: [], elapsedMs: Math.max(0, Math.round(clock() - t0)) };

@@ -107,7 +107,7 @@ ScamLens cannot recover money. If you lost money, call 1930 now and tell your ba
 
 ## Testing and evaluation
 
-- **Tests:** <!-- FACT:test_files -->40<!-- /FACT --> test files with <!-- FACT:test_declarations -->472<!-- /FACT --> test declarations (Vitest; `it.each` expands to more when run). They use mocked network calls, PGlite with the real SQL, and never call a live API.
+- **Tests:** <!-- FACT:test_files -->40<!-- /FACT --> test files with <!-- FACT:test_declarations -->473<!-- /FACT --> test declarations (Vitest; `it.each` expands to more when run). They use mocked network calls, PGlite with the real SQL, and never call a live API.
 - **Eval (rules only):** <!-- FACT:eval_cases -->83<!-- /FACT --> synthetic, hand-written labelled chats in `eval/chats.json`: precision <!-- FACT:eval_precision -->100.0%<!-- /FACT -->, recall <!-- FACT:eval_recall -->100.0%<!-- /FACT -->, <!-- FACT:eval_fp -->0<!-- /FACT --> false positives, <!-- FACT:eval_fn -->0<!-- /FACT --> false negatives ([eval/RESULTS.md](eval/RESULTS.md)).
 - **QA scenarios:** 12 long synthetic scenarios with written hypotheses, each difference marked bug or by design ([eval/qa-scenarios.md](eval/qa-scenarios.md)).
 - **Live smoke:** `scripts/smoke-live.ts` runs <!-- FACT:smoke_expectations -->39<!-- /FACT --> expectations; `scripts/check-headers.ts` checks the security headers.
