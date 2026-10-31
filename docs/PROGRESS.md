@@ -860,3 +860,15 @@ Root cause of the earlier "thin headings" report: 056ab4b put Segoe UI before He
 | UI | PASS | Scam trail section with counts, demo label, not-proof note, backend and ms; absent without links (render test) |
 | Timings (local build, live TigerGraph) | PASS after a fix | first run: two of five checks hit 2.5 s; after sharing the TigerGraph client and parallel reads: 0.74-1.76 s cold, 0.62-0.78 s warm; taskpay UPI 8 linked (6 reported, max 9), mentor handle 6 linked, cbi UPI 2 linked; unseen UPI 0 links |
 
+## P6 - Product UI
+
+| Check | Result | Evidence |
+|---|---|---|
+| a) Common scams in India | PASS | 5 labelled examples, fill only, sources on /about#scam-types (render tests; browser 375 and 1440) |
+| b) Wording | PASS | "Paste a message, or describe what happened" + descriptions note; no first-person patterns added (none proven safe) |
+| c) Feedback and contribution | PASS | panels on real results, hidden on samples; feedback counts never change the level (test); delete code shown once (component); live database answers "Contributing is not available right now." until migration 004 |
+| d) Discoverability | already done | header links, Beyond the check, Share proof, Try this example, /verify example, New line (finish round) |
+| e) /privacy | PASS | promise, inventory, Delete a case; footer link on every page |
+| Browser 375 / 1440 | PASS | no overflow, no tap target under 24 px outside text; console only the expected 503 from /api/case; the first check after a server start showed no trail (cold deadline), later checks did |
+| Screenshots | PASS | final-example-trail-1440, final-contribute-375, final-privacy-375 |
+
