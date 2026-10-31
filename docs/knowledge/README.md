@@ -29,8 +29,22 @@ This folder explains ScamLens to someone who has never seen it: what it is for, 
 | [16-KNOWN-GAPS-AND-ROADMAP.md](16-KNOWN-GAPS-AND-ROADMAP.md) | What is missing and what could come next |
 | [17-CHANGELOG.md](17-CHANGELOG.md) | Changes by day |
 | [18-RELEASE-READINESS.md](18-RELEASE-READINESS.md) | The final quality gate results |
-| [19-DISTINCTIVE-FEATURES.md](19-DISTINCTIVE-FEATURES.md) | Coverage ledger, "I already paid", signed receipts, pattern library |
+| [19-DISTINCTIVE-FEATURES.md](19-DISTINCTIVE-FEATURES.md) | Coverage ledger, "I already paid", signed receipts, scam trail, community loop, pattern library |
 | [20-LAUNCH-KIT.md](20-LAUNCH-KIT.md) | Share preview and post drafts |
+
+Other documents (also checked by `npm run docs:check` for facts, links and stale phrases):
+
+| File | What it covers |
+|---|---|
+| [../ARCHITECTURE.md](../ARCHITECTURE.md) | System context, one check step by step, data model and deployment diagrams, failure behaviour |
+| [../API.md](../API.md) | Every route: method, limits, request and response shapes, status codes |
+| [../DATA-MODEL.md](../DATA-MODEL.md) | Tables, functions, TigerGraph schema, migrations in order |
+| [../PRIVACY.md](../PRIVACY.md) | Data inventory, retention, deleting, what moderators see |
+| [../DATASET.md](../DATASET.md) | The Indian synthetic dataset and the public sources each campaign follows |
+| [../THIRD_PARTY.md](../THIRD_PARTY.md) | Packages, data licences, hosted services |
+| [../CONTRIBUTING.md](../CONTRIBUTING.md) | Setup and rules for changes |
+| [../HUMAN_TASKS.md](../HUMAN_TASKS.md) | What only the owner can do, in order |
+| [../../SECURITY.md](../../SECURITY.md) | How to report a vulnerability |
 
 Special markers (do not edit their contents by hand):
 - `<!-- GENERATED:START <name> -->` ... `<!-- GENERATED:END <name> -->`: a block rebuilt from the code by `npm run docs:generate`.

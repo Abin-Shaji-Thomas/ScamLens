@@ -140,6 +140,8 @@ export function generators(opts: { gitLog?: string } = {}): Record<string, strin
       ["Graph lookups per network per day (default)", limits.graph, "`usageLimits` / `USAGE_GRAPH_PER_DAY`"],
       ["Contests per network per day (default)", limits.contest, "`usageLimits` / `USAGE_CONTEST_PER_DAY`"],
       ["Server-side receipt checks per network per day (default)", limits.verify, "`usageLimits` / `USAGE_VERIFY_PER_DAY`"],
+      ["Contributed cases per network per day (default)", limits.case, "`usageLimits` / `USAGE_CASE_PER_DAY`"],
+      ["Was this right? answers per network per day (default)", limits.feedback, "`usageLimits` / `USAGE_FEEDBACK_PER_DAY`"],
       ["AI calls per day, all users (default)", limits.globalLlm, "`usageLimits` / `USAGE_GLOBAL_LLM_PER_DAY`"],
       ["Crypto addresses checked per message", MAX_ADDRESSES, "`MAX_ADDRESSES`"],
       ["Wallets with Etherscan history per message", ETHERSCAN_MAX_ADDRESSES, "`ETHERSCAN_MAX_ADDRESSES`"],
@@ -199,6 +201,9 @@ export function facts(): Record<string, string> {
     db_migrations: migrationList(join(WEB, "db", "migrations"), ".sql"),
     graph_migrations: migrationList(join(ROOT, "graph", "migrations"), ".gsql"),
     // Public contact, only from web/src/lib/contact.ts (docs never type it by hand).
+    test_files: String(testInventory().length),
+    test_declarations: String(testInventory().reduce((n, t) => n + t.count, 0)),
+    route_count: String(routes().length),
     contact_email: CONTACT_EMAIL,
     x_url: X_URL,
     x_handle: X_HANDLE,
@@ -285,7 +290,7 @@ export function manifestProblems(manifest: Record<string, string[]>, changed: st
 /** Repo docs that also carry FACT markers and generated blocks (no six-section template). Paths from the repo root. */
 export const EXTRA_DOCS = [
   "README.md", "SECURITY.md", "docs/DEPLOY.md", "docs/HUMAN_TASKS.md", "docs/UI_CHECKLIST.md", "docs/PRIVACY.md", "docs/DATASET.md",
-  "docs/MODERATION.md", "docs/CONTRIBUTING.md",
+  "docs/MODERATION.md", "docs/CONTRIBUTING.md", "docs/ARCHITECTURE.md", "docs/API.md", "docs/DATA-MODEL.md", "docs/THIRD_PARTY.md",
 ];
 export const loadExtraDocs = (): Doc[] => EXTRA_DOCS.map((name) => ({ name, text: read(join(ROOT, name)) }));
 
@@ -318,18 +323,21 @@ export function checkExtraDocs(docs: Doc[], gens: Record<string, string>, fx: Re
  * Sentences that were true once and are not any more (docs/knowledge/STALE_PHRASES.json). None may appear in a
  * checked doc, except in the history docs (changelog, decisions log) and the docs a phrase lists in `allowIn`.
  */
-export interface StalePhrase { phrase: string; why: string; since: string; allowIn?: string[] }
+/** A phrase is matched case-insensitively as plain text, or as a regular expression when `regex` is true. */
+export interface StalePhrase { phrase: string; why: string; since: string; allowIn?: string[]; regex?: boolean }
 export const STALE_PATH = join(KB, "STALE_PHRASES.json");
-export const HISTORY_DOCS = ["17-CHANGELOG.md", "15-DECISIONS-LOG.md"];
+/** History and append-only records: never checked for stale phrases (they record what was true then). */
+export const HISTORY_DOCS = ["17-CHANGELOG.md", "15-DECISIONS-LOG.md", "docs/PROGRESS.md", "docs/AUDIT.md", "docs/SPEC.md"];
 export const loadStalePhrases = (): StalePhrase[] => JSON.parse(read(STALE_PATH)) as StalePhrase[];
 
 export function staleProblems(docs: Doc[], phrases: StalePhrase[]): string[] {
   const problems: string[] = [];
   for (const p of phrases) {
+    const re = p.regex ? new RegExp(p.phrase, "i") : null;
     const needle = p.phrase.toLowerCase();
     for (const d of docs) {
       if (HISTORY_DOCS.includes(d.name) || p.allowIn?.includes(d.name)) continue;
-      const i = d.text.toLowerCase().indexOf(needle);
+      const i = re ? (d.text.match(re)?.index ?? -1) : d.text.toLowerCase().indexOf(needle);
       if (i >= 0) problems.push(`${d.name}:${d.text.slice(0, i).split("\n").length}: stale phrase "${p.phrase}" (${p.why})`);
     }
   }

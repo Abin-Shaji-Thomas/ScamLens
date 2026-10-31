@@ -2,161 +2,100 @@
 
 # ScamLens
 
-**Evidence-linked scam check for India.** Paste a suspicious chat, wallet address, UPI ID or Telegram handle. ScamLens returns a risk card that keeps three kinds of evidence strictly apart, each with its source, and never gives a verdict about a person.
+**Evidence-linked scam check for India.** Paste a message, or describe what happened. ScamLens shows what is verified, what other people reported and what is only suspected, each with its source, and never gives a verdict about a person.
 
-**Signed receipts:** every check offers a "Share proof" step to download a signed receipt (Ed25519) that anyone can verify at `/verify`; it holds no raw text. Off unless `RECEIPT_SIGNING_KEY` is set ([docs/DEPLOY.md](docs/DEPLOY.md) section 2a).
+**Live:** https://scam-lens-two.vercel.app · No account, no login · Hacker House Goa 2026 (Crypto x AI track, team ArcReap)
 
-**Pattern library:** `/patterns` explains each of the <!-- FACT:rule_count -->18<!-- /FACT --> rules; "Try this example" opens the check with that rule's invented example in the box, ready for you to press Check.
-
-**AI status:** the Suspected tier uses fixed pattern rules; AI assistance is optional and currently off (no key is configured, so screenshot reading is off too and the page asks you to paste the text).
-
-**Live:** https://scam-lens-two.vercel.app · Hacker House Goa 2026 (Crypto x AI track, team ArcReap) · [About, sources and privacy](https://scam-lens-two.vercel.app/about)
+<p align="center">
+  <img src="docs/screens/live-home-375.png" width="200" alt="Home page on a phone">
+  <img src="docs/screens/final-example-trail-1440.png" width="420" alt="A result with the scam trail">
+  <img src="docs/screens/final-contribute-375.png" width="200" alt="The add-it-to-the-map panel on a phone">
+</p>
 
 ## The problem
 
-Indian users meet "digital arrest" calls, task-and-earn jobs, fake KYC and refund links, and crypto "investment" groups every day. The usual answer is either a generic warning or a black-box "scam / not scam" score. Neither shows *why*, neither separates what is a checked fact from what someone claimed, and a wrong verdict harms the person who was labelled.
+People in India get "digital arrest" calls, like-and-earn job offers, fake KYC links, crypto "investment" groups and P2P "bank freeze" threats every day. The usual answers are a generic warning or a black-box "scam / not scam" score. Neither says *why*, neither separates a checked fact from a claim, and a wrong verdict harms the person who was labelled.
 
-## The solution
+## What it does
 
-One paste box, one risk card, three tiers that are never mixed:
+One box, one result, three kinds of evidence that are never mixed:
 
 | Tier | What it means | Where it comes from |
 |---|---|---|
-| **1. Verified** | Facts we check ourselves, each with source, date and a link to check it yourself | OFAC SDN list, ScamSniffer open address list, GoPlus address security, Etherscan V2 (Ethereum, Polygon, Arbitrum One on the free plan), TronGrid |
-| **2. Reported** | Community reports, shown only after **2 independent reporters** within 90 days and not contested | ScamLens' own database (HMAC hashes + masked identifiers only) |
-| **3. Suspected** | Warning patterns in *your* text, each with the exact highlighted quote and the rule that fired | <!-- FACT:rule_count -->18<!-- /FACT --> fixed rules; an optional AI pass (built, tested with mocks, currently off) could only point at the same rules |
+| **1. Verified** | Facts ScamLens checks itself, each with source, date and a link to check it yourself | OFAC SDN list, ScamSniffer open address list, GoPlus address security and phishing sites, Etherscan V2 (<!-- FACT:free_chains -->Ethereum, Polygon, Arbitrum One<!-- /FACT --> on the free plan), TronGrid |
+| **2. Reported** | Community reports, shown only after <!-- FACT:min_reporters -->2<!-- /FACT --> independent reporters within 90 days | ScamLens' own database (keyed hashes and masked forms only) |
+| **3. Suspected** | Warning patterns in *your* text, with the exact quoted words and the rule that fired | <!-- FACT:rule_count -->18<!-- /FACT --> fixed rules (AI is off by decision) |
 
-Every card also shows a plain-language explanation of the risk level and a **What to do now** block (pause; verify through official channels; keep the chat and transaction IDs; call **1930** or file at **cybercrime.gov.in**; contact your bank immediately if you already paid).
+**Worked example.** Paste *"This is an officer from the cyber crime branch... you are under digital arrest... Transfer your savings to the RBI verification account within 2 hours: zzdemo.cbi.verify@okdemo"* (one of the labelled examples on the home page). The result:
 
-### How the risk level is decided
+- **Suspected:** "digital arrest" and "urgency", each with the quoted words underlined.
+- **Reported:** the UPI ID is reported by several independent people (illustrative demo data), so the level is **High** (reports together with warning signs).
+- **Scam trail:** the UPI ID links to other reported identifiers, shown as counts of linked cases, by type, channel and month.
+- **What to do now:** pause, verify through an official channel, call **1930** or report at cybercrime.gov.in, and tell your bank.
+- **Share proof:** a signed receipt anyone can verify at `/verify`.
 
-- **High signals**: at least one Verified match, **or** an identifier reported by 2+ independent reporters **and** at least one Suspected signal.
-- **Elevated signals**: Suspected signals or reports that do not meet the High rule. **AI or pattern signals alone can never produce High.**
-- **Low signals - not a safety guarantee**: nothing found. The card always says *"No known reports. This does not mean safe."*, or that the reports database is unavailable.
-- **Failure rule**: a source that errors or times out is shown as **unavailable**, never as clean. There is no "safe" status in the code.
-- **Contested reports** stay visible, labelled **"Contested, under review"**, and count as a weak signal only: they can raise a result to Elevated, never to High. Nobody can erase a report by contesting it; a moderator upholds (removes the reports) or dismisses (clears the label) each contest with the SQL in [docs/MODERATION.md](docs/MODERATION.md).
-- **Warning context**: a rule hit inside a sentence that warns about scams or reports on them ("Police never ask you to stay on a video call", "guaranteed returns are a red flag", "News: ...") is still shown, under a collapsed note "Mentioned in a warning or news-style text", but carries no weight. Only protective phrases count as markers, only in the same sentence or a previous sentence that the hit's sentence clearly continues within the same message, so a decoy "Beware of fake sites." sentence does not switch off the scam lines after it (tested).
+### How the level is decided
 
-### Trust anchors
+| Level | When |
+|---|---|
+| **High** | at least one Verified match, **or** an identifier reported by 2+ independent people **and** at least one counted warning pattern |
+| **Elevated** | warning patterns or reports that do not reach High; or a link (scam trail) to an identifier reported by 2+ independent people |
+| **Low signals** | nothing found; always "This does not mean safe" |
 
-- **AI proposes, code disposes.** Identifiers come only from our extractor (`web/src/lib/identifiers.ts`: EIP-55, Base58Check with version bytes, bech32/bech32m, strict UPI/+91/Telegram/email/domain formats). The LLM may only return `{rule_id, quote}`; unknown rule ids and quotes that are not exact substrings of the input are dropped. A screenshot is only transcribed; the user edits and confirms the text, and that text goes through the same extractor and rules.
-- **No raw chats stored or logged.** Checks run in memory. The logger accepts only an event name, a status and a duration (tested). Reports store a peppered HMAC of each identifier, a masked display (e.g. `zz***d@okdemo`), the scam type and a hashed network fingerprint.
-- **Wording.** "Reported", "linked", "matched list X on date Y". A test scans all source files for accusatory words.
+Patterns alone can never produce High, so a new scam that nobody has reported yet usually shows Elevated; the card explains this under "What the levels mean". A source that fails is shown as **unavailable**, never as clean. Contested reports stay visible, labelled "Contested, under review", and never count toward High. A pattern inside a sentence that warns about scams ("never share your OTP", "News: police said...") is shown but not counted.
 
-## Design
+### Scam trail and community loop
 
-Minimalism & Swiss Style: a 12-column grid that fills the window up to 1760 px (one column below 768 px), large regular-weight headings, generous white space, 2 px black rules instead of boxes and 1 px light dividers between sections. Palette (CSS variables in `web/src/app/globals.css`): black `#000000`, white `#ffffff`, paper `#f5f1e8` (alternate bands such as "What to do now"), secondary text `#4b5563`, rules `#e5e7eb`, grey `#808080`, tan `#b38b6d`, clay `#7a4f32` (link hover, "Contested, under review"), alert `#b00020` (only the word "High", its meter and the graph's evidence-path links) and button hover `#1f2937`. Grey and tan never carry text: grey is 3.95:1 on white and tan 3.07:1, enough for lines but not for reading, and tan drops to 2.73:1 on paper, so it is used only on white. The risk level never depends on colour: the word, the bold underlined position in "Low signals · Elevated · High" and a 1-, 2- or 3-segment meter all say the same thing. System fonts only (`Arial, "Helvetica Neue", Helvetica, "Liberation Sans", Roboto, sans-serif`): Arial first, so Windows, macOS and iOS draw the same solid letterforms and Linux and Android use metric-compatible faces; two weights only, 400 for text and headings and 600 for small bold labels, no light weight anywhere. 200 ms colour transitions only, none with reduced motion; square buttons; a 2 px black focus outline on every control; 44 px tap targets. Tests enforce it: `style.test.ts` (palette, no shadows, gradients, rounded corners, dark mode or other animation) and `contrast.test.ts` (WCAG ratios computed from the CSS variables; where grey, tan and alert may appear).
+- **Scam trail:** every check also looks up, within 2.5 s, which reported identifiers its UPI IDs, wallets and handles are linked to (TigerGraph, with a labelled Postgres fallback), and shows counts only, with "A link is not proof of wrongdoing."
+- **Was this right?** Scam, genuine or not sure, with fixed reasons; shown as counts next to Reported entries and never a change of level.
+- **This was a real scam, add it to the map:** optional, with consent: type, channel, money lost, month and the patterns that fired; an excerpt only if you tick it twice after reading the redacted text; a delete code shown once. See [docs/PRIVACY.md](docs/PRIVACY.md).
 
 ## Architecture
 
-```
- browser (Next.js page, client components)
-   | paste text            | screenshot -> downscaled JPEG in the browser
-   v                       v
- POST /api/check        POST /api/transcribe ---> vision LLM (transcribe only) ---> editable text ---+
-   |                                                                                                |
-   | zod limits (6,000 chars, 20 identifiers) -> usage guard (per-network daily caps, global LLM cap)
-   v                                                                                                |
- extractor (identifiers.ts) ---------------------------------------------------------------<--------+
-   |
-   +--> Verified:  OFAC + ScamSniffer snapshots (web/data) | GoPlus | Etherscan V2 (<=2 chains in flight) | TronGrid
-   +--> Reported:  Supabase Postgres  reported_counts()  (>= 2 distinct fingerprints, 90 days, not contested)
-   +--> Suspected: 18 regex rules on a de-obfuscated copy (quotes mapped back) + optional LLM -> validator
-   v
- risk rules (risk.ts) -> risk card + notices + evidence pack (copy / print)
-
- POST /api/graph  -> TigerGraph Savanna (Q1-Q4 over REST)  --fallback-->  Postgres recursive CTEs (same answers)
- POST /api/report -> submit_report() in SQL (rate limit, one fingerprint per identifier) -> mirrored to TigerGraph
- GET  /api/health -> booleans / short statuses only, plus "build" (deployed commit, 7 chars, or "local");
-                     "graph":"tigergraph" means configured, not awake (health makes no network calls)
+```mermaid
+flowchart LR
+  B[Browser] -->|POST /api/check| C[Check route]
+  C --> X[Extractor: EIP-55, Base58Check, bech32, UPI, +91, Telegram, domains]
+  X --> V[Verified: OFAC and ScamSniffer snapshots, GoPlus, Etherscan, TronGrid]
+  X --> R[Reported: Supabase Postgres, 2-reporter rule]
+  X --> T[Scam trail: TigerGraph, Postgres fallback, 2.5 s]
+  C --> S[Suspected: 18 rules on a de-obfuscated copy]
+  V & R & T & S --> K[Risk rules] --> Card[Result card, receipt, evidence pack]
+  B -->|POST /api/case, /api/feedback| DB[(Supabase)]
+  DB -->|tg-setup --load and live mirror| TG[(TigerGraph)]
 ```
 
-```
-web/                        Next.js 16 app (Vercel root directory)
-  src/app/                  page, /about, API routes (check, transcribe, graph, report, report/contest, health)
-  src/lib/identifiers.ts    extractor + validation
-  src/lib/verified/         OFAC, ScamSniffer, GoPlus, Etherscan V2, TronGrid
-  src/lib/signals/          rules, normaliser, regex pass, validated LLM pass
-  src/lib/usage.ts          abuse guard (Supabase counters, memory fallback)
-  src/lib/transcribe.ts     screenshot -> text
-  src/lib/reports/          hashing, masking, 2-reporter rule, contest
-  src/lib/graph/            findLinks: TigerGraph REST or Postgres recursive CTE
-  db/schema.sql             tables + SQL functions (Supabase or local PGlite); db/migrations/ for later changes
-  data/                     OFAC + ScamSniffer snapshots (scripts/sync-lists.ts)
-  scripts/                  sync-lists, smoke-verified, smoke-transcribe, smoke-live, check-headers, probe-etherscan-chains, graph-demo, tg-setup, redos-check
-graph/                      TigerGraph schema, migrations, GSQL queries Q1-Q4 (see graph/README.md)
-eval/                       synthetic labelled chats, scorer, RESULTS.md
-docs/                       SPEC, AUDIT, PROGRESS, HUMAN_TASKS, DEPLOY, MODERATION, CHAIN_SUPPORT, UI_CHECKLIST
-```
+More: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (sequence, data model, deployment, failure behaviour), [docs/API.md](docs/API.md) (<!-- FACT:route_count -->20<!-- /FACT --> routes and files), [docs/DATA-MODEL.md](docs/DATA-MODEL.md).
 
-**Link graph (TigerGraph).** Q1 UPI -> wallet -> Telegram linked only through a shared wallet, with the two halves from two different reporters; Q2 wallet -> up to 2 payment hops -> flagged address; Q3 different Telegram handles reported with the same wallet by at least 2 different reporters; Q4 neighbourhood for the graph view. A hub filter drops nodes with more than `GRAPH_HUB_MAX` (default 25) counterparties and any exchange address, so unrelated people are not linked. `scripts/tg-setup.ts` checks that TigerGraph and Postgres give identical answers. Details: [graph/README.md](graph/README.md).
+## Tech stack
+
+| Part | Choice | Why |
+|---|---|---|
+| App | Next.js 16 (App Router), React 19, TypeScript | one deployable for pages and API routes; server code keeps every key off the browser |
+| Styling | Tailwind CSS 4 with Swiss-style tokens | small CSS, enforced palette and contrast in tests |
+| Validation | zod | the same schemas validate requests, responses and receipts |
+| Database | Supabase (Postgres) | reports, cases, feedback and usage counters with SQL functions and row-level security |
+| Link graph | TigerGraph Savanna | multi-hop link queries (Q1-Q4) with a hub filter; Postgres recursive CTEs answer the same queries as a fallback |
+| Crypto checks | viem, bs58check, tldts | checksums and domain parsing without guesswork |
+| Tests | Vitest, PGlite (Postgres in WebAssembly) | the real SQL runs in tests without a server |
+| Hosting | Vercel | preview and production builds from git |
 
 ## Data sources and licences
 
-- **OFAC SDN list**: U.S. Treasury (`SDN.XML`), digital-currency address fields. US government work, public domain. Snapshot publish date shown on every row.
-- **ScamSniffer scam-database**: [github.com/scamsniffer/scam-database](https://github.com/scamsniffer/scam-database), `blacklist/all.json` address list, GPL-3.0, with attribution. The public copy is about 7 days behind ScamSniffer's live feed; the UI says so. The domain list (9.1 MB when probed on 2026-10-29) is over this deployment's 8 MB budget and is **not** used; checks that contain a domain say so.
-- **GoPlus** address security and phishing site APIs, **Etherscan V2** API, **TronGrid** API: queried live per check, subject to their terms. Chain coverage measured with a live probe: [docs/CHAIN_SUPPORT.md](docs/CHAIN_SUPPORT.md).
+- **OFAC SDN list** (US Treasury): public domain; snapshot date on every row.
+- **ScamSniffer scam-database** ([github.com/scamsniffer/scam-database](https://github.com/scamsniffer/scam-database)): address list, GPL-3.0, with attribution; about 7 days behind ScamSniffer's live feed. Its domain list is too large for this deployment and is not used.
+- **GoPlus** address security and phishing-site APIs, **Etherscan V2** and **TronGrid**: queried live, subject to their terms. Only the registrable domain of a website is sent to GoPlus.
 - Helpline **1930** and **cybercrime.gov.in**: Indian Cyber Crime Coordination Centre (I4C), Ministry of Home Affairs.
+- Full list with versions: [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).
 
-## Limits
+## Privacy and security
 
-| Limit | Value |
-|---|---|
-| Text per check | 6,000 characters (413/400 with a plain message above that) |
-| Identifiers per check / crypto addresses looked up | 20 / 10 |
-| Screenshot | PNG, JPEG or WebP, data URL up to 1,500,000 characters (the browser downscales to 1600 px JPEG first) |
-| Daily per network fingerprint | 40 checks, 10 screenshots, 100 link lookups, 3 contests, 5 reports (HTTP 429 with `Retry-After`, no external calls made) |
-| Global LLM calls per day | 1,500; above it the AI pass is skipped with a notice and the rules still run |
-| Etherscan | first EVM wallet only, at most 2 chains in flight, 2 requests/s |
+Your check is never stored. If you choose to contribute a case, we store structured facts and, only if you tick it, a redacted excerpt you reviewed, visible only to the moderator, deleted with your delete code or after 90 days.
 
-## Running and testing locally
-
-```powershell
-cd web
-npm install
-copy .env.example .env.local      # fill in what you have; everything is optional for a first run
-npm run dev                       # http://localhost:3000
-npm run lint; npm run typecheck; npm test; npm run build
-npm run eval                      # writes eval/RESULTS.md
-npx tsx scripts/sync-lists.ts     # refresh OFAC + ScamSniffer snapshots in web/data
-npx tsx scripts/smoke-verified.ts # live check of the verified tier
-npx tsx scripts/smoke-live.ts http://localhost:3000   # end-to-end smoke against a running server
-npx tsx scripts/check-headers.ts http://localhost:3000  # security headers, PASS/FAIL per header
-npx tsx scripts/graph-demo.ts     # seed synthetic data into local Postgres (PGlite) and run Q1-Q3
-npx tsx scripts/redos-check.ts    # time every regex on adversarial 6,000-char inputs
-```
-
-Tests use mocked network calls, an in-memory Postgres (PGlite) loaded with `db/schema.sql`, and injected LLM completers; they never call a real API. Deployment, env var names and SQL order: [docs/DEPLOY.md](docs/DEPLOY.md).
-
-## Evaluation (synthetic)
-
-`eval/chats.json` holds 80 **synthetic**, hand-written labelled chats (40 scam, 40 normal): the original 40, 26 added in round 1 (obfuscated scams and tricky normal messages), 8 added in round 2 and 6 added in the final round (each time half scams with decoy warning words, half genuine warnings). A chat counts as "scam" when at least one *counted* suspected signal fires; hits inside warning or news-style sentences are shown but not counted, exactly as on the risk card. Numbers below are copied from [eval/RESULTS.md](eval/RESULTS.md), which `cd web && npm run eval` writes (rules only; AI assistance is optional and currently off):
-
-| metric | round 2 (74 cases) | final round, same 80 cases with the old code | final round (80 cases) |
-|---|---|---|---|
-| accuracy | 98.6% | 93.8% | 100.0% |
-| precision | 97.4% | 92.7% | 100.0% |
-| recall | 100.0% | 95.0% | 100.0% |
-| false positives | 1 of 37 normal | 3 of 40 normal | 0 of 40 normal |
-| false negatives | 0 of 37 scam | 2 of 40 scam | 0 of 40 scam |
-
-Round 2 removed 4 false positives with the warning-context rule. The final round made two general changes, each with tests both ways: a sentence that asks the reader to send, pay, join or click is never treated as a warning (the old code missed 2 of the new decoy scams), and advice shaped "If someone says ..., it is a fraud" is a warning (the old code flagged the bank advisory v01 and 2 of the new genuine warnings). The 6 new cases were written after these changes, so they are regression examples rather than a blind test.
-
-The same person wrote the rules and the chats, so these numbers are optimistic and are **not** a real-world accuracy claim. RESULTS.md has per-rule precision and recall and a section on what this evaluation is not.
-
-## 90-second demo script
-
-Open the live URL. Each sample is one click under **Try a sample** and is labelled **"Illustrative demo data - not a real investigation"**.
-
-| Time | Do | What appears |
-|---|---|---|
-| 0:00-0:15 | Say: "ScamLens separates what is checked, what is reported and what is only suspected." | Empty risk card with 01 Verified, 02 Reported, 03 Suspected |
-| 0:15-0:40 | **Sample 1 - "Digital arrest" call** -> Check | The large word **High**, with no AI involved: the UPI ID has no verified source but is **reported by 3 independent reporters** (synthetic seed, labelled), and the text has *authority impersonation*, *digital arrest* and *urgency* signals with the quoted words underlined. "What to do now" lists 1930 and cybercrime.gov.in. Press **Show links for upi ...**: the UPI is linked to Telegram handles only through a shared wallet, marked "Illustrative demo data". |
-| 0:40-1:05 | **Sample 2 - Crypto "investment"** -> Check | **High.** Verified: the wallet **matched the OFAC SDN list** (publish date + link to the Treasury entry); ScamSniffer and GoPlus rows with their dates and links; Etherscan facts for the free-plan chains, BNB Chain and Base shown as unavailable. Suspected: guaranteed returns, fake profit proof, small amount first, move to Telegram. |
-| 1:05-1:20 | **Sample 3 - Bank alert** -> Check | **Low signals**, with the sentence "This does not mean safe". "Never share your OTP" does not fire the OTP rule (negation guard). Optional: paste "I read that guaranteed returns are a red flag" to show a warning-context hit that is shown but not counted. |
-| 1:20-1:30 | Click **Copy evidence pack** (or **Print or save as PDF**) | Plain-text summary with the three tiers separated, the demo label, and next steps. Not legal advice. Footer -> **/about** for sources, licences and privacy. |
-
-Sample 2 uses a real address from the OFAC SDN list so the Verified tier can be shown live; the chat around it is invented. Replay from a terminal: `cd web && npx tsx scripts/smoke-live.ts https://scam-lens-two.vercel.app`.
+- Identifiers are stored only as keyed hashes (HMAC with a server secret) and masked forms; network addresses only as keyed fingerprints.
+- Logs hold an event name, a status and a duration (tested). Strict security headers; every key stays on the server.
+- Daily per-network limits on every route that does work or writes.
+- Details: [docs/PRIVACY.md](docs/PRIVACY.md), [SECURITY.md](SECURITY.md), [docs/knowledge/10-SECURITY-AND-ABUSE.md](docs/knowledge/10-SECURITY-AND-ABUSE.md).
 
 ## Contact
 
@@ -166,17 +105,57 @@ Sample 2 uses a real address from the OFAC SDN list so the Verified tier can be 
 
 ScamLens cannot recover money. If you lost money, call 1930 now and tell your bank.
 
-## Known gaps
+## Testing and evaluation
 
-- **Not a complete scam database** and not a safety guarantee. UPI IDs, phone numbers, Telegram handles and emails have no verified source here; they can only be Reported or Suspected. Website domains are checked against GoPlus's phishing-site list only.
-- **Community loop:** after a result, "Was this right?" and "This was a real scam, add it to the map" (optional, with consent; a delete code is shown once). See [docs/PRIVACY.md](docs/PRIVACY.md) and `/privacy`.
-- **Scam trail:** every check also looks up, within 2.5 s, which other reported identifiers its UPI IDs, wallets and handles are linked to, and shows counts only. A link to an identifier reported by 2 or more independent people can raise Low to Elevated, never to High.
-- **The live Reported tier and link graph hold only synthetic demo data** (labelled "Illustrative demo data"): the original scenario plus 56 cases in 10 campaigns modelled on publicly reported Indian scam types ([docs/DATASET.md](docs/DATASET.md)). Real reports show only after two independent reporters name the same identifier.
-- **No accounts.** Independence is a hashed network fingerprint: people on one network count as one reporter; one person on several networks (Wi-Fi, mobile data, VPN) can count as several. The same applies to daily limits and contests.
-- **Contest review is manual.** Contested entries stay visible and labelled until you uphold or dismiss them in the Supabase SQL editor ([docs/MODERATION.md](docs/MODERATION.md)); there is no admin screen. Until migration `002_contest_policy.sql` is run, new contests are refused. Contest reasons (10-500 characters) are stored for the moderator only. Removing an upheld report from TigerGraph needs a manual REST call that has not been tested.
-- **AI is off.** No OpenAI-compatible key is configured, so the card says "Suspected signals come from fixed pattern rules only.", the screenshot control is replaced by "Screenshot reading is off. Paste the text instead.", and `/api/transcribe` returns that sentence. Both switch back on automatically (on the next deploy) if `OPENAI_API_KEY` and `OPENAI_MODEL` are set. The eval measures rules only.
-- **Rules are English-first.** Hinglish support is a small starter set. 1 tricky normal message in the eval still triggers a warning (a bank advisory phrased without a protective marker). The warning-context rule can be gamed inside a single sentence ("Never trust other apps, ours pays guaranteed returns" marks that one hit as warning context); decoys in other sentences or messages do not work.
-- **Etherscan free plan:** Ethereum, Polygon and Arbitrum One only, first wallet per check only.
-- **Snapshots age.** OFAC and ScamSniffer are as fresh as the last `sync-lists` run (dates shown).
-- **Manual checks pending:** the Swiss redesign was checked in headless Edge (layout at 5 widths, keyboard focus, reduced motion, print, 200% zoom, contrast, console), but a screen-reader walk-through, hover colours, the offline error, a cold TigerGraph and the screenshot flow still need a person ([docs/UI_CHECKLIST.md](docs/UI_CHECKLIST.md)); live Supabase migrations, TigerGraph and the vision model ([docs/HUMAN_TASKS.md](docs/HUMAN_TASKS.md)).
+- **Tests:** <!-- FACT:test_files -->40<!-- /FACT --> test files with <!-- FACT:test_declarations -->472<!-- /FACT --> test declarations (Vitest; `it.each` expands to more when run). They use mocked network calls, PGlite with the real SQL, and never call a live API.
+- **Eval (rules only):** <!-- FACT:eval_cases -->83<!-- /FACT --> synthetic, hand-written labelled chats in `eval/chats.json`: precision <!-- FACT:eval_precision -->100.0%<!-- /FACT -->, recall <!-- FACT:eval_recall -->100.0%<!-- /FACT -->, <!-- FACT:eval_fp -->0<!-- /FACT --> false positives, <!-- FACT:eval_fn -->0<!-- /FACT --> false negatives ([eval/RESULTS.md](eval/RESULTS.md)).
+- **QA scenarios:** 12 long synthetic scenarios with written hypotheses, each difference marked bug or by design ([eval/qa-scenarios.md](eval/qa-scenarios.md)).
+- **Live smoke:** `scripts/smoke-live.ts` runs <!-- FACT:smoke_expectations -->39<!-- /FACT --> expectations; `scripts/check-headers.ts` checks the security headers.
+
+**What the eval is not.** The same people wrote the rules and the chats, and several cases were added after the fixes they test, so the numbers show the rules behave as designed on known phrasings. They are not a real-world accuracy claim.
+
+## Run it locally
+
+```
+cd web
+npm ci
+cp .env.example .env.local       # names only; every value is optional for a first run
+npm run dev                      # http://localhost:3000
+npm test; npm run typecheck; npm run lint; npm run build
+npm run docs:generate; npm run docs:check
+npm run eval                     # writes eval/RESULTS.md
+npx tsx scripts/seed-india-cases.ts --local   # demo dataset in an in-memory Postgres
+```
+
+Environment variable names and what each does: the generated table in [docs/knowledge/13-OPERATIONS.md](docs/knowledge/13-OPERATIONS.md). Deployment, SQL order (migrations <!-- FACT:db_migrations -->`002_contest_policy.sql`, `003_contest_retention.sql`, `004_cases_and_feedback.sql`<!-- /FACT -->) and TigerGraph setup: [docs/DEPLOY.md](docs/DEPLOY.md).
+
+## Project structure
+
+```
+web/                    Next.js app (Vercel root directory)
+  src/app/              pages (/, /about, /patterns, /verify, /privacy) and API routes
+  src/lib/              extractor, verified sources, signals, risk, reports, cases, trail, graph, receipts
+  db/                   schema.sql, supabase-grants.sql, migrations/
+  data/                 OFAC and ScamSniffer snapshots
+  scripts/              smoke tests, header check, seeders, tg-setup, docs tooling, brand export
+graph/                  TigerGraph schema, queries and migrations
+eval/                   labelled chats, QA scenarios, synthetic dataset, results
+docs/                   knowledge base, privacy, dataset, architecture, API, data model, deploy, moderation
+```
+
+## Illustrative demo data
+
+The live Reported tier, the link graph and the scam trail hold **synthetic demo data only**, labelled "Illustrative demo data" wherever it appears: the original scenario and 56 cases in 10 campaigns modelled on publicly reported Indian scam types ([docs/DATASET.md](docs/DATASET.md)). Every identifier is synthetic (`zzdemo.*@okdemo`, `@zzdemo_*`, `example.com`, wallets from random discarded keys). Sample 2 uses one real address from the public OFAC list so the Verified tier can be shown live; the chat around it is invented.
+
+## Limitations and roadmap
+
+- Not a complete scam database and not a safety guarantee; UPI IDs, phone numbers, Telegram handles and emails have no verified source here, and website domains are checked against GoPlus's phishing-site list only.
+- No accounts: independence is a keyed network fingerprint, so people on one network count once and one person on several networks can count more than once.
+- Rules are English-first with a small Hinglish set; a request phrased without the listed verbs does not defeat a warning marker in the same sentence.
+- Contributing needs migration 004 on the database (a human step); moderation is by hand in the SQL editor ([docs/MODERATION.md](docs/MODERATION.md)).
+- Open items and owner steps: [docs/HUMAN_TASKS.md](docs/HUMAN_TASKS.md); gaps: [docs/knowledge/16-KNOWN-GAPS-AND-ROADMAP.md](docs/knowledge/16-KNOWN-GAPS-AND-ROADMAP.md).
 - Nothing here is legal advice.
+
+## Acknowledgements and data licences
+
+OFAC SDN list (US Treasury, public domain); ScamSniffer scam-database (GPL-3.0, attribution kept); GoPlus Security, Etherscan and TronGrid APIs (their terms); TigerGraph Savanna and Supabase (hosted services). The repository has no licence file yet; the owner will choose one (see docs/HUMAN_TASKS.md).

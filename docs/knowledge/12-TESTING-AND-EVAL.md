@@ -17,7 +17,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/contact.test.ts` | 8 |
 | `web/src/lib/contrast.test.ts` | 8 |
 | `web/src/lib/coverage.test.ts` | 11 |
-| `web/src/lib/docs.test.ts` | 9 |
+| `web/src/lib/docs.test.ts` | 11 |
 | `web/src/lib/eval-data.test.ts` | 8 |
 | `web/src/lib/evidence-pack.test.ts` | 4 |
 | `web/src/lib/f1-safety.test.ts` | 19 |

@@ -7,7 +7,7 @@ This file holds the demo scripts, the fallbacks if something is slow, and honest
 ## Details
 
 ### 90-second demo (strings and levels from the 2026-10-30 release gate)
-1. (10 s) Open <URL>. "Paste a suspicious chat; ScamLens shows what is verified, what is reported and what is only suspected, each with its source."
+1. (10 s) Open <URL>. "Paste a message or describe what happened; ScamLens shows what is verified, what is reported and what is only suspected, each with its source."
 2. (25 s) Press "1. "Digital arrest" call", then CHECK. Point at the large **High** (3 of 3 meter segments) and the Suspected quotes "Mumbai Police", "digital arrest", "Stay on the video call", "within 2 hours". Point at "zz***d@okdemo was reported by 3 independent people" with its "Illustrative demo data" label.
 3. (15 s) Scroll to "What was checked": OFAC, ScamSniffer, GoPlus, Etherscan and TronGrid are "not applicable" for a UPI ID, community reports "checked", and "UPI IDs have no public database here; only community reports are used." "It tells you what it could not check."
 4. (15 s) Sample 2: the Verified row "Match · OFAC SDN list" with the list date (High). Sample 3: **Low signals** with "This does not mean safe".

@@ -41,6 +41,8 @@ Limits (generated from `web/src/lib/limits.ts` and `usageLimits`):
 | Graph lookups per network per day (default) | 100 | `usageLimits` / `USAGE_GRAPH_PER_DAY` |
 | Contests per network per day (default) | 3 | `usageLimits` / `USAGE_CONTEST_PER_DAY` |
 | Server-side receipt checks per network per day (default) | 60 | `usageLimits` / `USAGE_VERIFY_PER_DAY` |
+| Contributed cases per network per day (default) | 5 | `usageLimits` / `USAGE_CASE_PER_DAY` |
+| Was this right? answers per network per day (default) | 30 | `usageLimits` / `USAGE_FEEDBACK_PER_DAY` |
 | AI calls per day, all users (default) | 1500 | `usageLimits` / `USAGE_GLOBAL_LLM_PER_DAY` |
 | Crypto addresses checked per message | 10 | `MAX_ADDRESSES` |
 | Wallets with Etherscan history per message | 1 | `ETHERSCAN_MAX_ADDRESSES` |

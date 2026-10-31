@@ -97,3 +97,31 @@ describe("docs outside the knowledge base, and stale phrases (H6)", () => {
   });
 });
 
+
+describe("stale phrases as regexes, history exempt (final round P8)", () => {
+  const phrases = loadStalePhrases();
+  it("regex entries fire, plain entries ignore case, and history files are skipped", () => {
+    const docs = [
+      { name: "README.md", text: "Smoke: ALL PASS (36 expectations)." },
+      { name: "13-OPERATIONS.md", text: "line\nYour chat is never stored by anyone." },
+      { name: "02-HOW-IT-WORKS.md", text: "Your chat is never stored. If you choose to contribute a case, we store facts." },
+      { name: "docs/PROGRESS.md", text: "ALL PASS (36 expectations), UNKNOWN until tomorrow" },
+      { name: "docs/SPEC.md", text: "font-weight: 300" },
+    ];
+    const found = staleProblems(docs, phrases).join("\n");
+    expect(found).toContain("README.md:1: stale phrase"); // the "3x expectations" regex entry
+    expect(found).toMatch(/13-OPERATIONS\.md:2: stale phrase/);
+    expect(found).not.toContain("02-HOW-IT-WORKS.md"); // the qualifier makes it current
+    expect(found).not.toContain("PROGRESS");
+    expect(found).not.toContain("SPEC");
+    expect(HISTORY_DOCS).toEqual(expect.arrayContaining(["docs/PROGRESS.md", "docs/AUDIT.md", "docs/SPEC.md", "17-CHANGELOG.md"]));
+    for (const p of phrases) if (p.regex) expect(() => new RegExp(p.phrase, "i"), p.phrase).not.toThrow();
+  });
+  it("new facts: test files and declarations, route count, contact values", () => {
+    const fx = facts();
+    expect(Number(fx.test_files)).toBeGreaterThan(30);
+    expect(Number(fx.test_declarations)).toBeGreaterThan(Number(fx.test_files));
+    expect(Number(fx.route_count)).toBeGreaterThan(15);
+    expect(fx.contact_email).toBe("scamlenspvt@gmail.com");
+  });
+});

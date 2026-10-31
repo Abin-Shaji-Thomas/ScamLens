@@ -15,9 +15,8 @@ What ScamLens cannot do yet, ranked by how much it matters, and what could come 
 | FIXED | Contest reasons had no retention limit (fixed in J4 with migration 003 and a monthly purge; until a person runs them, reasons are kept as before) | `web/db/migrations/003_contest_retention.sql` |
 | MED | Screenshot upload was offered with no vision key (fixed in J2: hidden, driven by the health check's `vision` flag) | `web/src/components/CheckForm.tsx` |
 | MED | Whether the live Supabase has migration 002 applied: UNKNOWN | `docs/HUMAN_TASKS.md` |
-| LOW | TigerGraph setup done (19/19 SAME, 2026-10-30), but Savanna has no auto-start: an idle workspace suspends and the graph answers from Postgres (labelled) until a person resumes it | `docs/HUMAN_TASKS.md` item 3 |
+| LOW | TigerGraph setup done (63/63 queries SAME with the demo dataset, 2026-10-30), but Savanna has no auto-start: an idle workspace suspends and the graph answers from Postgres (labelled) until a person resumes it | `docs/HUMAN_TASKS.md` item 3 |
 | DESIGN | Headings are regular-weight Arial on every OS (finish round); the earlier thin Segoe UI Light headings on Windows were removed on purpose | `web/src/app/globals.css` |
-| LOW | Graph drawing is small inside a large canvas | `web/src/components/GraphPanel.tsx` |
 | FIXED | First smoke run after a deploy could time out (cold start); smoke-live now warms up first | `web/scripts/smoke-live.ts` |
 | LOW | UPI, phone and Telegram identifiers have no verified source (by nature) | `web/src/lib/verified/index.ts` |
 | HUMAN | Migration 004 (cases and feedback) must be run in the Supabase SQL editor; until then contributing says it is unavailable | `web/db/migrations/004_cases_and_feedback.sql` |
