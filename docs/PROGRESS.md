@@ -896,3 +896,8 @@ Root cause of the earlier "thin headings" report: 056ab4b put Segoe UI before He
 | docs:check now covers README, SECURITY, DEPLOY, HUMAN_TASKS, UI_CHECKLIST, PRIVACY, DATASET, MODERATION, CONTRIBUTING, ARCHITECTURE, API, DATA-MODEL, THIRD_PARTY; facts for rule count, test files and declarations, smoke expectations, migration lists, route count, contact; generated routes, limits, db and deps blocks; regex stale phrases with history files exempt (tests both ways) | web/scripts/docs-lib.ts, docs.test.ts |
 | Stale statements fixed: old box wording (README, 14), Link graph row before the trail (19, UI_CHECKLIST 31), domains "not checked" (19, earlier), parity 19/19 and the fixed small-graph gap (16), storage promise without the contribution qualifier (01, 10, 08, earlier) | knowledge 01, 08, 10, 14, 16, 19, UI_CHECKLIST |
 | Repo hygiene | secret-like scan: 2 hits, both benign (a fake test token in migrations.test.ts, a package integrity hash in package-lock.json); only `.env.example` is tracked; `.gitignore` now also lists `.next/` and `.claude/`; screenshots show pages only (no terminal, env or health output) |
+
+## P9 - Final gate (local)
+
+Recorded in docs/knowledge/18-RELEASE-READINESS.md ("Final gate"): tests 548 x3, gate clean, eval 83 cases 0 FP / 0 FN, QA 12/12, 35 page rows clean, keyboard, print, 200% zoom PASS; TigerGraph suspended on 2026-10-31 (fallback verified, live TigerGraph not verified today).
+

@@ -81,8 +81,8 @@ Current results (generated from `eval/RESULTS.md`):
 | false positives | 0 |
 | false negatives | 0 |
 | false positive cases | none |
-| run date | 2026-10-30T11:31:16.025Z |
-| commit | 4f59f59 (with uncommitted changes) |
+| run date | 2026-10-31T03:58:11.919Z |
+| commit | 457d077 (with uncommitted changes) |
 <!-- GENERATED:END eval -->
 
 ### What the eval is NOT

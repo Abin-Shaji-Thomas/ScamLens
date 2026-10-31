@@ -87,6 +87,23 @@ Local `npm run build` + `next start` with the real keys (no AI key), daily limit
 | Look parity | PASS | against the owner-look reference: 39 typography values per width (family, weight, size) identical at 375, 768, 1280, 1440, 1920; h1 wraps identically (3, 2, 2, 2, 2 lines); remaining differences are this round's new content (the first h2 on / is "Beyond the check"; the result page is longer) |
 | Screenshots | PASS | the earlier live set (10 files) replaced by `docs/screens/live-home-375.png`, `live-example-375.png`, `live-about-1440.png`, `live-patterns-1440.png`, `live-home-1920.png`, `live-verify-1920.png` |
 
+### Final gate (final round, branch final, 2026-10-31)
+Local `npm run build` + `next start` with the real keys (no AI key); daily limits raised through env for the run only; a second server with an unreachable `TG_HOST` for the fallback.
+
+| Check | Result | Evidence |
+|---|---|---|
+| `npm test` x3 | PASS | 40 files, `Tests 548 passed (548)` on each of the three runs |
+| typecheck, lint, build, docs:check | PASS | 0, 0, 0, `docs:check PASS` |
+| eval | PASS | 83 cases: `precision 100.0%, recall 100.0%, FP 0, FN 0`; identifiers 100.0% / 100.0% |
+| QA scenarios (eval/qa-scenarios.json) | PASS | levels 12/12 offline and on the server; rule differences classified in eval/qa-scenarios.md (1 bug fixed, 5 by design) |
+| Contribution flow | PASS in PGlite; live database: unavailable as designed | route tests: consent, case, delete code once, delete by code, reports removed on request, excerpt never returned or logged; on localhost against Supabase (no migration 004): "Contributing is not available right now." |
+| Scam trail, TigerGraph reachable | NOT VERIFIED today | the Savanna workspace was suspended (`/restpp/echo` HTTP 500); the trail answered from Postgres, labelled "postgres (TigerGraph unavailable)", in 1.7 s. On 2026-10-30, awake: 0.6-1.8 s and parity 63/63 SAME |
+| Scam trail, TigerGraph unreachable (`TG_HOST` invalid) | PASS | "postgres (TigerGraph unavailable)", 1.2 s, no notice, level Elevated as expected |
+| Pages: 5 widths x 7 pages | PASS | /, /about, /patterns, /verify, 404, /?example=fake_kyc, /privacy at 375, 768, 1280, 1440, 1920: no overflow, h1 Arial 400, header links 44 px, no console errors |
+| Keyboard | PASS | Tab order on /: brand, Patterns, Verify a receipt, About, the box, the 3 samples, "Where these come from", the common-scam examples; 2 px outline on each |
+| Print | PASS | header, common scams, feedback and contribute panels hidden; risk word, ledger and the footer contact address printed |
+| 200% zoom (1280 px window) | PASS | /, /about, /privacy, /patterns: no horizontal overflow |
+
 ### UNKNOWN (needs a person)
 - Clipboard copy of the complaint draft (headless Edge blocks the clipboard, so the on-page fallback was what ran).
 - Hover colours, screen reader announcements, real phones, macOS font weight.
