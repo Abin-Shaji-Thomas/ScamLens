@@ -23,6 +23,11 @@ Add to the 90-second version:
 - Under the evidence pack, in "Share proof", press "Download signed receipt", open /verify, paste it, press VERIFY: "Signature valid: ScamLens produced this receipt at ... and it has not been altered. It shows what ScamLens reported then, not that the chat was genuine." Change one letter and verify again: "Signature not valid...".
 - Open a Suspected finding's "about this pattern" link: the /patterns entry with what it looks like, why, what to do, an illustrative example and when it is not a signal.
 - /about: sources and dates, what is stored, and "AI assistance is optional and currently off."
+### Product tour additions (final round)
+- Home: press "Digital arrest" under "Common scams in India", then Check: the example fills the box, labelled; the result shows the scam trail ("all illustrative demo data") when its UPI ID is linked.
+- Result: "Was this right?" and "This was a real scam, add it to the map" (after migration 004 the delete code appears once; before it, "Contributing is not available right now.").
+- Footer: Privacy, with the delete form.
+
 ### Fallbacks
 | Problem | Do this |
 |---|---|

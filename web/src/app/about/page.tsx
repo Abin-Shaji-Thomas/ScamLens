@@ -20,6 +20,7 @@ import { DEFAULT_ETHERSCAN_RPS, EVM_CHAINS } from "@/lib/verified/etherscan";
 import { DOMAIN_LIST_BUDGET_BYTES, ETHERSCAN_MAX_ADDRESSES, MAX_ADDRESSES, MAX_DOMAINS, SCAMSNIFFER_DOMAINS_PROBED_BYTES } from "@/lib/verified/index";
 import { ofacList, scamSnifferList } from "@/lib/verified/lists";
 import { GraphStatsLine } from "@/components/GraphStatsLine";
+import { SCAM_TYPES } from "@/lib/scam-types";
 import { STORAGE_PROMISE } from "@/lib/privacy-copy";
 import { UsageStatsLine } from "@/components/UsageStatsLine";
 
@@ -159,7 +160,23 @@ export default function AboutPage() {
         </p>
       </Section>
 
-      <Section id="sources" title="Data sources, dates and limits" band>
+      <Section id="scam-types" title="Common scams in India: where the examples come from" band>
+        <p>
+          The examples under &ldquo;Common scams in India&rdquo; on the home page are invented, use demo identifiers only, and follow scam
+          types that the public pages below describe. They say nothing about how common each type is. The demo campaigns in the link graph
+          follow the same pages (docs/DATASET.md in the repository).
+        </p>
+        <ul className="flex flex-col divide-y divide-swiss-rule border-y border-swiss-rule">
+          {SCAM_TYPES.map((t) => (
+            <li key={t.id} className="py-4" data-scam-source={t.id}>
+              <strong>{t.name}</strong>: {t.summary} Source: {t.source.publisher}, &ldquo;{t.source.title}&rdquo; ({t.source.date}),{" "}
+              <A href={t.source.url}>{new URL(t.source.url).hostname.replace(/^www\./, "")}</A>.
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section id="sources" title="Data sources, dates and limits">
         <ul className="flex flex-col divide-y divide-swiss-rule border-y border-swiss-rule">
           <li className="py-4">
             <strong>{ofac.source}</strong> (US Treasury). US government work, public domain. Snapshot published{" "}
@@ -202,7 +219,7 @@ export default function AboutPage() {
         </p>
       </Section>
 
-      <Section id="privacy" title="Privacy: what is stored">
+      <Section id="privacy" title="Privacy: what is stored" band>
         <ul className="flex list-disc flex-col gap-2 pl-5">
           <li>{STORAGE_PROMISE}</li>
           <li>Checks: your text is processed in memory and not stored or logged.</li>
@@ -246,7 +263,7 @@ export default function AboutPage() {
         <UsageStatsLine />
       </Section>
 
-      <Section id="graph" title="Link graph" band>
+      <Section id="graph" title="Link graph">
         <p>
           Links between identifiers (a UPI ID and a Telegram handle reported with the same wallet, a wallet paying a flagged
           address) are answered by TigerGraph, a graph database; if it is unavailable, the same queries run on our Postgres
@@ -257,7 +274,7 @@ export default function AboutPage() {
         <GraphStatsLine />
       </Section>
 
-      <Section id="demo" title="Demo data">
+      <Section id="demo" title="Demo data" band>
         <p>
           The sample messages and the seeded link graph are invented and always marked &quot;{SAMPLE_WATERMARK}&quot; or
           &quot;Illustrative demo data&quot;. One sample uses a wallet that really is on the OFAC list, so the Verified tier

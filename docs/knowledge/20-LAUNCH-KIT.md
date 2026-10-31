@@ -36,6 +36,10 @@ Short, honest launch posts and a 30-second video script. They say what ScamLens 
 
 No receipt to hand for the last shot? On /verify press "Try an example" (it uses 1 daily check), then Verify. To show one pattern, open /patterns and press "Try this example".
 
+### New since the final round
+- "Common scams in India": five invented examples of commonly reported types, with the public pages they follow on /about#scam-types. Never claim a ranking.
+- The scam trail and the community loop: say "links to other reported identifiers" and "counts only"; the live data is illustrative demo data until people contribute.
+
 ### Rules for every post
 - No accusation words, no promise to prevent scams or recover money, no crypto product promotion.
 - Say it shows evidence, not verdicts, and is not legal advice.

@@ -6,7 +6,9 @@ import { claimNewLine } from "@/lib/new-line";
 import type { PatternExample } from "@/lib/pattern-example";
 import { SAMPLE_WATERMARK, SAMPLES } from "@/lib/samples";
 import { SCREENSHOT_OFF } from "@/lib/screenshot-copy";
+import { SCAM_TYPE_LABEL } from "@/lib/scam-types";
 import { BeyondTheCheck } from "./BeyondTheCheck";
+import { CommonScams } from "./CommonScams";
 import { RiskCard } from "./RiskCard";
 import { ScreenshotInput, ScreenshotNote, ScreenshotTrigger } from "./ScreenshotInput";
 
@@ -15,10 +17,15 @@ import { ScreenshotInput, ScreenshotNote, ScreenshotTrigger } from "./Screenshot
  * upload control and its privacy note appear only when a vision model is configured. `example` (from ?example= on the
  * home page) pre-fills the box with a pattern's invented example; the check still waits for the Check button.
  */
+/** Under the box: descriptions go through the same fixed patterns as messages. */
+export const DESCRIBE_NOTE = "Works best with the actual message text; descriptions are checked with the same fixed patterns.";
+
 export function CheckForm({ screenshots = false, example = null }: { screenshots?: boolean; example?: PatternExample | null }) {
   const [text, setText] = useState(example?.text ?? "");
   const [demo, setDemo] = useState(example !== null);
   const [fromExample, setFromExample] = useState(example !== null);
+  // Which "Common scams in India" example is in the box (labelled as illustrative), if any.
+  const [commonScam, setCommonScam] = useState<string | null>(null);
   const [result, setResult] = useState<CheckResponse | null>(null);
   const [checkedText, setCheckedText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -74,7 +81,7 @@ export function CheckForm({ screenshots = false, example = null }: { screenshots
               }}
             >
               <label id="input-label" htmlFor="input" className="eyebrow">
-                Paste a suspicious chat, wallet address, UPI ID or Telegram handle
+                Paste a message, or describe what happened
               </label>
               <textarea
                 id="input"
@@ -83,15 +90,22 @@ export function CheckForm({ screenshots = false, example = null }: { screenshots
                   setText(e.target.value);
                   setDemo(false);
                   setFromExample(false);
+                  setCommonScam(null);
                 }}
                 maxLength={MAX_INPUT_CHARS}
                 rows={6}
-                placeholder="Paste the message here"
+                placeholder="Paste a message, or describe what happened"
                 className="textarea mt-4"
               />
               {fromExample && example && (
                 <p className="t-small mt-3 text-swiss-text" data-example={example.ruleId}>
                   Example from the pattern library: {example.name}. Edit it or press Check.
+                </p>
+              )}
+              <p className="t-small mt-3 text-swiss-text">{DESCRIBE_NOTE}</p>
+              {commonScam && (
+                <p className="t-small mt-3 text-swiss-text" data-common-example={commonScam}>
+                  {SCAM_TYPE_LABEL}. <a href="/about#scam-types" className="tap">Sources</a>
                 </p>
               )}
               {demo && <p className="t-small mt-3 text-swiss-text">{SAMPLE_WATERMARK}</p>}
@@ -133,6 +147,7 @@ export function CheckForm({ screenshots = false, example = null }: { screenshots
                       setText(s.text);
                       setDemo(true);
                       setFromExample(false);
+                      setCommonScam(null);
                       setResult(null);
                     }}
                   >
@@ -149,6 +164,20 @@ export function CheckForm({ screenshots = false, example = null }: { screenshots
         </div>
       </section>
       {/* Under the form before a check; after the result once there is one, so it never pushes the answer down. */}
+      {!result && (
+        <CommonScams
+          onPick={(id, t) => {
+            setText(t);
+            setDemo(true);
+            setFromExample(false);
+            setCommonScam(id);
+            setResult(null);
+            const box = document.getElementById("input");
+            box?.scrollIntoView({ block: "center" });
+            box?.focus();
+          }}
+        />
+      )}
       {!result && <BeyondTheCheck />}
       <p role="status" aria-live="polite" className="sr-only">
         {loading ? "Checking." : result ? `Result ready: ${result.risk.label}.` : ""}
