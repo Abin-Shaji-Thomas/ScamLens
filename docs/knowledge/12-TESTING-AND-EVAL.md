@@ -11,6 +11,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | test file | it / it.each declarations |
 |---|---|
 | `web/src/lib/about.test.ts` | 7 |
+| `web/src/lib/brand-assets.test.ts` | 1 |
 | `web/src/lib/cases/cases.test.ts` | 15 |
 | `web/src/lib/complaint-draft.test.ts` | 4 |
 | `web/src/lib/contact.test.ts` | 8 |

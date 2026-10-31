@@ -44,6 +44,9 @@ The box label and placeholder read "Paste a message, or describe what happened",
 ### Result panels: Was this right?, add it to the map
 `FeedbackPanel` (scam / genuine / not sure, fixed reasons, no free text) and `ContributePanel` (consent, scam type, channel, optional loss band, optional excerpt with a redacted preview and a second tick; the delete code is shown once with a copy button and a link to /privacy#delete) sit beside "Report these identifiers". All three are hidden on synthetic samples and in print. Reported entries add "N reported, M marked genuine (reasons)" (`feedbackLine`), for information only.
 
+### Brand assets
+The lens mark is `web/src/app/icon.svg` (black on white). `web/scripts/export-brand-assets.ts` renders it with the headless Edge or Chrome already used for screenshots (no dependency) and writes `docs/assets/logo.svg` (copy), `docs/assets/logo-512.png`, `docs/assets/logo-192.png`, `docs/assets/social-1200x630.png` (the `/opengraph-image` of a running production build) and `web/src/app/apple-icon.png` (180 px; Next.js serves it as the Apple touch icon by file name). Re-run it if `icon.svg` changes. The README and the knowledge-base index show `logo-512.png`.
+
 ### Footer and contact
 The footer shows About, Patterns, Verify a receipt and Privacy (hidden in print), then Contact (mailto, printed as the address) and the X handle (the only link that opens a new tab, `rel="noopener noreferrer"`), all 44 px. Values come from `web/src/lib/contact.ts` only; `/about#contact` and the contribute and contest panels (`ContactHelp`) point to them. No X script or widget is embedded.
 

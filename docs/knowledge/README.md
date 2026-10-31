@@ -1,3 +1,5 @@
+<p align="center"><img src="../assets/logo-512.png" width="96" alt="ScamLens logo"></p>
+
 # ScamLens knowledge base
 
 ## In plain words

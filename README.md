@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/assets/logo-512.png" width="120" alt="ScamLens logo"></p>
+
 # ScamLens
 
 **Evidence-linked scam check for India.** Paste a suspicious chat, wallet address, UPI ID or Telegram handle. ScamLens returns a risk card that keeps three kinds of evidence strictly apart, each with its source, and never gives a verdict about a person.

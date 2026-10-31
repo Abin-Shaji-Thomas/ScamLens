@@ -22,9 +22,13 @@ Short, honest launch posts and a 30-second video script. They say what ScamLens 
 > What it is not: legal advice, a verdict about a person, or a way to recover money. Community reports are few at launch, so "no reports" never means safe. The text check uses fixed rules; an optional AI helper is built but switched off.
 >
 > Try it: <URL>
+>
+> Questions or corrections: <!-- FACT:contact_email -->scamlenspvt@gmail.com<!-- /FACT --> or <!-- FACT:x_handle -->@scamlens<!-- /FACT --> on X.
 
 **WhatsApp (family group)**
 > If a message asks you to pay a fee, share an OTP or "stay on the video call", you can paste it here first: <URL>. It shows warning signs and checks wallets and reports. It does not store your chat. If money has already gone, call 1930 right away.
+
+Every post is published from <!-- FACT:x_handle -->@scamlens<!-- /FACT --> (<!-- FACT:x_url -->https://x.com/scamlens<!-- /FACT -->); the share card and favicon come from `docs/assets/` (exported by `web/scripts/export-brand-assets.ts`).
 
 ### 30-second video script
 | Time | Picture | Voice |
