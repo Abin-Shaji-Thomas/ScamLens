@@ -1,0 +1,10 @@
+ALERT: Your bank account has been HACKED. Unusual login detected from another city.
+To stop your account from being FROZEN in 30 minutes, you must pay a security
+deposit of Rs 35,000 immediately.
+
+Pay now to UPI: secure.helpdesk35@okdemo
+Or send USDT to: 0x928c3dC199f45304d8145aed7a6Db53e6b158304
+
+Verify and unblock here: http://secure-account-verify.example/unblock
+Do not tell anyone or visit the branch. Our officer will call you.
+Reply DONE after payment.

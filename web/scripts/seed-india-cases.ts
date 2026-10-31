@@ -8,7 +8,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { findLinks } from "../src/lib/graph";
-import { datasetKeys, loadIndiaDataset, planCounts, removalStatements, seedIndia } from "../src/lib/graph/india-dataset";
+import { datasetKeys, loadDemoVideoDataset, loadIndiaDataset, planCounts, removalStatements, seedIndia, type IndiaDataset } from "../src/lib/graph/india-dataset";
 import { DEMO_LABEL } from "../src/lib/demo";
 import { dbFromEnv } from "../src/lib/reports/db";
 import { identifierHash } from "../src/lib/reports/privacy";
@@ -21,9 +21,13 @@ const args = new Set(process.argv.slice(2));
 
 async function main() {
   const ds = loadIndiaDataset();
-  console.log(`[${DEMO_LABEL}] Indian synthetic dataset`);
-  console.log("plan:", JSON.stringify(planCounts(ds)));
-  if (args.has("--remove")) return remove(ds);
+  const demo = loadDemoVideoDataset();
+  console.log(`[${DEMO_LABEL}] Indian synthetic dataset + demo-video campaign`);
+  console.log("plan:", JSON.stringify(planCounts(ds)), "demo-video:", JSON.stringify(planCounts(demo)));
+  if (args.has("--remove")) {
+    await remove(ds);
+    return remove(demo);
+  }
   if (!args.has("--apply") && !args.has("--local")) {
     console.log("dry run: nothing written (use --apply to write to Supabase, --local for an in-memory Postgres)");
     return;
@@ -35,6 +39,7 @@ async function main() {
   if (typeof cfg === "string") throw new Error(cfg);
   const counts = await seedIndia(cfg, ds);
   console.log("written:", JSON.stringify(counts));
+  console.log("demo-video written:", JSON.stringify(await seedIndia(cfg, demo)));
   if (!counts.migration004) {
     console.log("HUMAN STEP: migration 004 is not in this database, so only reports and graph links were written (no case rows).");
     console.log("           Run web/db/migrations/004_cases_and_feedback.sql in the Supabase SQL editor, then run --apply again.");
@@ -50,7 +55,7 @@ async function main() {
   console.log(`postgres: Q1 rows for ${q1} UPI ID(s), Q2 rows for ${q2} wallet(s), Q3 ${q3} dataset cluster(s)`);
 }
 
-async function remove(ds: ReturnType<typeof loadIndiaDataset>) {
+async function remove(ds: IndiaDataset) {
   const pepper = process.env.REPORT_HASH_PEPPER ?? "";
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY || pepper.length < 16) throw new Error("Supabase or REPORT_HASH_PEPPER not configured");
   const sb = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });

@@ -23,6 +23,10 @@ The sources below were opened on 2026-10-30. Each line paraphrases the page; not
 
 Pages that could not be opened by the tools used here (Press Information Bureau pages returned 403, and the BE(A)WARE PDF could not be read as text) are not cited.
 
+## Demo-video campaign (`eval/demo-video.json`)
+
+For a filmed demo, the SMS in `docs/demo/video-sms.txt` ("Your bank account has been HACKED ... pay a security deposit of Rs 35,000 ... Do not tell anyone or visit the branch") is reported by 4 synthetic networks (documentation addresses 203.0.113.101-104, through the real HMAC path). Each of the 4 cases names the UPI ID `secure.helpdesk35@okdemo` and the wallet `0x928c3dC199f45304d8145aed7a6Db53e6b158304` together, with category "account hacked / security deposit" (`account_hacked`), channel SMS, loss band Rs 10,000 to 1 lakh, month 2026-10, `synthetic = true`. So each identifier has 4 independent reporters and the two are linked for the scam trail. The SMS also counts 2 patterns (`account_hacked_deposit`, `urgency_deadline`), so the level is High through the allowed path: reports plus a counted pattern. It is seeded and removed with the commands below, together with the 56-case dataset; it models the bank-account-hacked pattern in the RBI KYC caution above (threats to freeze an account to make people pay or share details). Remove it after filming: `npx tsx scripts/seed-india-cases.ts --remove`.
+
 ## What the graph gets
 
 - **Q1** (UPI ID to wallet to Telegram, halves from different reporters): campaigns 2 and 3; non-empty for 4 cases on the live graph.

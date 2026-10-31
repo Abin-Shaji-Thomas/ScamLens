@@ -1,0 +1,93 @@
+{
+ "description": "Illustrative demo data. Demo-video campaign: the SMS in docs/demo/video-sms.txt (bank account \"hacked\", pay a security deposit, keep it secret), reported by 4 synthetic networks (documentation addresses 203.0.113.101-104 through the real HMAC path). Each case names the UPI ID and the wallet together, so they are linked in the graph. The UPI ID is under the demo @okdemo handle; the wallet is the demo value from the video script and is on no list. Seeded by web/scripts/seed-india-cases.ts and removed by --remove.",
+ "version": 1,
+ "campaigns": {
+  "11": "Demo video: bank account hacked / fake security deposit"
+ },
+ "payments": [],
+ "flagged": [],
+ "exchanges": [],
+ "contested": [],
+ "cases": [
+  {
+   "id": "dv-01",
+   "campaign": 11,
+   "category": "account_hacked",
+   "channel": "sms",
+   "lossBand": "10k_1l",
+   "month": "2026-10",
+   "reporterIp": "203.0.113.101",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "secure.helpdesk35@okdemo"
+    },
+    {
+     "type": "evm",
+     "value": "0x928c3dC199f45304d8145aed7a6Db53e6b158304"
+    }
+   ],
+   "text": "ALERT: Your bank account has been HACKED. Unusual login detected from another city.\nTo stop your account from being FROZEN in 30 minutes, you must pay a security\ndeposit of Rs 35,000 immediately.\n\nPay now to UPI: secure.helpdesk35@okdemo\nOr send USDT to: 0x928c3dC199f45304d8145aed7a6Db53e6b158304\n\nVerify and unblock here: http://secure-account-verify.example/unblock\nDo not tell anyone or visit the branch. Our officer will call you.\nReply DONE after payment.\n"
+  },
+  {
+   "id": "dv-02",
+   "campaign": 11,
+   "category": "account_hacked",
+   "channel": "sms",
+   "lossBand": "10k_1l",
+   "month": "2026-10",
+   "reporterIp": "203.0.113.102",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "secure.helpdesk35@okdemo"
+    },
+    {
+     "type": "evm",
+     "value": "0x928c3dC199f45304d8145aed7a6Db53e6b158304"
+    }
+   ],
+   "text": "ALERT: Your bank account has been HACKED. Unusual login detected from another city.\nTo stop your account from being FROZEN in 30 minutes, you must pay a security\ndeposit of Rs 35,000 immediately.\n\nPay now to UPI: secure.helpdesk35@okdemo\nOr send USDT to: 0x928c3dC199f45304d8145aed7a6Db53e6b158304\n\nVerify and unblock here: http://secure-account-verify.example/unblock\nDo not tell anyone or visit the branch. Our officer will call you.\nReply DONE after payment.\n"
+  },
+  {
+   "id": "dv-03",
+   "campaign": 11,
+   "category": "account_hacked",
+   "channel": "sms",
+   "lossBand": "10k_1l",
+   "month": "2026-10",
+   "reporterIp": "203.0.113.103",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "secure.helpdesk35@okdemo"
+    },
+    {
+     "type": "evm",
+     "value": "0x928c3dC199f45304d8145aed7a6Db53e6b158304"
+    }
+   ],
+   "text": "ALERT: Your bank account has been HACKED. Unusual login detected from another city.\nTo stop your account from being FROZEN in 30 minutes, you must pay a security\ndeposit of Rs 35,000 immediately.\n\nPay now to UPI: secure.helpdesk35@okdemo\nOr send USDT to: 0x928c3dC199f45304d8145aed7a6Db53e6b158304\n\nVerify and unblock here: http://secure-account-verify.example/unblock\nDo not tell anyone or visit the branch. Our officer will call you.\nReply DONE after payment.\n"
+  },
+  {
+   "id": "dv-04",
+   "campaign": 11,
+   "category": "account_hacked",
+   "channel": "sms",
+   "lossBand": "10k_1l",
+   "month": "2026-10",
+   "reporterIp": "203.0.113.104",
+   "identifiers": [
+    {
+     "type": "upi",
+     "value": "secure.helpdesk35@okdemo"
+    },
+    {
+     "type": "evm",
+     "value": "0x928c3dC199f45304d8145aed7a6Db53e6b158304"
+    }
+   ],
+   "text": "ALERT: Your bank account has been HACKED. Unusual login detected from another city.\nTo stop your account from being FROZEN in 30 minutes, you must pay a security\ndeposit of Rs 35,000 immediately.\n\nPay now to UPI: secure.helpdesk35@okdemo\nOr send USDT to: 0x928c3dC199f45304d8145aed7a6Db53e6b158304\n\nVerify and unblock here: http://secure-account-verify.example/unblock\nDo not tell anyone or visit the branch. Our officer will call you.\nReply DONE after payment.\n"
+  }
+ ]
+}

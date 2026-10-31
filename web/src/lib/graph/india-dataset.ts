@@ -39,6 +39,10 @@ export interface IndiaDataset {
 
 export const loadIndiaDataset = (path = INDIA_DATASET_PATH): IndiaDataset => JSON.parse(readFileSync(path, "utf8")) as IndiaDataset;
 
+/** The demo-video campaign (eval/demo-video.json): same shape, seeded and removed together with the dataset above. */
+export const DEMO_VIDEO_PATH = join(import.meta.dirname, "..", "..", "..", "..", "eval", "demo-video.json");
+export const loadDemoVideoDataset = (): IndiaDataset => loadIndiaDataset(DEMO_VIDEO_PATH);
+
 /** Deterministic UUID (version-4 shape) from a case id, so re-runs reuse the same submission. */
 export function datasetUuid(id: string): string {
   const h = createHash("sha256").update(`scamlens-india-dataset:${id}`).digest("hex");

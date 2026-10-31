@@ -14,6 +14,9 @@ Savanna has no auto-start, so an idle workspace suspends. Shortly before a demo 
 Until then: the trail and the graph answer from Postgres, labelled `postgres (TigerGraph unavailable)`.
 If `npx tsx scripts/tg-setup.ts` ever stops with "HUMAN STEP REQUIRED", paste the GSQL it prints into the Savanna GSQL editor and run it again (graph migrations so far: <!-- FACT:graph_migrations -->`001_report_reporter_key.gsql`<!-- /FACT -->, applied).
 
+## 2b. Before filming the demo video, and after
+Before: resume TigerGraph (item 2), then `cd web && npx tsx scripts/tg-setup.ts --load` (expect every query SAME). Paste `docs/demo/video-sms.txt`; expect High. After filming: `npx tsx scripts/seed-india-cases.ts --remove` removes the demo-video campaign and the 56-case dataset (only their own rows).
+
 ## 3. Choose and add a LICENSE
 The repository has no licence file. Choose one and add `LICENSE` at the root. Note that the bundled ScamSniffer address snapshot is GPL-3.0 (attribution kept in `/about` and `docs/THIRD_PARTY.md`), which matters for the choice.
 
@@ -39,7 +42,7 @@ Most of `docs/UI_CHECKLIST.md` was verified in headless Edge. Still needed, on t
 4. On macOS, iOS, Android and Linux: the headings look like Windows, solid regular Arial (or its metric-compatible fallback), not a thin face.
 5. In a real browser: "Copy complaint draft", "Download signed receipt" and "Copy delete code" land on the clipboard or disk (headless Edge blocks the clipboard and downloads).
 6. After migration 004: add a clearly synthetic test case on the live site, copy its delete code, and delete it on /privacy.
-7. Pick any of the <!-- FACT:rule_count -->18<!-- /FACT --> patterns on /patterns, press "Try this example", then Check: the result lists that pattern under Suspected.
+7. Pick any of the <!-- FACT:rule_count -->19<!-- /FACT --> patterns on /patterns, press "Try this example", then Check: the result lists that pattern under Suspected.
 
 ## Later / optional
 - **Vercel settings** (one visit): Function Region = Mumbai (`bom1`); remove `SUPABASE_ANON_KEY` (unused).

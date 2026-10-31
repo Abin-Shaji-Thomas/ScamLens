@@ -23,6 +23,9 @@ Add to the 90-second version:
 - Under the evidence pack, in "Share proof", press "Download signed receipt", open /verify, paste it, press VERIFY: "Signature valid: ScamLens produced this receipt at ... and it has not been altered. It shows what ScamLens reported then, not that the chat was genuine." Change one letter and verify again: "Signature not valid...".
 - Open a Suspected finding's "about this pattern" link: the /patterns entry with what it looks like, why, what to do, an illustrative example and when it is not a signal.
 - /about: sources and dates, what is stored, and "AI assistance is optional and currently off."
+### Demo video (High on the live site)
+Paste `docs/demo/video-sms.txt` as it is. Expected: **High** with "2 identifier(s) reported by 2+ independent people" and "2 suspected pattern(s) in the text" (`account_hacked_deposit`, `urgency_deadline`); Reported shows the UPI ID and the wallet, each reported by 4 independent people, labelled "Illustrative demo data"; "What was checked" lists OFAC, ScamSniffer, GoPlus and Etherscan for the wallet and the reports; the Scam trail links the two identifiers. Before filming: resume TigerGraph and run `npx tsx scripts/tg-setup.ts --load` (otherwise the trail says "postgres (TigerGraph unavailable)"). After filming: `npx tsx scripts/seed-india-cases.ts --remove`. The data is `eval/demo-video.json` (docs/DATASET.md).
+
 ### Product tour additions (final round)
 - Home: press "Digital arrest" under "Common scams in India", then Check: the example fills the box, labelled; the result shows the scam trail ("all illustrative demo data") when its UPI ID is linked.
 - Result: "Was this right?" and "This was a real scam, add it to the map" (after migration 004 the delete code appears once; before it, "Contributing is not available right now.").
@@ -40,8 +43,8 @@ Add to the 90-second version:
 |---|---|---|
 | 1 | Is it live? | Yes, https://scam-lens-two.vercel.app; `/api/health` shows the deployed commit |
 | 2 | Is anyone using it? | Not yet at scale; the live Reported tier is mostly labelled demo data |
-| 3 | Where is the AI? | ScamLens is crypto-side verification (on-chain facts, sanctions and blocklists) plus a rule-based language check (<!-- FACT:rule_count -->18<!-- /FACT --> fixed rules). An optional AI helper is built and tested with mocks but switched off; no measured AI benefit is claimed |
-| 4 | How accurate is it? | On <!-- FACT:eval_cases -->83<!-- /FACT --> synthetic cases the rules reach precision <!-- FACT:eval_precision -->100.0%<!-- /FACT --> and recall <!-- FACT:eval_recall -->100.0%<!-- /FACT --> with <!-- FACT:eval_fp -->0<!-- /FACT --> false positive; these are our own cases, not real-world accuracy |
+| 3 | Where is the AI? | ScamLens is crypto-side verification (on-chain facts, sanctions and blocklists) plus a rule-based language check (<!-- FACT:rule_count -->19<!-- /FACT --> fixed rules). An optional AI helper is built and tested with mocks but switched off; no measured AI benefit is claimed |
+| 4 | How accurate is it? | On <!-- FACT:eval_cases -->87<!-- /FACT --> synthetic cases the rules reach precision <!-- FACT:eval_precision -->100.0%<!-- /FACT --> and recall <!-- FACT:eval_recall -->100.0%<!-- /FACT --> with <!-- FACT:eval_fp -->0<!-- /FACT --> false positive; these are our own cases, not real-world accuracy |
 | 5 | Can it be wrong? | Yes; that is why it shows sources and quotes and never a verdict |
 | 6 | What stops fake reports? | 2 independent networks needed, hashed fingerprints, daily caps |
 | 7 | What about the person wrongly reported? | They can contest; the entry stays labelled and stops counting toward High until reviewed |
