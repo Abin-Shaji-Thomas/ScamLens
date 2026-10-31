@@ -872,3 +872,15 @@ Root cause of the earlier "thin headings" report: 056ab4b put Segoe UI before He
 | Browser 375 / 1440 | PASS | no overflow, no tap target under 24 px outside text; console only the expected 503 from /api/case; the first check after a server start showed no trail (cold deadline), later checks did |
 | Screenshots | PASS | final-example-trail-1440, final-contribute-375, final-privacy-375 |
 
+
+## P7 and P7b - Remaining gaps, contact, brand assets
+
+| Check | Result | Evidence |
+|---|---|---|
+| Domain check | PASS (built in the finish round, tightened) | GoPlus phishing_site answers `{"code":1,"result":{"website_contract_security":[],"phishing_site":0}}` for example.com; now only the registrable domain is sent, max 5, 5 s timeout, failures unavailable, match only on phishing_site 1; /about says domains are sent to GoPlus |
+| /api/usage-stats | PASS | only `{checks, days}`, 10-minute cache, 404 on failure; /about sentence unchanged |
+| Verb-list limit | documented, unchanged | docs/knowledge/16 |
+| Contact | PASS | `web/src/lib/contact.ts` only; footer Contact (mailto, printed) and @scamlens on X (only new-tab link); /about#contact with the 1930 line and no response-time promise; /privacy line; panels link to it; `twitter.site`/`creator`; tests scan src for stray copies; docs use FACT markers |
+| Personal email | PASS | no tracked file contains it (test reads the committer address from git config and stores no fragment); it remains in commit metadata, as required |
+| SECURITY.md, docs/CONTRIBUTING.md | PASS | GitHub private vulnerability reporting first, project email second; covered by docs:check |
+| Brand assets | PASS | `web/scripts/export-brand-assets.ts`: docs/assets/logo.svg, logo-512.png, logo-192.png, social-1200x630.png, web/src/app/apple-icon.png (180 px, served at /apple-icon.png); README and knowledge index open with the logo |
