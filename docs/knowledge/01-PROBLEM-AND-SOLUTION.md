@@ -17,7 +17,7 @@ Scams in India move fast and change shape: "digital arrest" video calls, fake KY
 |---|---|---|---|
 | Verified | Sources ScamLens queries itself: OFAC SDN list, ScamSniffer blacklist, GoPlus, Etherscan V2, TronGrid | Always (with "unavailable" if a source fails) | "Match · OFAC SDN list" with list date and a link |
 | Reported | ScamLens's own community reports | Only after <!-- FACT:min_reporters -->2<!-- /FACT --> independent reporters within <!-- FACT:report_retention_days -->90<!-- /FACT --> days | "zz***d@okdemo was reported by 3 independent people" |
-| Suspected | <!-- FACT:rule_count -->18<!-- /FACT --> fixed pattern rules run on the user's own text | Always | "digital arrest" quoted from the text, rule `digital_arrest` |
+| Suspected | <!-- FACT:rule_count -->19<!-- /FACT --> fixed pattern rules run on the user's own text | Always | "digital arrest" quoted from the text, rule `digital_arrest` |
 
 The risk level (Low signals / Elevated / High) is computed by fixed code. Suspected signals alone can never produce High.
 

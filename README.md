@@ -24,7 +24,7 @@ One box, one result, three kinds of evidence that are never mixed:
 |---|---|---|
 | **1. Verified** | Facts ScamLens checks itself, each with source, date and a link to check it yourself | OFAC SDN list, ScamSniffer open address list, GoPlus address security and phishing sites, Etherscan V2 (<!-- FACT:free_chains -->Ethereum, Polygon, Arbitrum One<!-- /FACT --> on the free plan), TronGrid |
 | **2. Reported** | Community reports, shown only after <!-- FACT:min_reporters -->2<!-- /FACT --> independent reporters within 90 days | ScamLens' own database (keyed hashes and masked forms only) |
-| **3. Suspected** | Warning patterns in *your* text, with the exact quoted words and the rule that fired | <!-- FACT:rule_count -->18<!-- /FACT --> fixed rules (AI is off by decision) |
+| **3. Suspected** | Warning patterns in *your* text, with the exact quoted words and the rule that fired | <!-- FACT:rule_count -->19<!-- /FACT --> fixed rules (AI is off by decision) |
 
 **Worked example.** Paste *"This is an officer from the cyber crime branch... you are under digital arrest... Transfer your savings to the RBI verification account within 2 hours: zzdemo.cbi.verify@okdemo"* (one of the labelled examples on the home page). The result:
 
@@ -107,8 +107,8 @@ ScamLens cannot recover money. If you lost money, call 1930 now and tell your ba
 
 ## Testing and evaluation
 
-- **Tests:** <!-- FACT:test_files -->40<!-- /FACT --> test files with <!-- FACT:test_declarations -->473<!-- /FACT --> test declarations (Vitest; `it.each` expands to more when run). They use mocked network calls, PGlite with the real SQL, and never call a live API.
-- **Eval (rules only):** <!-- FACT:eval_cases -->83<!-- /FACT --> synthetic, hand-written labelled chats in `eval/chats.json`: precision <!-- FACT:eval_precision -->100.0%<!-- /FACT -->, recall <!-- FACT:eval_recall -->100.0%<!-- /FACT -->, <!-- FACT:eval_fp -->0<!-- /FACT --> false positives, <!-- FACT:eval_fn -->0<!-- /FACT --> false negatives ([eval/RESULTS.md](eval/RESULTS.md)).
+- **Tests:** <!-- FACT:test_files -->41<!-- /FACT --> test files with <!-- FACT:test_declarations -->481<!-- /FACT --> test declarations (Vitest; `it.each` expands to more when run). They use mocked network calls, PGlite with the real SQL, and never call a live API.
+- **Eval (rules only):** <!-- FACT:eval_cases -->87<!-- /FACT --> synthetic, hand-written labelled chats in `eval/chats.json`: precision <!-- FACT:eval_precision -->100.0%<!-- /FACT -->, recall <!-- FACT:eval_recall -->100.0%<!-- /FACT -->, <!-- FACT:eval_fp -->0<!-- /FACT --> false positives, <!-- FACT:eval_fn -->0<!-- /FACT --> false negatives ([eval/RESULTS.md](eval/RESULTS.md)).
 - **QA scenarios:** 12 long synthetic scenarios with written hypotheses, each difference marked bug or by design ([eval/qa-scenarios.md](eval/qa-scenarios.md)).
 - **Live smoke:** `scripts/smoke-live.ts` runs <!-- FACT:smoke_expectations -->39<!-- /FACT --> expectations; `scripts/check-headers.ts` checks the security headers.
 

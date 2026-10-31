@@ -2,7 +2,7 @@
 
 ## In plain words
 
-The Suspected tier comes from <!-- FACT:rule_count -->18<!-- /FACT --> fixed rules. Each rule is a short list of text patterns for one scam tactic, for example "pay a fee to withdraw" or "stay on the video call". When a pattern matches, ScamLens shows the rule and the exact words it matched. A hit inside a sentence that warns about scams ("never share your OTP") is shown separately and does not count. The optional AI helper may only point at these same rules, and it is switched off in this deployment.
+The Suspected tier comes from <!-- FACT:rule_count -->19<!-- /FACT --> fixed rules. Each rule is a short list of text patterns for one scam tactic, for example "pay a fee to withdraw" or "stay on the video call". When a pattern matches, ScamLens shows the rule and the exact words it matched. A hit inside a sentence that warns about scams ("never share your OTP") is shown separately and does not count. The optional AI helper may only point at these same rules, and it is switched off in this deployment.
 
 ## Details
 
@@ -13,7 +13,7 @@ All rules (generated from `web/src/lib/signals/rules.ts`):
 |---|---|---|---|---|
 | 1 | `guaranteed_returns` | Guaranteed or fixed daily returns | 7 | drops a negator right before |
 | 2 | `withdrawal_fee` | Pay a fee or tax to unlock or withdraw funds | 4 | none |
-| 3 | `urgency_deadline` | Urgency, deadline or threat of blocking | 5 | none |
+| 3 | `urgency_deadline` | Urgency, deadline or threat of blocking | 6 | none |
 | 4 | `seed_phrase_request` | Asks for seed phrase or private key | 3 | drops negated hits |
 | 5 | `otp_pin_request` | Asks for OTP, UPI PIN or CVV | 2 | drops negated hits; ignores a code right after |
 | 6 | `move_platform` | Moves the conversation to Telegram or WhatsApp | 3 | needs a second rule |
@@ -29,6 +29,7 @@ All rules (generated from `web/src/lib/signals/rules.ts`):
 | 16 | `fake_profit_proof` | Screenshots or claims of others' profits | 2 | none |
 | 17 | `prize_lottery` | Prize, lottery or lucky draw win | 3 | none |
 | 18 | `utility_disconnection` | Electricity or utility disconnection threat | 1 | none |
+| 19 | `account_hacked_deposit` | "Account hacked" or freeze threat with a security deposit or secrecy | 3 | needs a second rule |
 <!-- GENERATED:END rules -->
 
 How a rule runs (`web/src/lib/signals/regex.ts`):
@@ -66,6 +67,7 @@ Add a pattern only with a test that it fires on a scam example and a test that i
 
 ## Known limits
 
+- `account_hacked_deposit` (demo-video round) needs a second pattern: it fires on an assertive "your account has been hacked/compromised", a "security/verification deposit or fee", or "do not tell anyone or visit the branch", but a rental security deposit alone or advice such as "if your card was compromised, call the bank" never counts. A genuine advisory ("your account may be at risk, do not share your OTP, visit the branch") stays Low (eval d02, tests). `urgency_deadline` also matches a threat verb right before a countdown ("FROZEN in 30 minutes"), not "delivered in 30 minutes".
 - Narrow on purpose (final round P2, `eval/qa-scenarios.md`): "Inspector X from the Mumbai Cyber Crime cell" does not fire `authority_impersonation` ("cyber crime cell" also appears in genuine advice to report there); "members withdrew 2.4 lakh" does not fire `fake_profit_proof`; "start small with just 5,000" does not fire `small_amount_first`; a refund plus "install AnyDesk" counts only as `remote_access_app`; "share your recovery phrase and your OTP" is past the 15-character window of `otp_pin_request`. Each would add false positives on genuine text; in every case other patterns still give the same level.
 - `task_earn` matches the reversed order "earn 3,000 a day by liking videos" only with an amount and a per-day word (final round P2), so "earn reward points by rating your orders" does not fire.
 

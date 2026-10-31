@@ -32,6 +32,7 @@ describe("rule list", () => {
     fake_profit_proof: "See these screenshots of profit from our VIP members.",
     prize_lottery: "Congratulations! You have won the KBC lucky draw of 25 lakh.",
     utility_disconnection: "Your electricity will be disconnected tonight at 9.30 pm.",
+    account_hacked_deposit: "Your bank account has been hacked, pay a security deposit to keep it open.",
   };
 
   it("every rule has a positive example", () => {
@@ -183,5 +184,30 @@ describe("task_earn reversed word order (final round P2)", () => {
     const hits = r.signals.filter((s) => s.rule_id === "task_earn");
     expect(hits.length).toBeGreaterThan(0);
     expect(hits.every((s) => s.context === "warning")).toBe(true);
+  });
+});
+
+describe("account_hacked_deposit and the countdown urgency pattern (demo-video round)", () => {
+  const counted = async (t: string) => {
+    const r = await detectSignals(t, { env: {} });
+    return [...new Set(r.signals.filter((s) => s.context !== "warning").map((s) => s.rule_id))].sort();
+  };
+  it("the demo SMS shape counts two patterns", async () => {
+    const t = "ALERT: Your bank account has been HACKED. To stop your account from being FROZEN in 30 minutes, you must pay a security deposit of Rs 35,000 immediately. Do not tell anyone or visit the branch.";
+    expect(await counted(t)).toEqual(["account_hacked_deposit", "urgency_deadline"]);
+  });
+  it.each([
+    "Dear customer, your account may be at risk. Do not share your OTP with anyone. Please visit the branch with your ID to update your details.",
+    "Hi, the flat is available from the 1st. Please pay the security deposit of Rs 40,000 by bank transfer when you sign the agreement.",
+    "Your order will be delivered in 30 minutes. Track it in the app.",
+    "If your card was compromised, call the number on the back of your card.",
+  ])("stays quiet on genuine text: %s", async (t) => {
+    const ids = await counted(t);
+    expect(ids).not.toContain("account_hacked_deposit");
+    expect(ids.filter((x) => x === "urgency_deadline")).toEqual([]);
+  });
+  it("a security deposit alone needs a second pattern to count", () => {
+    expect(ruleIds("Pay the security deposit before you move in.")).toContain("account_hacked_deposit"); // shown
+    expect(RULES.find((r) => r.id === "account_hacked_deposit")?.needsCorroboration).toBe(true); // but not counted alone
   });
 });

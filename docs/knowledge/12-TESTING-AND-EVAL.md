@@ -2,7 +2,7 @@
 
 ## In plain words
 
-Every change must pass the unit tests, the type checker, the linter, a production build and the docs check. Database code is tested against real Postgres SQL running inside the test (PGlite). The pattern rules are also measured on <!-- FACT:eval_cases -->83<!-- /FACT --> hand-written synthetic chats; that "eval" tells us how the rules behave on examples we wrote, not how they behave on real scams in the wild.
+Every change must pass the unit tests, the type checker, the linter, a production build and the docs check. Database code is tested against real Postgres SQL running inside the test (PGlite). The pattern rules are also measured on <!-- FACT:eval_cases -->87<!-- /FACT --> hand-written synthetic chats; that "eval" tells us how the rules behave on examples we wrote, not how they behave on real scams in the wild.
 
 ## Details
 
@@ -17,8 +17,9 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/contact.test.ts` | 8 |
 | `web/src/lib/contrast.test.ts` | 8 |
 | `web/src/lib/coverage.test.ts` | 11 |
+| `web/src/lib/demo-video.test.ts` | 3 |
 | `web/src/lib/docs.test.ts` | 11 |
-| `web/src/lib/eval-data.test.ts` | 8 |
+| `web/src/lib/eval-data.test.ts` | 10 |
 | `web/src/lib/evidence-pack.test.ts` | 4 |
 | `web/src/lib/f1-safety.test.ts` | 19 |
 | `web/src/lib/graph/drawing.test.ts` | 2 |
@@ -41,7 +42,7 @@ Every change must pass the unit tests, the type checker, the linter, a productio
 | `web/src/lib/reports/retention.test.ts` | 6 |
 | `web/src/lib/risk.test.ts` | 19 |
 | `web/src/lib/signals/context.test.ts` | 20 |
-| `web/src/lib/signals/signals.test.ts` | 24 |
+| `web/src/lib/signals/signals.test.ts` | 27 |
 | `web/src/lib/style.test.ts` | 12 |
 | `web/src/lib/trail/trail.test.ts` | 10 |
 | `web/src/lib/transcribe.test.ts` | 17 |
@@ -74,15 +75,15 @@ Current results (generated from `eval/RESULTS.md`):
 <!-- GENERATED:START eval -->
 | metric (rules only) | value |
 |---|---|
-| cases | 83 |
+| cases | 87 |
 | accuracy | 100.0% |
 | precision | 100.0% |
 | recall | 100.0% |
 | false positives | 0 |
 | false negatives | 0 |
 | false positive cases | none |
-| run date | 2026-10-31T03:58:11.919Z |
-| commit | 457d077 (with uncommitted changes) |
+| run date | 2026-10-31T04:21:46.000Z |
+| commit | 16298fa (with uncommitted changes) |
 <!-- GENERATED:END eval -->
 
 ### What the eval is NOT

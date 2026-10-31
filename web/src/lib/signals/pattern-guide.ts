@@ -145,4 +145,12 @@ export const PATTERN_GUIDE: Record<string, PatternGuide> = {
     whatToDo: "Check your bill in the official board's app or website, or visit the office.",
     example: "Your electricity connection will be disconnected tonight, call this officer now.",
   },
+  account_hacked_deposit: {
+    name: "\"Account hacked\" and a security deposit",
+    looksLike: "\"Your bank account has been hacked\", a demand to pay a \"security deposit\" to stop a freeze, and \"do not tell anyone or visit the branch\".",
+    why: "Fear of losing the account makes people pay fast; keeping them away from the bank stops anyone from checking.",
+    whatToDo: "Do not pay. Call the number on the back of your card or visit your branch yourself; a bank never asks for a deposit to protect an account.",
+    example: "Your bank account has been hacked. Pay a security deposit to stop the freeze.",
+    notASignal: "A rental or utility security deposit on its own: the rule counts only together with another pattern.",
+  },
 };

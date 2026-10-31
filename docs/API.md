@@ -18,7 +18,7 @@ All routes live under `web/src/app/api`. There is no authentication (no accounts
 | `/api/health` | GET | none | none | booleans and short statuses: db, reports, graph, usageStore, llm, vision, etherscan, build, receipts | 200 |
 | `/.well-known/scamlens-receipt-key.json` | GET | none | none | `{ keyId, alg: "Ed25519", publicKey, format }` | 200, 404 |
 
-503 means a dependency is not configured or a migration is missing; the body is a plain sentence. `ruleIds` are checked against the <!-- FACT:rule_count -->18<!-- /FACT --> rule ids; identifiers are re-validated by the extractor on the server.
+503 means a dependency is not configured or a migration is missing; the body is a plain sentence. `ruleIds` are checked against the <!-- FACT:rule_count -->19<!-- /FACT --> rule ids; identifiers are re-validated by the extractor on the server.
 
 ## Every route and page (generated)
 

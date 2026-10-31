@@ -17,7 +17,7 @@ Short, honest launch posts and a 30-second video script. They say what ScamLens 
 **LinkedIn**
 > We built ScamLens for Hacker House Goa 2026 (team ArcReap): a free check for suspicious messages in India.
 >
-> Paste a chat, wallet address, UPI ID or Telegram handle. ScamLens keeps three kinds of evidence apart: Verified (sanctions and blocklists, on-chain facts, each with a link), Reported (only after independent people reported the same identifier) and Suspected (<!-- FACT:rule_count -->18<!-- /FACT --> fixed language patterns, with the exact words quoted). It also says plainly what it could not check, gives an "I already paid" plan starting with 1930, and lets anyone verify a signed receipt of a result.
+> Paste a chat, wallet address, UPI ID or Telegram handle. ScamLens keeps three kinds of evidence apart: Verified (sanctions and blocklists, on-chain facts, each with a link), Reported (only after independent people reported the same identifier) and Suspected (<!-- FACT:rule_count -->19<!-- /FACT --> fixed language patterns, with the exact words quoted). It also says plainly what it could not check, gives an "I already paid" plan starting with 1930, and lets anyone verify a signed receipt of a result.
 >
 > What it is not: legal advice, a verdict about a person, or a way to recover money. Community reports are few at launch, so "no reports" never means safe. The text check uses fixed rules; an optional AI helper is built but switched off.
 >

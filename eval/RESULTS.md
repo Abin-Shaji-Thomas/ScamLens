@@ -2,9 +2,9 @@
 
 **Illustrative demo data**: every chat in `eval/chats.json` is synthetic and hand-written for this project.
 
-- Date: 2026-10-31T03:58:11.919Z
-- Git commit: 457d077 (with uncommitted changes)
-- Cases: 83 (41 scam / 42 normal; 36 normal cases are deliberately tricky)
+- Date: 2026-10-31T04:21:46.000Z
+- Git commit: 16298fa (with uncommitted changes)
+- Cases: 87 (43 scam / 44 normal; 38 normal cases are deliberately tricky)
 - Modes run: regex-only. with-AI: not run (OPENAI_API_KEY / OPENAI_MODEL not set)
 - Command: `cd web && npm run eval`
 
@@ -17,9 +17,9 @@
 | accuracy | 100.0% |
 | precision | 100.0% |
 | recall | 100.0% |
-| false positives | 0 of 42 normal |
-| false negatives | 0 of 41 scam |
-| TP / FP / TN / FN | 41 / 0 / 42 / 0 |
+| false positives | 0 of 44 normal |
+| false negatives | 0 of 43 scam |
+| TP / FP / TN / FN | 43 / 0 / 44 / 0 |
 
 False positives: none
 
@@ -31,7 +31,7 @@ Per rule (a hit counts when the rule fired on a chat whose hand label includes i
 |---|---|---|---|---|---|
 | guaranteed_returns | 6 | 6 | 6 | 100.0% | 100.0% |
 | withdrawal_fee | 8 | 8 | 8 | 100.0% | 100.0% |
-| urgency_deadline | 12 | 12 | 11 | 91.7% | 91.7% |
+| urgency_deadline | 14 | 14 | 13 | 92.9% | 92.9% |
 | seed_phrase_request | 3 | 3 | 3 | 100.0% | 100.0% |
 | otp_pin_request | 4 | 4 | 4 | 100.0% | 100.0% |
 | move_platform | 5 | 5 | 5 | 100.0% | 100.0% |
@@ -47,13 +47,14 @@ Per rule (a hit counts when the rule fired on a chat whose hand label includes i
 | fake_profit_proof | 5 | 5 | 5 | 100.0% | 100.0% |
 | prize_lottery | 3 | 3 | 3 | 100.0% | 100.0% |
 | utility_disconnection | 3 | 3 | 3 | 100.0% | 100.0% |
+| account_hacked_deposit | 2 | 3 | 2 | 66.7% | 100.0% |
 
 ## Identifier extraction
 
 | metric | value |
 |---|---|
-| hand-listed identifiers | 7 |
-| extracted | 7 |
+| hand-listed identifiers | 9 |
+| extracted | 9 |
 | precision | 100.0% |
 | recall | 100.0% |
 

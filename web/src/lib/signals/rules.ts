@@ -45,6 +45,8 @@ export const RULES: readonly Rule[] = [
       /\bwithin\s+(\d+|one|two|an?)\s*(minutes?|mins?|hours?|hrs?)\b/gi,
       /\b(last chance|final (notice|warning|reminder)|offer (ends|expires)|expires? today|today only|before midnight)\b/gi,
       /\byour\s+(account|card|number|sim|kyc|wallet|connection)\s+(will|shall)\s+be\s+(blocked|suspended|deactivated|disconnected|frozen|closed)\b/gi,
+      // "... FROZEN in 30 minutes": a threat verb right before a short countdown ("delivered in 30 minutes" does not match).
+      /\b(blocked|suspended|deactivated|disconnected|frozen|closed)\s+in\s+(\d+|one|two|an?)\s*(minutes?|mins?|hours?|hrs?)\b/gi,
       /\b(account|khata|sim|number|card)\b[^.\n]{0,20}\b(band|bandh|block)\s+(ho\s+jayega|kar\s+diya\s+jayega|hoga)\b/gi,
       /\b\d+\s+ghante\s+(mein|me|ke\s+andar)\b/gi,
     ],
@@ -188,6 +190,19 @@ export const RULES: readonly Rule[] = [
     id: "utility_disconnection",
     label: "Electricity or utility disconnection threat",
     patterns: [/\b(electricity|power|gas)\b[^.\n]{0,40}\b(disconnect(ed|ion)?|cut)\b[^.\n]{0,30}\b(tonight|today|immediately)\b/gi],
+  },
+  {
+    // Demo-video round: "your account was hacked / will be frozen unless you pay a security deposit, tell no one,
+    // do not visit the branch". Needs a second pattern, so a rental "security deposit" message alone never counts.
+    id: "account_hacked_deposit",
+    label: "\"Account hacked\" or freeze threat with a security deposit or secrecy",
+    needsCorroboration: true,
+    patterns: [
+      // Assertive only ("your account has been hacked"), not advice ("if your card was compromised, call the bank").
+      /\byour\s+(bank\s+)?(account|card|upi|net\s?banking)\b[^.\n]{0,20}\bhas\s+been\s+(hacked|compromised)\b/gi,
+      /\b(security|safety|protection|verification)\s+(deposit|fee|charges?)\b/gi,
+      /\b(do\s+not|don'?t|never)\s+(tell|inform)\s+(anyone|anybody)\b[^.\n]{0,20}\b(visit|go\s+to)\s+(the|your)\s+(bank|branch)\b/gi,
+    ],
   },
 ];
 
