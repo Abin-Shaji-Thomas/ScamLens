@@ -287,23 +287,24 @@ describe("F6: verified findings are checkable; domains only against GoPlus phish
     const seen: string[] = [];
     const route: Route = (url) => {
       seen.push(url);
-      if (url.includes("/phishing_site")) return json({ code: 1, message: "OK", result: { website_contract_security: [], phishing_site: url.includes("zz-demo-bonus") ? 1 : 0 } });
+      if (url.includes("/phishing_site")) return json({ code: 1, message: "OK", result: { website_contract_security: [], phishing_site: url.endsWith("=zzdemo-bonus-claim.co.in") ? 1 : 0 } });
       return json({}, 500);
     };
-    const r = await runCheck({ text: "Claim your bonus at zz-demo-bonus-claim.example.com or see other-demo.example.org today" }, { ...deps(route), db: null });
+    // Test-only names (fetch is mocked); the subdomain and path never leave the server.
+    const r = await runCheck({ text: "Claim your bonus at https://login.zzdemo-bonus-claim.co.in/claim?id=7 or see www.other-demo.example.org today" }, { ...deps(route), db: null });
     const rows = r.verified.filter((v) => v.source === "goplus_phishing");
     expect(rows.map((v) => [v.identifier.value, v.status])).toEqual([
-      ["zz-demo-bonus-claim.example.com", "match"],
-      ["other-demo.example.org", "no_match"],
+      ["login.zzdemo-bonus-claim.co.in", "match"],
+      ["www.other-demo.example.org", "no_match"],
     ]);
     expect(rows[0].summary).toBe("GoPlus lists this website as a phishing site.");
     expect(rows[1].summary).toBe("GoPlus does not list this website as a phishing site.");
     expect(rows.map((v) => v.summary).join(" ")).not.toMatch(/\bsafe\b|\bclean\b/i);
     expect(seen.filter((u) => u.includes("/phishing_site"))).toEqual([
-      "https://api.gopluslabs.io/api/v1/phishing_site?url=zz-demo-bonus-claim.example.com",
-      "https://api.gopluslabs.io/api/v1/phishing_site?url=other-demo.example.org",
+      "https://api.gopluslabs.io/api/v1/phishing_site?url=zzdemo-bonus-claim.co.in", // registrable domain only
+      "https://api.gopluslabs.io/api/v1/phishing_site?url=example.org",
     ]);
-    expect(seen.join(" ")).not.toContain("Claim your bonus"); // only the domain is sent
+    expect(seen.join(" ")).not.toMatch(/Claim your bonus|login\.zzdemo|\/claim\?id/); // no text, subdomain or path is sent
     expect(r.risk.level).toBe("high"); // a phishing listing is a verified match
     expect(r.notices).toContain(DOMAIN_NOTICE);
   });

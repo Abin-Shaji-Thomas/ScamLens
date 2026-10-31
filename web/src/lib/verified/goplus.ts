@@ -1,3 +1,4 @@
+import { getDomain } from "tldts";
 import { z } from "zod";
 import type { Identifier } from "../extract/types";
 import { getJson, Unavailable } from "./http";
@@ -40,6 +41,9 @@ export async function checkGoPlus(id: Identifier, deps: CheckDeps): Promise<Sour
   };
 }
 
+/** eTLD+1 of a hostname (the part a person registers); the hostname itself when tldts cannot tell. */
+export const registrableDomain = (host: string) => getDomain(host) ?? host;
+
 const PhishingResponse = z.object({
   code: z.number(),
   message: z.string().optional(),
@@ -51,7 +55,9 @@ const PhishingResponse = z.object({
  * returns 1, example.com 0). Only the domain is sent, never the message.
  */
 export async function checkGoPlusPhishing(id: Identifier, deps: CheckDeps): Promise<SourceResult> {
-  const url = `https://api.gopluslabs.io/api/v1/phishing_site?url=${encodeURIComponent(id.value)}`;
+  // Only the registrable domain is sent ("login.bank-kyc.example.com" -> "example.com"), never the path or subdomains.
+  const domain = registrableDomain(id.value);
+  const url = `https://api.gopluslabs.io/api/v1/phishing_site?url=${encodeURIComponent(domain)}`;
   const body = PhishingResponse.safeParse(await getJson(deps, url));
   if (!body.success || !body.data.result) throw new Unavailable("invalid response");
   if (body.data.code !== 1) throw new Unavailable(`GoPlus code ${body.data.code}`);

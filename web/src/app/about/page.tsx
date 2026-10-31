@@ -194,7 +194,7 @@ export default function AboutPage() {
           </li>
           <li className="py-4">
             <strong>GoPlus phishing site API</strong>, queried live for up to {MAX_DOMAINS} website domains per check. Only the
-            domain is sent, never your message. A listing is a Verified match; not being listed does not mean a site is safe.
+            registrable domain is sent (for example example.com for login.example.com/pay), never your message. A listing is a Verified match; not being listed does not mean a site is safe.
           </li>
           <li className="py-4">
             <strong>Etherscan V2 API</strong> (free plan): on-chain facts (type, balance, first and last transaction) for{" "}

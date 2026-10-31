@@ -11,7 +11,7 @@ The Verified tier uses five sources. Two are lists stored as snapshots in the re
 | OFAC SDN list (US Treasury) | Crypto addresses listed in sanctions (EVM, TRON, BTC and others) | US government work, public domain | Snapshot; dates shown on the card and /about | Only addresses OFAC lists | Snapshot is local, so it does not fail at run time |
 | ScamSniffer scam-database (address list) | Scam-linked EVM addresses | GPL-3.0 (upstream repository licence) | Public copy is about 7 days behind ScamSniffer's live feed; snapshot date shown | Addresses only; the domain list is not used (too large) | Local snapshot |
 | GoPlus address security API | Flags for Ethereum and TRON addresses | GoPlus terms | Live | Rate limits unknown; per-request timeout | Row "Unavailable" |
-| GoPlus phishing site API | Website domains on GoPlus's phishing-site list (finish round) | GoPlus terms | Live | Up to 5 domains per check (`MAX_DOMAINS`); only the domain is sent; per-request timeout | Row "Unavailable" |
+| GoPlus phishing site API | Website domains on GoPlus's phishing-site list (finish round) | GoPlus terms | Live | Up to 5 domains per check (`MAX_DOMAINS`); only the registrable domain (eTLD+1) is sent, never subdomains or paths; match only on an explicit `phishing_site: 1`; per-request timeout | Row "Unavailable" |
 | Etherscan V2 API | On-chain facts (type, balance, first and last transaction) | Etherscan terms | Live, 10-minute cache | Free plan: the chains marked "yes" below, 2 requests per second, first wallet per message only | Row "Unavailable", or "skipped" with the reason |
 | TronGrid | TRON account facts, with a Tronscan link | TronGrid terms | Live | Works without a key at lower limits | Row "Unavailable" |
 
