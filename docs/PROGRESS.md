@@ -884,3 +884,15 @@ Root cause of the earlier "thin headings" report: 056ab4b put Segoe UI before He
 | Personal email | PASS | no tracked file contains it (test reads the committer address from git config and stores no fragment); it remains in commit metadata, as required |
 | SECURITY.md, docs/CONTRIBUTING.md | PASS | GitHub private vulnerability reporting first, project email second; covered by docs:check |
 | Brand assets | PASS | `web/scripts/export-brand-assets.ts`: docs/assets/logo.svg, logo-512.png, logo-192.png, social-1200x630.png, web/src/app/apple-icon.png (180 px, served at /apple-icon.png); README and knowledge index open with the logo |
+
+## P8 - Documentation
+
+| Fix | Where |
+|---|---|
+| README rewritten for a first-time evaluator: logo, screenshots, problem, worked example, tiers and level table, scam trail and community loop, Mermaid diagram, stack table with reasons, sources and licences, privacy, contact, real numbers through FACT markers, what the eval is not, local run, structure, demo data, limits, acknowledgements | README.md |
+| New: architecture (context, check sequence with timings and the trail, ER diagram, deployment, failure table), API (every route), data model (tables, functions, graph schema, migrations 001-004 and which are human steps), third party | docs/ARCHITECTURE.md, API.md, DATA-MODEL.md, THIRD_PARTY.md |
+| New earlier in this round: PRIVACY, DATASET, CONTRIBUTING, SECURITY | docs/, root |
+| HUMAN_TASKS rewritten to the current state, with "choose and add a LICENSE" and the GPL-3.0 ScamSniffer note | docs/HUMAN_TASKS.md |
+| docs:check now covers README, SECURITY, DEPLOY, HUMAN_TASKS, UI_CHECKLIST, PRIVACY, DATASET, MODERATION, CONTRIBUTING, ARCHITECTURE, API, DATA-MODEL, THIRD_PARTY; facts for rule count, test files and declarations, smoke expectations, migration lists, route count, contact; generated routes, limits, db and deps blocks; regex stale phrases with history files exempt (tests both ways) | web/scripts/docs-lib.ts, docs.test.ts |
+| Stale statements fixed: old box wording (README, 14), Link graph row before the trail (19, UI_CHECKLIST 31), domains "not checked" (19, earlier), parity 19/19 and the fixed small-graph gap (16), storage promise without the contribution qualifier (01, 10, 08, earlier) | knowledge 01, 08, 10, 14, 16, 19, UI_CHECKLIST |
+| Repo hygiene | secret-like scan: 2 hits, both benign (a fake test token in migrations.test.ts, a package integrity hash in package-lock.json); only `.env.example` is tracked; `.gitignore` now also lists `.next/` and `.claude/`; screenshots show pages only (no terminal, env or health output) |
