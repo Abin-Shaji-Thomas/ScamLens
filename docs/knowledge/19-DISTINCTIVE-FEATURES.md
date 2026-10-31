@@ -44,6 +44,11 @@ Four features that set ScamLens apart from list-only checkers: a coverage ledger
 - **How it is built:** `web/src/lib/trail/trail.ts` inside the check (2.5 s deadline, TigerGraph then labelled Postgres), `case_trail_cluster` for counts; a linked identifier with 2+ reporters can lift Low to Elevated, never to High.
 - **Limits:** counts only; the live data is synthetic; before migration 004 the counts come from reports, not cases.
 
+### 3c. Community loop (final round P6)
+- **What:** after a result, "Was this right?" (counts shown next to Reported entries, never a level change) and "This was a real scam, add it to the map" (a case with structured facts, an optional redacted excerpt, and a delete code shown once); `/privacy` explains everything stored and deletes a case by its code.
+- **Why:** the trail only grows if people who were targeted can add what happened, without accounts and without giving up their chat.
+- **Limits:** needs migration 004 on the database; until then the panels say "Contributing is not available right now."
+
 ### 4. Pattern library (/patterns)
 - **What:** a static page that explains each of the <!-- FACT:rule_count -->18<!-- /FACT --> rules: a plain name, what it looks like, why such messages use it, what to do, an "Illustrative example", when it is not a signal, and how it counts. The intro says "These are patterns, not verdicts." Every Suspected finding links to its rule's anchor (`/patterns#<rule id>`), and the header and footer link to the page. A "Check a message" button sits under the intro, and each example has a "Try this example" link to `/?example=<rule id>` (finish round): the home page accepts only a rule id that exists in `rules.ts` and `pattern-guide.ts`, fills the box with that example, marks it "Example from the pattern library: <name>. Edit it or press Check." plus the demo label, and waits for Check; any other value gives an empty box.
 - **Why:** people learn the tactics, not just one result, and can see exactly why a phrase was flagged and when it would not be.

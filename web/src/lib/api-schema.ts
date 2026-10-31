@@ -8,6 +8,7 @@ import { ReportedTier } from "./reports/schema";
 import { Risk } from "./risk";
 import { AiStatus, Signal } from "./signals/types";
 import { Trail } from "./trail/schema";
+import { FeedbackCount } from "./cases/schema";
 import { SourceResult } from "./verified/types";
 
 /** @deprecated use MAX_TEXT_CHARS from ./limits */
@@ -32,5 +33,7 @@ export const CheckResponse = z.object({
   receipt: Receipt.optional(),
   /** Scam trail (links to other reported identifiers), counts only; absent when the check skipped it. */
   trail: Trail.optional(),
+  /** "Was this right?" answers for the identifiers, counts only (migration 004). Display only: never changes a level. */
+  feedback: z.object({ status: z.enum(["ok", "unavailable"]), entries: z.array(FeedbackCount) }).optional(),
 });
 export type CheckResponse = z.infer<typeof CheckResponse>;

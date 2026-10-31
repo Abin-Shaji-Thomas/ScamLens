@@ -16,6 +16,8 @@ import { RiskBadge } from "./RiskBadge";
 import { SuspectedList } from "./SuspectedList";
 import { TierSection } from "./TierSection";
 import { VerifiedList } from "./VerifiedList";
+import { ContributePanel } from "./ContributePanel";
+import { FeedbackPanel } from "./FeedbackPanel";
 import { ScamTrail } from "./ScamTrail";
 import { WhatToDoNow } from "./WhatToDoNow";
 
@@ -101,7 +103,7 @@ export function RiskCard({
             {result ? (
               <div className="flex flex-col gap-6">
                 {result.risk.reportedMessage && <p className="text-swiss-text">{result.risk.reportedMessage}</p>}
-                <ReportedList tier={result.reported} identifiers={result.identifiers} />
+                <ReportedList tier={result.reported} identifiers={result.identifiers} feedback={result.feedback?.entries} />
                 <LinkHints result={result} />
               </div>
             ) : undefined}
@@ -124,7 +126,11 @@ export function RiskCard({
             </div>
             {!demo && (
               <div className="col-span-full lg:col-span-5 lg:col-start-8">
-                <ReportForm key={result.checkedAt} identifiers={result.identifiers} />
+                <div className="flex flex-col gap-10">
+                  <FeedbackPanel key={`f-${result.checkedAt}`} result={result} />
+                  <ReportForm key={result.checkedAt} identifiers={result.identifiers} />
+                  <ContributePanel key={`c-${result.checkedAt}`} result={result} text={text} />
+                </div>
               </div>
             )}
           </div>

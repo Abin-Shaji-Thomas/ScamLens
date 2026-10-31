@@ -7,6 +7,7 @@ import { assessRisk } from "./risk";
 import { detectSignals } from "./signals";
 import { TRAIL_UNAVAILABLE_NOTICE, trailLinkedReporters } from "./trail/schema";
 import { runScamTrail, type TrailDeps } from "./trail/trail";
+import { feedbackFor } from "./cases/service";
 import type { Completer } from "./signals/llm";
 import { DOMAIN_NOTICE, runVerifiedChecks } from "./verified";
 import { dbFromEnv } from "./reports/db";
@@ -27,12 +28,15 @@ export async function runCheck({ text }: CheckRequest, deps: RunDeps = defaultDe
   if (identifiers.some((i) => i.type === "domain")) notices.push(DOMAIN_NOTICE);
 
   const db = deps.db === undefined ? dbFromEnv(deps.env) : deps.db;
-  const [verified, { signals, ai: aiResult }, reported, trail] = await Promise.all([
+  const reportsCfg = reportsConfig(deps.env, db);
+  const [verified, { signals, ai: aiResult }, reported, trail, feedback] = await Promise.all([
     runVerifiedChecks(identifiers, deps),
     detectSignals(text, { env: deps.skipAi ? {} : deps.env, complete: deps.skipAi ? undefined : deps.complete }),
-    reportedFor(identifiers, reportsConfig(deps.env, db)),
+    reportedFor(identifiers, reportsCfg),
     // Scam trail (P5): hard 2.5 s deadline inside, never throws; off without a graph database.
     deps.trail === false ? undefined : runScamTrail(identifiers, { env: deps.env, db, ...deps.trail }),
+    // Display only: shown next to Reported entries, never an input to the level.
+    typeof reportsCfg === "string" ? undefined : feedbackFor(identifiers, reportsCfg),
   ]);
   if (trail?.status === "unavailable") notices.push(TRAIL_UNAVAILABLE_NOTICE);
   // A configured AI pass that was skipped (daily cap, limiter down) is unavailable; no key at all is "off" (rules only).
@@ -61,5 +65,6 @@ export async function runCheck({ text }: CheckRequest, deps: RunDeps = defaultDe
     notices,
     checkedAt: deps.now().toISOString(),
     trail,
+    feedback,
   });
 }

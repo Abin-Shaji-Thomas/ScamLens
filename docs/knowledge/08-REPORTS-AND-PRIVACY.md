@@ -108,6 +108,8 @@ Database objects (generated from `web/db/*.sql`):
 - `web/db/migrations/004_cases_and_feedback.sql`: cases, feedback and their functions.
 - `web/src/lib/cases/`: `redact.ts`, `delete-code.ts`, `schema.ts`, `service.ts`, `routes.ts` (route bodies).
 - `web/src/lib/privacy-copy.ts`: the storage promise.
+- `web/src/lib/cases/client.ts`: the request bodies the result panels send (raw identifiers, counted rule ids, the excerpt only after both ticks, exactly as previewed).
+- `web/src/app/privacy/page.tsx` and `web/src/components/DeleteCaseForm.tsx`: /privacy and "Delete a case".
 
 - `web/src/lib/reports/service.ts`: submit, lookup, contest.
 - `web/src/lib/reports/privacy.ts`: hashing and fingerprints.

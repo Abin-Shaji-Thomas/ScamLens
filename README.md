@@ -159,6 +159,7 @@ Sample 2 uses a real address from the OFAC SDN list so the Verified tier can be 
 ## Known gaps
 
 - **Not a complete scam database** and not a safety guarantee. UPI IDs, phone numbers, Telegram handles and emails have no verified source here; they can only be Reported or Suspected. Website domains are checked against GoPlus's phishing-site list only.
+- **Community loop:** after a result, "Was this right?" and "This was a real scam, add it to the map" (optional, with consent; a delete code is shown once). See [docs/PRIVACY.md](docs/PRIVACY.md) and `/privacy`.
 - **Scam trail:** every check also looks up, within 2.5 s, which other reported identifiers its UPI IDs, wallets and handles are linked to, and shows counts only. A link to an identifier reported by 2 or more independent people can raise Low to Elevated, never to High.
 - **The live Reported tier and link graph hold only synthetic demo data** (labelled "Illustrative demo data"): the original scenario plus 56 cases in 10 campaigns modelled on publicly reported Indian scam types ([docs/DATASET.md](docs/DATASET.md)). Real reports show only after two independent reporters name the same identifier.
 - **No accounts.** Independence is a hashed network fingerprint: people on one network count as one reporter; one person on several networks (Wi-Fi, mobile data, VPN) can count as several. The same applies to daily limits and contests.

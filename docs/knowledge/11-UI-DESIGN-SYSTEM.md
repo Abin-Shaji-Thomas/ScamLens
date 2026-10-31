@@ -38,6 +38,15 @@ Grid box 100 / 100 / 91.7% of the window at 1280 / 1440 / 1920 px; no horizontal
 ### Header
 `web/src/components/SiteHeader.tsx` with `web/src/components/NavLinks.tsx`: the brand at left; Patterns, Verify a receipt and About at right in `--swiss-text`, the current page black and underlined (`aria-current="page"`), each a 44 px tap area; the links wrap onto a second row on narrow screens.
 
+### Home form wording and Common scams in India
+The box label and placeholder read "Paste a message, or describe what happened", with the line "Works best with the actual message text; descriptions are checked with the same fixed patterns." (`DESCRIBE_NOTE`). Under the form, `web/src/components/CommonScams.tsx` lists five named examples from `web/src/lib/scam-types.ts` (digital arrest, Telegram task job, fake KYC / bank block, crypto investment group, P2P "bank freeze"); a press fills the box (marked "Illustrative example based on commonly reported scam types" and the demo label) and never checks by itself. The three original samples stay in the aside. No first-person description patterns were added (none proven safe in eval).
+
+### Result panels: Was this right?, add it to the map
+`FeedbackPanel` (scam / genuine / not sure, fixed reasons, no free text) and `ContributePanel` (consent, scam type, channel, optional loss band, optional excerpt with a redacted preview and a second tick; the delete code is shown once with a copy button and a link to /privacy#delete) sit beside "Report these identifiers". All three are hidden on synthetic samples and in print. Reported entries add "N reported, M marked genuine (reasons)" (`feedbackLine`), for information only.
+
+### /privacy
+`web/src/app/privacy/page.tsx`: the storage promise, the data inventory (mirrors docs/PRIVACY.md) and `DeleteCaseForm` at `#delete`. Linked from the footer and the contribution panel.
+
 ### Home form and ?example=
 `web/src/components/ExampleCheckForm.tsx` (server) reads `?example=<rule_id>` and passes the validated example to `CheckForm`, which shows it in the box with "Example from the pattern library: <name>. Edit it or press Check." and the demo label; the page wraps it in `<Suspense>` with the empty form as fallback.
 

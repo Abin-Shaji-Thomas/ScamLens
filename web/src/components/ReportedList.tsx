@@ -6,6 +6,7 @@ import type { Identifier } from "@/lib/extract/types";
 import { maskIdentifier } from "@/lib/reports/mask";
 import type { ReportedTier } from "@/lib/reports/schema";
 import { CONTESTED_LABEL, CONTESTED_NOTE } from "@/lib/tiers";
+import { REASON_LABEL, type FeedbackCount } from "@/lib/cases/schema";
 
 /** Inline contest form. The reason is sent as plain JSON and never rendered back. */
 function Contest({ id }: { id: Identifier }) {
@@ -63,7 +64,14 @@ function Contest({ id }: { id: Identifier }) {
   );
 }
 
-export function ReportedList({ tier, identifiers }: { tier: ReportedTier; identifiers: Identifier[] }) {
+/** "N reported, M marked genuine (reasons)": information only; it never changes the level. */
+export function feedbackLine(e: { reporters: number }, f: FeedbackCount | undefined): string | null {
+  if (!f || f.genuine + f.scam + f.unsure === 0) return null;
+  const reasons = f.genuineReasons.map((r) => REASON_LABEL[r].toLowerCase()).join("; ");
+  return `${e.reporters} reported, ${f.genuine} marked genuine${reasons ? ` (${reasons})` : ""}${f.scam ? `, ${f.scam} marked scam` : ""}${f.unsure ? `, ${f.unsure} not sure` : ""}. Shown for information; it does not change the level.`;
+}
+
+export function ReportedList({ tier, identifiers, feedback = [] }: { tier: ReportedTier; identifiers: Identifier[]; feedback?: FeedbackCount[] }) {
   if (tier.status === "unavailable") {
     return <p className="text-swiss-text">Note: Reports database unavailable ({tier.reason}). This is not a clean result.</p>;
   }
@@ -80,6 +88,11 @@ export function ReportedList({ tier, identifiers }: { tier: ReportedTier; identi
             <p className="mt-1 text-swiss-text">
               {e.categories.join(", ").replaceAll("_", " ")} · {e.firstReported} to {e.lastReported}
             </p>
+            {feedbackLine(e, feedback.find((f) => f.display === e.display)) && (
+              <p className="t-small mt-1 text-swiss-text" data-feedback-line>
+                {feedbackLine(e, feedback.find((f) => f.display === e.display))}
+              </p>
+            )}
             {e.contested && (
               <p className="mt-2">
                 <span className="font-semibold text-swiss-clay">{CONTESTED_LABEL}.</span> <span className="text-swiss-text">{CONTESTED_NOTE}</span>

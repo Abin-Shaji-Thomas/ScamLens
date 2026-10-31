@@ -75,6 +75,7 @@ Routes (generated from `web/src/app`):
 - //opengraph-image (image, `web/src/app/opengraph-image.tsx`)
 - / (page, `web/src/app/page.tsx`)
 - /patterns (page, `web/src/app/patterns/page.tsx`)
+- /privacy (page, `web/src/app/privacy/page.tsx`)
 - /verify (page, `web/src/app/verify/page.tsx`)
 <!-- GENERATED:END routes -->
 
