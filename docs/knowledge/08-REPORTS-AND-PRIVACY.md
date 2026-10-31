@@ -21,6 +21,7 @@ Anyone can report the identifiers in a check, without an account and only after 
 - No migration: the server's service-role client already reads the table (RLS blocks only anon and authenticated).
 
 ### Contributed cases and feedback (final round P3, migration 004)
+- Report categories (`REPORT_CATEGORIES`, also the `cases.category` check in migration 004): investment, task or job offer, digital arrest, KYC or refund, romance, lottery or prize, impersonation, account hacked / security deposit (`account_hacked`, demo-video round), other.
 - `submit_case` calls `submit_report` (same reports, same co_reported links, same daily cap) and adds one `cases` row: category, channel, loss band, server-computed month, rule ids (validated against `RULES`), `synthetic`, the optional excerpt and the delete-code HMAC. The excerpt is redacted by `redactExcerpt` in the browser (the person sees the exact text) and again on the server; it is stored only with a second tick.
 - `delete_case_by_code` deletes the case (and so the excerpt); with "also remove my reports" it also deletes the reports and graph edges of the same submission. TigerGraph copies of those edges stay until a moderator removes them (`docs/MODERATION.md` section 4).
 - `submit_feedback` keeps one answer per network per identifier (`unique (identifier_hash, reporter_fingerprint_hash)`); a message without identifiers is keyed `rules:<sorted rule ids>`. `feedback_counts` returns counts and the reason codes of genuine answers, for display only.

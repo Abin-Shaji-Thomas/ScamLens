@@ -9,6 +9,7 @@ export const REPORT_CATEGORIES = [
   "romance",
   "lottery",
   "impersonation",
+  "account_hacked",
   "other",
 ] as const;
 

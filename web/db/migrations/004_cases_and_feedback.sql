@@ -10,7 +10,7 @@
 create table if not exists cases (
   case_id uuid primary key default gen_random_uuid(),
   submission_id uuid not null, -- the reports.submission_id written by the same contribution
-  category text not null check (category in ('investment','task_job','digital_arrest','kyc_refund','romance','lottery','impersonation','other')),
+  category text not null check (category in ('investment','task_job','digital_arrest','kyc_refund','romance','lottery','impersonation','account_hacked','other')),
   channel text not null check (channel in ('call','sms','whatsapp','telegram','email','website','app','other')),
   loss_band text not null default 'unknown' check (loss_band in ('none','lt_10k','10k_1l','gt_1l','unknown')),
   month text not null check (month ~ '^[0-9]{4}-(0[1-9]|1[0-2])$'), -- server-computed YYYY-MM, never a full date

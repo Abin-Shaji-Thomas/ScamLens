@@ -87,5 +87,6 @@ export const CATEGORY_LABEL: Record<string, string> = {
   romance: "Romance",
   lottery: "Lottery or prize",
   impersonation: "Impersonation",
+  account_hacked: "Account hacked / security deposit",
   other: "Other",
 };
