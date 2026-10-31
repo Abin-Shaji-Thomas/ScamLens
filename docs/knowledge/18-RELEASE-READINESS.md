@@ -85,7 +85,7 @@ Local `npm run build` + `next start` with the real keys (no AI key), daily limit
 | New features live | PASS | `/api/usage-stats` `{"checks":173,"days":7}` (includes our testing); `/?example=fake_kyc` 200 and pre-filled; GoPlus's documented phishing example High with `goplus_phishing:match` |
 | Local vs live, 5 widths x 6 pages | PASS | 30 rows, 0 differences (overflow, h1 text, font, weight, header link heights, small targets, console errors, example pre-fill); 0 console errors live; /about "... counted by TigerGraph." |
 | Look parity | PASS | against the owner-look reference: 39 typography values per width (family, weight, size) identical at 375, 768, 1280, 1440, 1920; h1 wraps identically (3, 2, 2, 2, 2 lines); remaining differences are this round's new content (the first h2 on / is "Beyond the check"; the result page is longer) |
-| Screenshots | PASS | the earlier live set (10 files) replaced by `docs/screens/live-home-375.png`, `live-example-375.png`, `live-about-1440.png`, `live-patterns-1440.png`, `live-home-1920.png`, `live-verify-1920.png` |
+| Screenshots | PASS | 6 live screenshots at the time (replaced again in the final round, see below) |
 
 ### Final gate (final round, branch final, 2026-10-31)
 Local `npm run build` + `next start` with the real keys (no AI key); daily limits raised through env for the run only; a second server with an unreachable `TG_HOST` for the fallback.
@@ -103,6 +103,21 @@ Local `npm run build` + `next start` with the real keys (no AI key); daily limit
 | Keyboard | PASS | Tab order on /: brand, Patterns, Verify a receipt, About, the box, the 3 samples, "Where these come from", the common-scam examples; 2 px outline on each |
 | Print | PASS | header, common scams, feedback and contribute panels hidden; risk word, ledger and the footer contact address printed |
 | 200% zoom (1280 px window) | PASS | /, /about, /privacy, /patterns: no horizontal overflow |
+
+### Live verification after the final-round push (2026-10-31)
+| Check | Result | Evidence |
+|---|---|---|
+| Push | PASS | `4cb8b46..175ccf0` and `175ccf0..c31652b` to main (fast-forward) |
+| Live build | PASS | `/api/health` `"build":"c31652b"`, receipts true, llm false |
+| smoke-live, check-headers | PASS | `ALL PASS (39 expectations)`, `ALL PASS (48 checks)` (before and after the fix) |
+| Look parity | PASS | 14 selectors x 2 widths: 24 SAME; the 4 differences are the reference's weight 300 (drawn as the same regular Arial on Windows) and the risk word's colour (High vs Elevated, content); h1 lines and widths identical; h1 pixels identical to the reference (SHA-256 9a1b5c07aaf8 at 1440, 23d2954857e7 at 375) |
+| Header and footer | PASS | 5 pages x 375 and 1440: Patterns, Verify a receipt, About at 44 px with aria-current; Contact mailto and the X link (new tab, noopener noreferrer) at 44 px; no overflow |
+| Home examples | PASS | 5 named examples; "Digital arrest" fills the box, labelled, no check runs |
+| Scam trail on a seeded campaign identifier | PASS (fallback only) | TigerGraph was suspended: first live check showed "tigergraph, timed out" (bug, fixed in c31652b); after the fix "postgres (TigerGraph unavailable)" in 0.5-2.3 s with the Scam trail section and "all illustrative demo data". Live TigerGraph not verified on 2026-10-31; on 2026-10-30, awake: 0.7-1.7 s |
+| Result panels | PASS (UI); contributing UNKNOWN | "Was this right?" and "add it to the map" shown on a real result; the live database has no migration 004, so the end-to-end contribution was not run on live (no synthetic test case added) |
+| /about | PASS | "Checks run in the last 7 days: 273 (includes our own testing)...", graph counts from the Postgres copy (TigerGraph unavailable), 5 scam-type sources, Contact with the 1930 line |
+| Console | PASS | no errors |
+| Screenshots | PASS | the live set replaced: `docs/screens/live-home-375.png`, `live-result-375.png`, `live-privacy-375.png`, `live-about-1440.png`, `live-trail-1440.png` |
 
 ### UNKNOWN (needs a person)
 - Clipboard copy of the complaint draft (headless Edge blocks the clipboard, so the on-page fallback was what ran).
